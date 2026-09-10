@@ -1,0 +1,9 @@
+.git
+.vercel
+.tmp-*
+backend/target
+frontend/.next
+frontend/node_modules
+database/local/*.sql
+**/.env
+**/.env.*

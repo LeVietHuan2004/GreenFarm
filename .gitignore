@@ -1,0 +1,17 @@
+node_modules/
+dist/
+build/
+.next/
+target/
+.tmp-*/
+.env
+.env.*
+!.env.example
+coverage/
+.DS_Store
+Thumbs.db
+*.log
+*.tsbuildinfo
+/greenfarm-backup.sql
+database/local/*.sql
+!database/local/.gitkeep
