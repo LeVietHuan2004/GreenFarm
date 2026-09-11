@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,12 +28,13 @@ public class OrderService {
     private final CouponRepository coupons;
     private final UserRepository users;
     private final PaymentService paymentService;
+    private final OrderLifecycleService orderLifecycle;
 
     public OrderService(OrderRepository orders, OrderStatusHistoryRepository histories, ShippingAddressService addressService,
                         CartItemRepository carts, ProductRepository products, CouponRepository coupons, UserRepository users,
-                        PaymentService paymentService) {
+                        PaymentService paymentService, OrderLifecycleService orderLifecycle) {
         this.orders=orders; this.histories=histories; this.addressService=addressService; this.carts=carts;
-        this.products=products; this.coupons=coupons; this.users=users; this.paymentService=paymentService;
+        this.products=products; this.coupons=coupons; this.users=users; this.paymentService=paymentService; this.orderLifecycle=orderLifecycle;
     }
 
     @Transactional(readOnly = true)
@@ -96,6 +98,33 @@ public class OrderService {
         return toResponse(order, histories.findAllByOrder_IdOrderByChangedAtAscIdAsc(orderId), paymentService.findForOrder(orderId));
     }
 
+    @Transactional
+    public OrderResponse cancel(Long userId, Long orderId) {
+        Order order = orderLifecycle.cancelByCustomer(userId, orderId);
+        return toResponse(order, histories.findAllByOrder_IdOrderByChangedAtAscIdAsc(orderId), paymentService.findForOrder(orderId));
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<OrderSummaryResponse> findAdminOrders(String status, Pageable pageable) {
+        var page = status == null || status.isBlank()
+            ? orders.findAllByOrderByCreatedAtDescIdDesc(pageable)
+            : orders.findAllByStatusOrderByCreatedAtDescIdDesc(parseStatus(status), pageable);
+        return PageResponse.from(page, this::toSummary);
+    }
+
+    @Transactional(readOnly = true)
+    public OrderResponse findAdminOrder(Long orderId) {
+        Order order = orders.findById(orderId).orElseThrow(() ->
+            new ApplicationException(HttpStatus.NOT_FOUND, "ORDER_NOT_FOUND", "Không tìm thấy đơn hàng"));
+        return toResponse(order, histories.findAllByOrder_IdOrderByChangedAtAscIdAsc(orderId), paymentService.findForOrder(orderId));
+    }
+
+    @Transactional
+    public OrderResponse updateStatus(Long orderId, String status, String note) {
+        Order order = orderLifecycle.updateStatus(orderId, status, note);
+        return toResponse(order, histories.findAllByOrder_IdOrderByChangedAtAscIdAsc(orderId), paymentService.findForOrder(orderId));
+    }
+
     private List<CartItem> requireCart(Long userId) {
         var cart = carts.findAllByUser_IdOrderByCreatedAtDescIdDesc(userId);
         if (cart.isEmpty()) throw new ApplicationException(HttpStatus.CONFLICT, "EMPTY_CART", "Giỏ hàng đang trống");
@@ -126,15 +155,24 @@ public class OrderService {
         BigDecimal shipping=subtotal.compareTo(FREE_SHIPPING_THRESHOLD)>=0?BigDecimal.ZERO:STANDARD_SHIPPING_FEE;
         BigDecimal discount=BigDecimal.ZERO; String description=null;
         if (coupon!=null) {
-            if (coupon.getCouponType().toUpperCase(Locale.ROOT).contains("FREESHIP")) { shipping=BigDecimal.ZERO; description="Miễn phí giao hàng"; }
-            else if (coupon.getDiscountType().toUpperCase(Locale.ROOT).contains("PERCENT")) { discount=subtotal.multiply(BigDecimal.valueOf(coupon.getDiscountPercentage())).divide(BigDecimal.valueOf(100),2,RoundingMode.HALF_UP); description="Giảm "+coupon.getDiscountPercentage()+"%"; }
-            else { discount=Optional.ofNullable(coupon.getDiscountAmount()).orElse(BigDecimal.ZERO); description="Giảm "+discount.setScale(0,RoundingMode.HALF_UP)+"đ"; }
+            if (coupon.getCouponType() == CouponType.FREESHIP) { shipping=BigDecimal.ZERO; description="Miễn phí giao hàng"; }
+            else if (coupon.getDiscountType() == DiscountType.PERCENTAGE) { discount=subtotal.multiply(BigDecimal.valueOf(coupon.getDiscountPercentage())).divide(BigDecimal.valueOf(100),2,RoundingMode.HALF_UP); description="Giảm "+coupon.getDiscountPercentage()+"%"; }
+            else if (coupon.getDiscountType() == DiscountType.FIXED_AMOUNT) { discount=Optional.ofNullable(coupon.getDiscountAmount()).orElse(BigDecimal.ZERO); description="Giảm "+discount.setScale(0,RoundingMode.HALF_UP)+"đ"; }
+            else { throw invalidCoupon("Loại mã giảm giá không hợp lệ"); }
         }
         discount=discount.min(subtotal).max(BigDecimal.ZERO).setScale(2,RoundingMode.HALF_UP);
         BigDecimal total=subtotal.subtract(discount).add(shipping).setScale(2,RoundingMode.HALF_UP);
         return new CheckoutPreviewResponse(subtotal,shipping,discount,total,coupon==null?null:coupon.getCode(),description);
     }
     private ApplicationException invalidCoupon(String message){return new ApplicationException(HttpStatus.CONFLICT,"INVALID_COUPON",message);}
+    private OrderStatus parseStatus(String value) {
+        try { return OrderStatus.fromValue(value.trim()); }
+        catch (IllegalArgumentException exception) { throw new ApplicationException(HttpStatus.BAD_REQUEST,"INVALID_ORDER_STATUS",exception.getMessage()); }
+    }
+    private OrderSummaryResponse toSummary(Order order) {
+        return new OrderSummaryResponse(order.getId(), order.getStatus().getValue(), order.getItems().stream().mapToInt(OrderItem::getQuantity).sum(),
+            order.getTotalPrice(), order.getRecipientName(), order.getShippingCity(), order.getCreatedAt());
+    }
     private OrderResponse toResponse(Order order, List<OrderStatusHistory> history, PaymentResponse payment) {
         var items=order.getItems().stream().map(item -> new OrderItemResponse(item.getId(), item.getProduct().getId(), item.getProduct().getSlug(), item.getProductName(), item.getProductUnit(), item.getProductImage(), item.getQuantity(), item.getPrice(), item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))).toList();
         var statusHistory=history.stream().map(item -> new OrderStatusHistoryResponse(item.getId(), item.getStatus().getValue(), item.getNote(), item.getChangedAt())).toList();

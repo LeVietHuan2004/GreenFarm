@@ -13,7 +13,8 @@ export const orderService = {
   async preview(input:CheckoutInput){ return (await apiClient.post<OrderApiResponse<CheckoutPreview>>("/checkout/preview",input)).data.data; },
   async create(input:CheckoutInput){ return (await apiClient.post<OrderApiResponse<Order>>("/orders",input)).data.data; },
   async findAll(){ return (await apiClient.get<OrderApiResponse<OrderSummary[]>>("/orders")).data.data; },
-  async findOne(id:number){ return (await apiClient.get<OrderApiResponse<Order>>(`/orders/${id}`)).data.data; }
+  async findOne(id:number){ return (await apiClient.get<OrderApiResponse<Order>>(`/orders/${id}`)).data.data; },
+  async cancel(id:number){ return (await apiClient.patch<OrderApiResponse<Order>>(`/orders/${id}/cancel`)).data.data; }
 };
 
 export const paymentService = {

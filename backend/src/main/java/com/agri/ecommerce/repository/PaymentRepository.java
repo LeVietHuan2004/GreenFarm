@@ -2,6 +2,10 @@ package com.agri.ecommerce.repository;
 
 import com.agri.ecommerce.entity.Payment;
 import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.List;
+import com.agri.ecommerce.entity.PaymentMethod;
+import com.agri.ecommerce.entity.PaymentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -15,4 +19,11 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select payment from Payment payment where payment.referenceCode = :referenceCode")
     Optional<Payment> findByReferenceCodeForUpdate(@Param("referenceCode") String referenceCode);
+
+    @Query("select payment.id from Payment payment where payment.paymentMethod = :method and payment.status = :status and payment.expiresAt <= :now order by payment.id")
+    List<Long> findExpiredIds(@Param("method") PaymentMethod method, @Param("status") PaymentStatus status, @Param("now") LocalDateTime now);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select payment from Payment payment where payment.id = :id")
+    Optional<Payment> findByIdForUpdate(@Param("id") Long id);
 }

@@ -15,6 +15,7 @@ import {
   ShoppingCart,
   Store,
   Tags,
+  TicketPercent,
   Truck,
   UserRound,
   UsersRound,
@@ -27,7 +28,7 @@ import { FormEvent, ReactNode, useState } from "react";
 import { RoleGuard } from "@/components/auth/role-guard";
 import { useAuthStore } from "@/stores/auth-store";
 
-export type AdminSection = "dashboard" | "users" | "categories" | "products";
+export type AdminSection = "dashboard" | "users" | "categories" | "products" | "orders" | "coupons";
 
 type AdminShellProps = {
   active: AdminSection;
@@ -40,19 +41,22 @@ const sectionTitles: Record<AdminSection, { title: string; description: string }
   dashboard: { title: "Dashboard", description: "Tổng quan hoạt động GreenFarm" },
   users: { title: "Người dùng", description: "Tài khoản, vai trò và trạng thái" },
   categories: { title: "Danh mục", description: "Cấu trúc catalog cửa hàng" },
-  products: { title: "Sản phẩm", description: "Nội dung, tồn kho và hình ảnh" }
+  products: { title: "Sản phẩm", description: "Nội dung, tồn kho và hình ảnh" },
+  orders: { title: "Đơn hàng", description: "Xử lý đơn và trạng thái thanh toán" },
+  coupons: { title: "Mã giảm giá", description: "Ưu đãi, thời hạn và lượt sử dụng" }
 };
 
 const primaryItems = [
   { key: "dashboard" as const, label: "Dashboard", detail: "Tổng quan vận hành", href: "/admin", icon: LayoutDashboard },
   { key: "users" as const, label: "Người dùng", detail: "Khách hàng, nhân viên", href: "/admin/users", icon: UsersRound },
   { key: "categories" as const, label: "Danh mục", detail: "Nhóm sản phẩm", href: "/admin/categories", icon: Tags },
-  { key: "products" as const, label: "Sản phẩm", detail: "Giá, kho và hình ảnh", href: "/admin/products", icon: Boxes }
+  { key: "products" as const, label: "Sản phẩm", detail: "Giá, kho và hình ảnh", href: "/admin/products", icon: Boxes },
+  { key: "orders" as const, label: "Đơn hàng", detail: "Xử lý và giao nhận", href: "/admin/orders", icon: ShoppingCart },
+  { key: "coupons" as const, label: "Mã giảm giá", detail: "Ưu đãi cửa hàng", href: "/admin/coupons", icon: TicketPercent }
 ];
 
 const futureItems = [
-  { label: "Đơn hàng", detail: "Giai đoạn 3", icon: ShoppingCart },
-  { label: "Giao hàng", detail: "Giai đoạn 4", icon: Truck }
+  { label: "Giao hàng", detail: "Bảng điều phối", icon: Truck }
 ];
 
 export function AdminShell({ active, children }: AdminShellProps) {
@@ -87,7 +91,7 @@ export function AdminShell({ active, children }: AdminShellProps) {
 
           <div className="admin-sidebar-stage">
             <span>GF</span>
-            <div><strong>Catalog đang hoạt động</strong><small>Giai đoạn 2 · ổn định</small></div>
+            <div><strong>Cửa hàng đang hoạt động</strong><small>Đơn hàng · Thanh toán</small></div>
           </div>
 
           <nav className="admin-sidebar-nav" aria-label="Điều hướng quản trị">

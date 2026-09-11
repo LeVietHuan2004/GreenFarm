@@ -27,13 +27,14 @@ class OrderServiceTest {
     @Mock CouponRepository coupons;
     @Mock UserRepository users;
     @Mock PaymentService paymentService;
+    @Mock OrderLifecycleService orderLifecycle;
     OrderService service;
     Product product;
     CartItem cartItem;
     ShippingAddress address;
 
     @BeforeEach void setUp(){
-        service=new OrderService(orders,histories,addresses,carts,products,coupons,users,paymentService);
+        service=new OrderService(orders,histories,addresses,carts,products,coupons,users,paymentService,orderLifecycle);
         product=mock(Product.class);
         lenient().when(product.getId()).thenReturn(10L);
         lenient().when(product.getName()).thenReturn("Rau sạch");
@@ -64,7 +65,7 @@ class OrderServiceTest {
         when(coupons.findByCodeIgnoreCase("SAVE20")).thenReturn(Optional.of(coupon));
         when(coupon.isActive()).thenReturn(true);when(coupon.getCode()).thenReturn("SAVE20");
         when(coupon.getUsageLimit()).thenReturn(null);
-        when(coupon.getCouponType()).thenReturn("ORDER_DISCOUNT");when(coupon.getDiscountType()).thenReturn("PERCENTAGE");
+        when(coupon.getCouponType()).thenReturn(CouponType.ORDER_DISCOUNT);when(coupon.getDiscountType()).thenReturn(DiscountType.PERCENTAGE);
         when(coupon.getDiscountPercentage()).thenReturn(20);
         var result=service.preview(1L,new CheckoutRequest(2L,"SAVE20",null));
         assertThat(result.discountAmount()).isEqualByComparingTo("80000");

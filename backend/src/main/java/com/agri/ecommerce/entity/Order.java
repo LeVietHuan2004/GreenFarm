@@ -21,6 +21,7 @@ public class Order {
     @Convert(converter = OrderStatusConverter.class) @Column(nullable = false) private OrderStatus status;
     @Column(name = "dispatched_at") private LocalDateTime dispatchedAt;
     @Column(name = "delivered_at") private LocalDateTime deliveredAt;
+    @Column(name = "inventory_released_at") private LocalDateTime inventoryReleasedAt;
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "shipping_address_id", nullable = false) private ShippingAddress shippingAddress;
     @Column(name = "recipient_name", nullable = false) private String recipientName;
     @Column(name = "recipient_phone", nullable = false) private String recipientPhone;
@@ -40,6 +41,9 @@ public class Order {
     public Coupon getCoupon(){return coupon;} public void setCoupon(Coupon v){coupon=v;} public String getCouponCode(){return couponCode;} public void setCouponCode(String v){couponCode=v;}
     public BigDecimal getTotalPrice(){return totalPrice;} public void setTotalPrice(BigDecimal v){totalPrice=v;}
     public OrderStatus getStatus(){return status;} public void setStatus(OrderStatus v){status=v;}
+    public LocalDateTime getDispatchedAt(){return dispatchedAt;} public void setDispatchedAt(LocalDateTime v){dispatchedAt=v;}
+    public LocalDateTime getDeliveredAt(){return deliveredAt;} public void setDeliveredAt(LocalDateTime v){deliveredAt=v;}
+    public LocalDateTime getInventoryReleasedAt(){return inventoryReleasedAt;} public void setInventoryReleasedAt(LocalDateTime v){inventoryReleasedAt=v;}
     public ShippingAddress getShippingAddress(){return shippingAddress;} public void setShippingAddress(ShippingAddress v){shippingAddress=v;}
     public String getRecipientName(){return recipientName;} public void setRecipientName(String v){recipientName=v;}
     public String getRecipientPhone(){return recipientPhone;} public void setRecipientPhone(String v){recipientPhone=v;}

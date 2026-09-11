@@ -61,6 +61,10 @@ public class SecurityConfig {
                     .hasAuthority("manage_products")
                 .requestMatchers("/api/admin/users/**", "/api/roles/**")
                     .hasAuthority("manage_users")
+                .requestMatchers("/api/admin/orders/**")
+                    .hasAuthority("manage_orders")
+                .requestMatchers("/api/admin/coupons/**")
+                    .hasAuthority("manage_coupons")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

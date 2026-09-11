@@ -22,5 +22,6 @@ public class OrderController {
     @PostMapping public ApiResponse<OrderResponse> create(@AuthenticationPrincipal GreenFarmUserDetails user,@Valid @RequestBody CheckoutRequest request, HttpServletRequest servletRequest){return ApiResponse.success("Đặt hàng thành công",service.create(user.userId(),request,clientIp(servletRequest)));}
     @GetMapping public ApiResponse<List<OrderSummaryResponse>> findAll(@AuthenticationPrincipal GreenFarmUserDetails user){return ApiResponse.success("Lấy danh sách đơn hàng thành công",service.findAll(user.userId()));}
     @GetMapping("/{id}") public ApiResponse<OrderResponse> findOne(@AuthenticationPrincipal GreenFarmUserDetails user,@PathVariable Long id){return ApiResponse.success("Lấy chi tiết đơn hàng thành công",service.findOne(user.userId(),id));}
+    @PatchMapping("/{id}/cancel") public ApiResponse<OrderResponse> cancel(@AuthenticationPrincipal GreenFarmUserDetails user,@PathVariable Long id){return ApiResponse.success("Hủy đơn hàng thành công",service.cancel(user.userId(),id));}
     private String clientIp(HttpServletRequest request) { String forwarded=request.getHeader("X-Forwarded-For"); return forwarded==null||forwarded.isBlank()?request.getRemoteAddr():forwarded.split(",")[0].trim(); }
 }

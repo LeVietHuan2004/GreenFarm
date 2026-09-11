@@ -4,6 +4,7 @@ import com.agri.ecommerce.common.exception.ApplicationException;
 import com.agri.ecommerce.dto.response.PaymentMethodOptionsResponse;
 import com.agri.ecommerce.dto.response.PaymentResponse;
 import com.agri.ecommerce.entity.Order;
+import com.agri.ecommerce.entity.OrderStatus;
 import com.agri.ecommerce.entity.Payment;
 import com.agri.ecommerce.entity.PaymentMethod;
 import com.agri.ecommerce.entity.PaymentStatus;
@@ -32,10 +33,16 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class PaymentService {
     private static final String VNPAY_VERSION = "2.1.0";
     private static final String SUCCESS_CODE = "00";
+    private static final String IPN_ORDER_NOT_FOUND = "01";
+    private static final String IPN_ALREADY_CONFIRMED = "02";
+    private static final String IPN_INVALID_AMOUNT = "04";
+    private static final String IPN_INVALID_SIGNATURE = "97";
+    private static final String IPN_UNKNOWN_ERROR = "99";
     private static final DateTimeFormatter VNPAY_DATE = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
     private static final ZoneId VIETNAM_TIME_ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
 
     private final PaymentRepository payments;
+    private final OrderLifecycleService orderLifecycle;
     private final String tmnCode;
     private final String hashSecret;
     private final String paymentUrl;
@@ -44,6 +51,7 @@ public class PaymentService {
 
     public PaymentService(
         PaymentRepository payments,
+        OrderLifecycleService orderLifecycle,
         @Value("${app.payment.vnpay.tmn-code:}") String tmnCode,
         @Value("${app.payment.vnpay.hash-secret:}") String hashSecret,
         @Value("${app.payment.vnpay.payment-url:https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}") String paymentUrl,
@@ -51,6 +59,7 @@ public class PaymentService {
         @Value("${app.payment.frontend-result-url:http://localhost:3000/payment-result}") String frontendResultUrl
     ) {
         this.payments = payments;
+        this.orderLifecycle = orderLifecycle;
         this.tmnCode = tmnCode;
         this.hashSecret = hashSecret;
         this.paymentUrl = paymentUrl;
@@ -95,12 +104,15 @@ public class PaymentService {
     @Transactional
     public CallbackOutcome handleVnpayCallback(Map<String, String> parameters) {
         if (!verifySignature(parameters)) {
-            return CallbackOutcome.invalid("Chữ ký VNPAY không hợp lệ", null, null);
+            return CallbackOutcome.invalid("Chữ ký VNPAY không hợp lệ", null, null, IPN_INVALID_SIGNATURE);
         }
         String reference = parameters.get("vnp_TxnRef");
+        if (reference == null || reference.isBlank()) {
+            return CallbackOutcome.invalid("Thiếu mã giao dịch", null, null, IPN_UNKNOWN_ERROR);
+        }
         Optional<Payment> found = payments.findByReferenceCodeForUpdate(reference);
         if (found.isEmpty()) {
-            return CallbackOutcome.invalid("Không tìm thấy giao dịch", null, reference);
+            return CallbackOutcome.invalid("Không tìm thấy giao dịch", null, reference, IPN_ORDER_NOT_FOUND);
         }
 
         Payment payment = found.get();
@@ -110,10 +122,26 @@ public class PaymentService {
         payment.setGatewayPayload(parameters.toString());
         payment.setTransactionId(parameters.get("vnp_TransactionNo"));
 
-        if (payment.getPaymentMethod() != PaymentMethod.VNPAY || !amountMatches(payment, parameters.get("vnp_Amount"))) {
-            payment.setStatus(PaymentStatus.FAILED);
-            payments.save(payment);
-            return CallbackOutcome.invalid("Dữ liệu giao dịch không hợp lệ", payment.getOrder().getId(), reference);
+        if (payment.getPaymentMethod() != PaymentMethod.VNPAY) {
+            return CallbackOutcome.invalid("Phương thức thanh toán không hợp lệ", payment.getOrder().getId(), reference, IPN_ORDER_NOT_FOUND);
+        }
+        if (!amountMatches(payment, parameters.get("vnp_Amount"))) {
+            if (payment.getStatus() != PaymentStatus.COMPLETED) {
+                payment.setStatus(PaymentStatus.FAILED);
+                payments.save(payment);
+                orderLifecycle.cancelForFailedPayment(payment.getOrder().getId(), "Thanh toán VNPAY sai số tiền");
+            }
+            return CallbackOutcome.invalid("Số tiền giao dịch không khớp", payment.getOrder().getId(), reference, IPN_INVALID_AMOUNT);
+        }
+
+        if (payment.getStatus() == PaymentStatus.COMPLETED) {
+            return CallbackOutcome.confirmed("Giao dịch đã được xác nhận", payment.getOrder().getId(), reference, responseCode);
+        }
+        if (payment.getStatus() == PaymentStatus.FAILED || payment.getOrder().getStatus() == OrderStatus.CANCELED) {
+            return CallbackOutcome.invalid("Giao dịch đã kết thúc", payment.getOrder().getId(), reference, IPN_ALREADY_CONFIRMED);
+        }
+        if (responseCode.isBlank() || transactionStatus.isBlank()) {
+            return CallbackOutcome.invalid("Thiếu trạng thái giao dịch", payment.getOrder().getId(), reference, IPN_UNKNOWN_ERROR);
         }
 
         boolean successful = SUCCESS_CODE.equals(responseCode) && SUCCESS_CODE.equals(transactionStatus);
@@ -126,16 +154,35 @@ public class PaymentService {
             payment.setStatus(PaymentStatus.FAILED);
         }
         payments.save(payment);
-        return new CallbackOutcome(successful, successful ? "Thanh toán thành công" : "Thanh toán không thành công",
-            payment.getOrder().getId(), reference, responseCode);
+        if (!successful) {
+            orderLifecycle.cancelForFailedPayment(payment.getOrder().getId(), "Thanh toán VNPAY không thành công");
+        }
+        return new CallbackOutcome(successful, true, successful ? "Thanh toán thành công" : "Thanh toán không thành công",
+            payment.getOrder().getId(), reference, responseCode, SUCCESS_CODE);
     }
 
     public Map<String, String> ipnResponse(Map<String, String> parameters) {
         CallbackOutcome outcome = handleVnpayCallback(parameters);
-        if (!outcome.valid()) {
-            return Map.of("RspCode", "97", "Message", outcome.message());
+        return Map.of("RspCode", outcome.ipnCode(), "Message", outcome.valid() ? "Confirm Success" : outcome.message());
+    }
+
+    @Transactional
+    public int expirePendingVnpayPayments() {
+        LocalDateTime now = LocalDateTime.now(VIETNAM_TIME_ZONE);
+        int expired = 0;
+        for (Long paymentId : payments.findExpiredIds(PaymentMethod.VNPAY, PaymentStatus.PENDING, now)) {
+            Payment payment = payments.findByIdForUpdate(paymentId).orElse(null);
+            if (payment == null || payment.getStatus() != PaymentStatus.PENDING
+                || payment.getExpiresAt() == null || payment.getExpiresAt().isAfter(now)) {
+                continue;
+            }
+            payment.setStatus(PaymentStatus.FAILED);
+            payment.setGatewayResponseCode("EXPIRED");
+            payments.save(payment);
+            orderLifecycle.cancelForFailedPayment(payment.getOrder().getId(), "Thanh toán VNPAY đã hết hạn");
+            expired++;
         }
-        return Map.of("RspCode", SUCCESS_CODE, "Message", "Confirm Success");
+        return expired;
     }
 
     public String resultRedirectUrl(CallbackOutcome outcome) {
@@ -227,10 +274,20 @@ public class PaymentService {
             payment.getAmount(), payment.getReferenceCode(), payment.getTransactionId(), payment.getPaidAt(), paymentUrl);
     }
 
-    public record CallbackOutcome(boolean success, String message, Long orderId, String referenceCode, String responseCode) {
-        static CallbackOutcome invalid(String message, Long orderId, String referenceCode) {
-            return new CallbackOutcome(false, message, orderId, referenceCode, null);
+    public record CallbackOutcome(
+        boolean success,
+        boolean valid,
+        String message,
+        Long orderId,
+        String referenceCode,
+        String responseCode,
+        String ipnCode
+    ) {
+        static CallbackOutcome invalid(String message, Long orderId, String referenceCode, String ipnCode) {
+            return new CallbackOutcome(false, false, message, orderId, referenceCode, null, ipnCode);
         }
-        boolean valid() { return responseCode != null || orderId != null; }
+        static CallbackOutcome confirmed(String message, Long orderId, String referenceCode, String responseCode) {
+            return new CallbackOutcome(true, true, message, orderId, referenceCode, responseCode, IPN_ALREADY_CONFIRMED);
+        }
     }
 }
