@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ShieldCheck, Truck, UserRound } from "lucide-react";
+import { ChevronDown, ClipboardList, ShieldCheck, Truck, UserRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -14,6 +14,7 @@ type RoleLoginMenuProps = {
 
 function PortalIcon({ id, size = 17 }: { id: LoginPortalId; size?: number }) {
   if (id === "admin") return <ShieldCheck size={size} aria-hidden="true" />;
+  if (id === "staff") return <ClipboardList size={size} aria-hidden="true" />;
   if (id === "delivery") return <Truck size={size} aria-hidden="true" />;
   return <UserRound size={size} aria-hidden="true" />;
 }

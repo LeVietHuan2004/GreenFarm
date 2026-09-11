@@ -23,10 +23,11 @@ class OrderLifecycleServiceTest {
     @Mock PaymentRepository payments;
     @Mock ProductRepository products;
     @Mock CouponRepository coupons;
+    @Mock UserRepository users;
     OrderLifecycleService service;
 
     @BeforeEach void setUp() {
-        service = new OrderLifecycleService(orders, histories, payments, products, coupons);
+        service = new OrderLifecycleService(orders, histories, payments, products, coupons, users);
         lenient().when(orders.save(any(Order.class))).thenAnswer(call -> call.getArgument(0));
         lenient().when(payments.save(any(Payment.class))).thenAnswer(call -> call.getArgument(0));
     }
@@ -81,5 +82,34 @@ class OrderLifecycleServiceTest {
         assertThatThrownBy(() -> service.updateStatus(13L, "processing", null))
             .extracting("code").isEqualTo("PAYMENT_NOT_COMPLETED");
         verify(histories, never()).save(any());
+    }
+
+    @Test void deliveryStaffCanClaimAndStartAssignedOrder() {
+        Role role = mock(Role.class);
+        when(role.getName()).thenReturn("delivery_staff");
+        User deliveryStaff = mock(User.class);
+        when(deliveryStaff.getId()).thenReturn(44L); when(deliveryStaff.getRole()).thenReturn(role); when(deliveryStaff.getStatus()).thenReturn(UserStatus.ACTIVE);
+        Order order = new Order(); order.setStatus(OrderStatus.READY_FOR_DELIVERY);
+        when(orders.findByIdForUpdate(14L)).thenReturn(Optional.of(order));
+        when(users.findById(44L)).thenReturn(Optional.of(deliveryStaff));
+        when(payments.findByOrder_Id(14L)).thenReturn(Optional.empty());
+
+        service.claimForDelivery(14L, 44L);
+        service.updateByDelivery(14L, 44L, "out_for_delivery", null);
+
+        assertThat(order.getDeliveryStaff()).isSameAs(deliveryStaff);
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.OUT_FOR_DELIVERY);
+        assertThat(order.getDispatchedAt()).isNotNull();
+        verify(histories, times(2)).save(any(OrderStatusHistory.class));
+    }
+
+    @Test void deliveryStaffCannotUpdateAnotherPersonsOrder() {
+        User assignedStaff = mock(User.class);
+        when(assignedStaff.getId()).thenReturn(44L);
+        Order order = new Order(); order.setStatus(OrderStatus.READY_FOR_DELIVERY); order.setDeliveryStaff(assignedStaff);
+        when(orders.findByIdForUpdate(15L)).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> service.updateByDelivery(15L, 45L, "out_for_delivery", null))
+            .extracting("code").isEqualTo("ORDER_NOT_ASSIGNED_TO_DELIVERY");
     }
 }

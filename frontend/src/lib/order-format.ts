@@ -3,4 +3,6 @@ export const orderStatusLabel: Record<string,string> = {
   out_for_delivery:"Đang giao", delivered:"Đã giao", completed:"Hoàn tất", canceled:"Đã hủy"
 };
 
+orderStatusLabel.delivery_failed = "Giao thất bại";
+
 export function formatDateTime(value:string){ return new Intl.DateTimeFormat("vi-VN",{dateStyle:"medium",timeStyle:"short"}).format(new Date(value)); }

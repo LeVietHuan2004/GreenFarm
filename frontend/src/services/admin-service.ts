@@ -41,6 +41,11 @@ export async function updateAdminOrderStatus(orderId: number, status: AdminOrder
   return response.data.data;
 }
 
+export async function assignAdminOrderDelivery(orderId: number, deliveryStaffId: number) {
+  const response = await apiClient.patch<ApiResponse<AdminOrder>>(`/admin/orders/${orderId}/delivery-staff`, { deliveryStaffId });
+  return response.data.data;
+}
+
 export async function getAdminCoupons(filters: AdminCouponFilters = {}) {
   const response = await apiClient.get<ApiResponse<PageData<AdminCoupon>>>("/admin/coupons", { params: compactParams(filters) });
   return response.data.data;

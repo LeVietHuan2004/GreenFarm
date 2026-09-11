@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
-import { PortalDashboard } from "@/components/portal/portal-dashboard";
+import { DeliveryOrdersDashboard } from "@/components/delivery/delivery-orders-dashboard";
 
 export const metadata: Metadata = { title: "Giao hàng" };
 
 export default function DeliveryPage() {
-  return <PortalDashboard kind="delivery" />;
+  return <DeliveryOrdersDashboard />;
 }

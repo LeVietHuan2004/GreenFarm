@@ -1,6 +1,6 @@
 import type { UserRole } from "@/types/auth";
 
-export type LoginPortalId = "customer" | "delivery" | "admin";
+export type LoginPortalId = "customer" | "staff" | "delivery" | "admin";
 
 export type LoginPortal = {
   id: LoginPortalId;
@@ -33,6 +33,21 @@ export const LOGIN_PORTALS: readonly LoginPortal[] = [
     accessNote: "Cổng này chỉ dành cho tài khoản khách hàng.",
     visualEyebrow: "Cửa hàng GreenFarm",
     visualTitle: "Nông sản tươi cho bữa ăn mỗi ngày."
+  },
+  {
+    id: "staff",
+    role: "staff",
+    label: "Nhan vien",
+    href: "/staff/login",
+    destination: "/staff",
+    title: "Dang nhap nhan vien",
+    description: "Truy cap khu vuc xu ly va chuan bi don hang.",
+    emailLabel: "Email nhan vien",
+    emailPlaceholder: "nhanvien@greenfarm.vn",
+    buttonLabel: "Dang nhap van hanh",
+    accessNote: "Cong nay chi danh cho tai khoan nhan vien van hanh.",
+    visualEyebrow: "Khu vuc van hanh",
+    visualTitle: "Xu ly don hang dung quy trinh va dung thoi diem."
   },
   {
     id: "delivery",
@@ -76,6 +91,8 @@ export function getRoleHome(role?: UserRole | null): string {
       return "/admin";
     case "delivery_staff":
       return "/delivery";
+    case "staff":
+      return "/staff";
     case "customer":
       return "/";
     default:
@@ -89,6 +106,8 @@ export function getRoleLogin(role?: UserRole | null): string {
       return "/admin/login";
     case "delivery_staff":
       return "/delivery/login";
+    case "staff":
+      return "/staff/login";
     default:
       return "/login";
   }

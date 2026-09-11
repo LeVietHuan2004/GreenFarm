@@ -62,7 +62,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin/users/**", "/api/roles/**")
                     .hasAuthority("manage_users")
                 .requestMatchers("/api/admin/orders/**")
-                    .hasAuthority("manage_orders")
+                    .hasRole("ADMIN")
                 .requestMatchers("/api/admin/coupons/**")
                     .hasAuthority("manage_coupons")
                 .anyRequest().authenticated()

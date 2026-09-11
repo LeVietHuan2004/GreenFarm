@@ -2,6 +2,7 @@ package com.agri.ecommerce.controller.admin;
 
 import com.agri.ecommerce.common.base.ApiResponse;
 import com.agri.ecommerce.dto.request.OrderStatusUpdateRequest;
+import com.agri.ecommerce.dto.request.DeliveryAssignmentRequest;
 import com.agri.ecommerce.dto.response.OrderResponse;
 import com.agri.ecommerce.dto.response.OrderSummaryResponse;
 import com.agri.ecommerce.dto.response.PageResponse;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin/orders")
-@PreAuthorize("hasAuthority('manage_orders')")
+@PreAuthorize("hasRole('ADMIN')")
 public class OrderAdminController {
     private final OrderService service;
 
@@ -39,5 +40,9 @@ public class OrderAdminController {
     @PatchMapping("/{id}/status")
     public ApiResponse<OrderResponse> updateStatus(@PathVariable Long id, @Valid @RequestBody OrderStatusUpdateRequest request) {
         return ApiResponse.success("Cập nhật trạng thái đơn hàng thành công", service.updateStatus(id, request.status(), request.note()));
+    }
+    @PatchMapping("/{id}/delivery-staff")
+    public ApiResponse<OrderResponse> assignDeliveryStaff(@PathVariable Long id, @Valid @RequestBody DeliveryAssignmentRequest request) {
+        return ApiResponse.success("Da phan cong nhan vien giao hang", service.assignDeliveryStaff(id, request.deliveryStaffId()));
     }
 }

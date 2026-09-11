@@ -23,7 +23,7 @@ export type AdminRole = {
   permissions: string[];
 };
 
-export type AdminOrderStatus = "pending" | "processing" | "ready_for_delivery" | "out_for_delivery" | "delivered" | "completed" | "canceled";
+export type AdminOrderStatus = "pending" | "processing" | "ready_for_delivery" | "out_for_delivery" | "delivered" | "delivery_failed" | "completed" | "canceled";
 export type AdminOrder = Order;
 export type AdminOrderSummary = OrderSummary;
 export type AdminOrderFilters = { status?: AdminOrderStatus; page?: number; size?: number; sort?: string };

@@ -21,6 +21,7 @@ public class OrderLifecycleService {
         OrderStatus.READY_FOR_DELIVERY, EnumSet.of(OrderStatus.OUT_FOR_DELIVERY, OrderStatus.CANCELED),
         OrderStatus.OUT_FOR_DELIVERY, EnumSet.of(OrderStatus.DELIVERED),
         OrderStatus.DELIVERED, EnumSet.of(OrderStatus.COMPLETED),
+        OrderStatus.DELIVERY_FAILED, EnumSet.of(OrderStatus.READY_FOR_DELIVERY, OrderStatus.CANCELED),
         OrderStatus.COMPLETED, EnumSet.noneOf(OrderStatus.class),
         OrderStatus.CANCELED, EnumSet.noneOf(OrderStatus.class)
     );
@@ -30,25 +31,29 @@ public class OrderLifecycleService {
     private final PaymentRepository payments;
     private final ProductRepository products;
     private final CouponRepository coupons;
+    private final UserRepository users;
 
     public OrderLifecycleService(
         OrderRepository orders,
         OrderStatusHistoryRepository histories,
         PaymentRepository payments,
         ProductRepository products,
-        CouponRepository coupons
+        CouponRepository coupons,
+        UserRepository users
     ) {
         this.orders = orders;
         this.histories = histories;
         this.payments = payments;
         this.products = products;
         this.coupons = coupons;
+        this.users = users;
     }
 
     @Transactional
     public Order updateStatus(Long orderId, String rawStatus, String note) {
         Order order = lockOrder(orderId);
         OrderStatus target = parseStatus(rawStatus);
+        OrderStatus previousStatus = order.getStatus();
         if (order.getStatus() == target) {
             return order;
         }
@@ -71,6 +76,10 @@ public class OrderLifecycleService {
 
         LocalDateTime now = LocalDateTime.now();
         order.setStatus(target);
+        if (target == OrderStatus.READY_FOR_DELIVERY && previousStatus == OrderStatus.DELIVERY_FAILED) {
+            order.setDeliveryStaff(null);
+            order.setDeliveryFailureReason(null);
+        }
         if (target == OrderStatus.OUT_FOR_DELIVERY) {
             order.setDispatchedAt(now);
         }
@@ -87,6 +96,66 @@ public class OrderLifecycleService {
         }
         addHistory(order, target, defaultNote(note, defaultStatusNote(target)));
         return orders.save(order);
+    }
+
+    @Transactional
+    public Order updateByStaff(Long orderId, String rawStatus, String note) {
+        OrderStatus target = parseStatus(rawStatus);
+        if (target != OrderStatus.PROCESSING && target != OrderStatus.READY_FOR_DELIVERY && target != OrderStatus.CANCELED) {
+            throw conflict("STAFF_STATUS_NOT_ALLOWED", "Nhân viên chỉ có thể xác nhận, chuẩn bị hoặc từ chối đơn hàng");
+        }
+        return updateStatus(orderId, rawStatus, note);
+    }
+
+    @Transactional
+    public Order assignDeliveryStaff(Long orderId, Long deliveryStaffId) {
+        Order order = lockOrder(orderId);
+        if (order.getStatus() != OrderStatus.READY_FOR_DELIVERY) {
+            throw conflict("ORDER_NOT_READY_FOR_DELIVERY", "Đơn hàng chưa sẵn sàng để phân công giao");
+        }
+        User deliveryStaff = requireActiveDeliveryStaff(deliveryStaffId);
+        order.setDeliveryStaff(deliveryStaff);
+        addHistory(order, order.getStatus(), "Đã phân công giao hàng cho " + deliveryStaff.getName());
+        return orders.save(order);
+    }
+
+    @Transactional
+    public Order claimForDelivery(Long orderId, Long deliveryStaffId) {
+        Order order = lockOrder(orderId);
+        if (order.getStatus() != OrderStatus.READY_FOR_DELIVERY) {
+            throw conflict("ORDER_NOT_READY_FOR_DELIVERY", "Đơn hàng chưa sẵn sàng để nhận giao");
+        }
+        if (order.getDeliveryStaff() != null && !order.getDeliveryStaff().getId().equals(deliveryStaffId)) {
+            throw conflict("ORDER_ASSIGNED_TO_ANOTHER_DELIVERY", "Đơn hàng đã được phân công cho nhân viên giao khác");
+        }
+        if (order.getDeliveryStaff() == null) {
+            User deliveryStaff = requireActiveDeliveryStaff(deliveryStaffId);
+            order.setDeliveryStaff(deliveryStaff);
+            addHistory(order, order.getStatus(), "Nhân viên giao hàng đã nhận đơn");
+        }
+        return orders.save(order);
+    }
+
+    @Transactional
+    public Order updateByDelivery(Long orderId, Long deliveryStaffId, String rawStatus, String note) {
+        Order order = lockOrder(orderId);
+        if (order.getDeliveryStaff() == null || !order.getDeliveryStaff().getId().equals(deliveryStaffId)) {
+            throw conflict("ORDER_NOT_ASSIGNED_TO_DELIVERY", "Đơn hàng chưa được phân công cho bạn");
+        }
+        OrderStatus target = parseStatus(rawStatus);
+        if (target != OrderStatus.OUT_FOR_DELIVERY && target != OrderStatus.DELIVERED && target != OrderStatus.DELIVERY_FAILED) {
+            throw conflict("DELIVERY_STATUS_NOT_ALLOWED", "Trạng thái giao hàng không hợp lệ");
+        }
+        if (target == OrderStatus.DELIVERY_FAILED) {
+            if (order.getStatus() != OrderStatus.OUT_FOR_DELIVERY) {
+                throw conflict("INVALID_ORDER_TRANSITION", "Chỉ có thể báo giao thất bại khi đơn đang giao");
+            }
+            order.setStatus(target);
+            order.setDeliveryFailureReason(defaultNote(note, "Giao hàng không thành công"));
+            addHistory(order, target, order.getDeliveryFailureReason());
+            return orders.save(order);
+        }
+        return updateStatus(orderId, rawStatus, note);
     }
 
     @Transactional
@@ -184,6 +253,7 @@ public class OrderLifecycleService {
             case READY_FOR_DELIVERY -> "Đơn hàng đã sẵn sàng để giao";
             case OUT_FOR_DELIVERY -> "Đơn hàng đang được giao";
             case DELIVERED -> "Đơn hàng đã được giao";
+            case DELIVERY_FAILED -> "Giao hàng không thành công";
             case COMPLETED -> "Đơn hàng đã hoàn tất";
             case CANCELED -> "Đơn hàng đã bị hủy";
             case PENDING -> "Đơn hàng đang chờ xác nhận";
@@ -200,5 +270,14 @@ public class OrderLifecycleService {
 
     private ApplicationException conflict(String code, String message) {
         return new ApplicationException(HttpStatus.CONFLICT, code, message);
+    }
+
+    private User requireActiveDeliveryStaff(Long userId) {
+        User user = users.findById(userId).orElseThrow(() ->
+            new ApplicationException(HttpStatus.NOT_FOUND, "DELIVERY_STAFF_NOT_FOUND", "Không tìm thấy nhân viên giao hàng"));
+        if (user.getRole() == null || !"delivery_staff".equalsIgnoreCase(user.getRole().getName()) || user.getStatus() != UserStatus.ACTIVE) {
+            throw conflict("INVALID_DELIVERY_STAFF", "Tài khoản được chọn không phải nhân viên giao hàng đang hoạt động");
+        }
+        return user;
     }
 }

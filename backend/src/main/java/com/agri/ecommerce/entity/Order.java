@@ -22,6 +22,7 @@ public class Order {
     @Column(name = "dispatched_at") private LocalDateTime dispatchedAt;
     @Column(name = "delivered_at") private LocalDateTime deliveredAt;
     @Column(name = "inventory_released_at") private LocalDateTime inventoryReleasedAt;
+    @Column(name = "delivery_failure_reason") private String deliveryFailureReason;
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "shipping_address_id", nullable = false) private ShippingAddress shippingAddress;
     @Column(name = "recipient_name", nullable = false) private String recipientName;
     @Column(name = "recipient_phone", nullable = false) private String recipientPhone;
@@ -35,6 +36,7 @@ public class Order {
     @PreUpdate void preUpdate(){updatedAt=LocalDateTime.now();}
     public void addItem(OrderItem item){items.add(item);item.setOrder(this);} public void addHistory(OrderStatusHistory history){statusHistory.add(history);history.setOrder(this);}
     public Long getId(){return id;} public User getUser(){return user;} public void setUser(User v){user=v;}
+    public User getDeliveryStaff(){return deliveryStaff;} public void setDeliveryStaff(User v){deliveryStaff=v;}
     public BigDecimal getSubtotal(){return subtotal;} public void setSubtotal(BigDecimal v){subtotal=v;}
     public BigDecimal getDiscountAmount(){return discountAmount;} public void setDiscountAmount(BigDecimal v){discountAmount=v;}
     public BigDecimal getShippingFee(){return shippingFee;} public void setShippingFee(BigDecimal v){shippingFee=v;}
@@ -44,6 +46,7 @@ public class Order {
     public LocalDateTime getDispatchedAt(){return dispatchedAt;} public void setDispatchedAt(LocalDateTime v){dispatchedAt=v;}
     public LocalDateTime getDeliveredAt(){return deliveredAt;} public void setDeliveredAt(LocalDateTime v){deliveredAt=v;}
     public LocalDateTime getInventoryReleasedAt(){return inventoryReleasedAt;} public void setInventoryReleasedAt(LocalDateTime v){inventoryReleasedAt=v;}
+    public String getDeliveryFailureReason(){return deliveryFailureReason;} public void setDeliveryFailureReason(String v){deliveryFailureReason=v;}
     public ShippingAddress getShippingAddress(){return shippingAddress;} public void setShippingAddress(ShippingAddress v){shippingAddress=v;}
     public String getRecipientName(){return recipientName;} public void setRecipientName(String v){recipientName=v;}
     public String getRecipientPhone(){return recipientPhone;} public void setRecipientPhone(String v){recipientPhone=v;}

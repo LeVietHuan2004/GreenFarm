@@ -3012,7 +3012,7 @@ a.portal-module:hover {
 
 .admin-order-row {
   display: grid;
-  grid-template-columns: minmax(145px, 1fr) minmax(160px, 1.2fr) minmax(120px, .8fr) 130px minmax(155px, .9fr);
+  grid-template-columns: minmax(145px, 1fr) minmax(160px, 1.2fr) minmax(120px, .8fr) 130px minmax(145px, .9fr) minmax(155px, .9fr);
   align-items: center;
   gap: 18px;
   padding: 16px 18px;
@@ -3209,3 +3209,17 @@ a.portal-module:hover {
     grid-template-columns: 1fr;
   }
 }
+
+.order-status.delivery_failed { background: var(--danger-soft); color: var(--danger); }
+.operations-main { max-width: 940px; }
+.operations-list { display: grid; margin-top: 26px; gap: 14px; }
+.operation-card { display: grid; padding: 20px; gap: 14px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.operation-card-main, .operation-details, .operation-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.operation-card-main > div { display: grid; gap: 4px; }
+.operation-card small, .operation-note { color: var(--muted); font-size: 13px; }
+.operation-details { padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); color: #42554a; }
+.operation-details span { display: flex; align-items: flex-start; gap: 6px; line-height: 1.55; }
+.operation-actions { justify-content: flex-start; }
+.operation-actions .primary-button, .operation-actions .secondary-button { min-height: 38px; padding: 0 13px; }
+.spin { animation: operation-spin .8s linear infinite; }
+@keyframes operation-spin { to { transform: rotate(360deg); } }

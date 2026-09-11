@@ -7,22 +7,24 @@ import { AdminShell } from "@/components/admin/admin-shell";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { formatPrice } from "@/lib/catalog-format";
 import { formatDateTime, orderStatusLabel } from "@/lib/order-format";
-import { getAdminOrders, updateAdminOrderStatus } from "@/services/admin-service";
+import { assignAdminOrderDelivery, getAdminOrders, getAdminUsers, updateAdminOrderStatus } from "@/services/admin-service";
 import { useAuthStore } from "@/stores/auth-store";
 import type { AdminOrderStatus, AdminOrderSummary } from "@/types/admin";
 import type { PageData } from "@/types/catalog";
+import type { User } from "@/types/auth";
 
 const emptyPage: PageData<AdminOrderSummary> = {
   content: [], page: 0, size: 20, totalElements: 0, totalPages: 0, first: true, last: true
 };
 
-const statuses: AdminOrderStatus[] = ["pending", "processing", "ready_for_delivery", "out_for_delivery", "delivered", "completed", "canceled"];
+const statuses: AdminOrderStatus[] = ["pending", "processing", "ready_for_delivery", "out_for_delivery", "delivered", "delivery_failed", "completed", "canceled"];
 const transitions: Record<AdminOrderStatus, AdminOrderStatus[]> = {
   pending: ["processing", "canceled"],
   processing: ["ready_for_delivery", "canceled"],
   ready_for_delivery: ["out_for_delivery", "canceled"],
   out_for_delivery: ["delivered"],
   delivered: ["completed"],
+  delivery_failed: ["ready_for_delivery", "canceled"],
   completed: [],
   canceled: []
 };
@@ -31,6 +33,7 @@ export function AdminOrders() {
   const { user, token, hasHydrated } = useAuthStore();
   const adminReady = hasHydrated && Boolean(token) && user?.role === "admin";
   const [orders, setOrders] = useState<PageData<AdminOrderSummary>>(emptyPage);
+  const [deliveryStaff, setDeliveryStaff] = useState<User[]>([]);
   const [status, setStatus] = useState<"" | AdminOrderStatus>("");
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -41,7 +44,12 @@ export function AdminOrders() {
   const loadOrders = useCallback(async () => {
     setLoading(true);
     try {
-      setOrders(await getAdminOrders({ status: status || undefined, page, size: 20, sort: "createdAt,desc" }));
+      const [orderPage, staffPage] = await Promise.all([
+        getAdminOrders({ status: status || undefined, page, size: 20, sort: "createdAt,desc" }),
+        getAdminUsers({ role: "delivery_staff", status: "active", page: 0, size: 100 })
+      ]);
+      setOrders(orderPage);
+      setDeliveryStaff(staffPage.content);
       setError(null);
     } catch (requestError) {
       setError(getApiErrorMessage(requestError));
@@ -72,6 +80,16 @@ export function AdminOrders() {
     } finally {
       setUpdatingId(null);
     }
+  };
+
+  const assignDelivery = async (order: AdminOrderSummary, deliveryStaffId: number) => {
+    setUpdatingId(order.id); setMessage(null); setError(null);
+    try {
+      const updated = await assignAdminOrderDelivery(order.id, deliveryStaffId);
+      setOrders((current) => ({ ...current, content: current.content.map((item) => item.id === order.id ? { ...item, deliveryStaffId: updated.deliveryStaffId, deliveryStaffName: updated.deliveryStaffName } : item) }));
+      setMessage(`Don hang #${order.id} da duoc phan cong giao hang.`);
+    } catch (requestError) { setError(getApiErrorMessage(requestError)); }
+    finally { setUpdatingId(null); }
   };
 
   return (
@@ -105,6 +123,12 @@ export function AdminOrders() {
                   <div><strong>{order.recipientName}</strong><small><MapPin size={13} />{order.shippingCity}</small></div>
                   <div><strong>{formatPrice(order.total)}</strong><small>{order.itemCount} sản phẩm</small></div>
                   <span className={`order-status ${order.status}`}>{orderStatusLabel[order.status] ?? order.status}</span>
+                  <label className="admin-order-action"><span>Giao hàng</span>
+                    <select value={order.deliveryStaffId ?? ""} disabled={order.status !== "ready_for_delivery" || updatingId === order.id} onChange={(event) => { if (event.target.value) void assignDelivery(order, Number(event.target.value)); }}>
+                      <option value="">{order.deliveryStaffName ?? "Chưa phân công"}</option>
+                      {deliveryStaff.map((staff) => <option key={staff.id} value={staff.id}>{staff.name}</option>)}
+                    </select>
+                  </label>
                   <label className="admin-order-action"><span>Bước tiếp theo</span>
                     <select
                       value=""

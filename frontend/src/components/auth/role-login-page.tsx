@@ -1,4 +1,4 @@
-import { ShieldCheck, Truck, UserRound } from "lucide-react";
+import { ClipboardList, ShieldCheck, Truck, UserRound } from "lucide-react";
 import Link from "next/link";
 
 import { AuthShell } from "@/components/auth/auth-shell";
@@ -13,6 +13,8 @@ type RoleLoginPageProps = {
 export function RoleLoginPage({ portal }: RoleLoginPageProps) {
   const PortalIcon = portal.id === "admin"
     ? ShieldCheck
+    : portal.id === "staff"
+      ? ClipboardList
     : portal.id === "delivery"
       ? Truck
       : UserRound;
