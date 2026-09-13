@@ -23,6 +23,11 @@ Schema cũ được Flyway đánh dấu là baseline phiên bản 1. Mọi thay 
   và số lượng giỏ hàng phải lớn hơn 0.
 - V5: snapshot người nhận và sản phẩm trên đơn hàng, các check constraint tiền/
   số lượng, index lịch sử đơn và bảo vệ địa chỉ/sản phẩm đã được dùng trong đơn.
+- V6: thêm metadata cho cổng thanh toán.
+- V7: gia cố vòng đời đơn, thanh toán, coupon và cơ chế hoàn tồn kho.
+- V8: cấp quyền xử lý đơn cho vai trò `staff`.
+- V9: ghi nhận thời điểm delivery staff nhận đơn và bổ sung trạng thái
+  `delivery_failed` cho `order_status_history`.
 
 Khi backend khởi động, Flyway tự kiểm tra và chỉ chạy migration chưa được áp
 dụng. Không chỉnh trực tiếp một migration đã chạy; hãy tạo phiên bản mới.

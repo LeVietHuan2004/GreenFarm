@@ -89,7 +89,7 @@ class OrderLifecycleServiceTest {
         when(role.getName()).thenReturn("delivery_staff");
         User deliveryStaff = mock(User.class);
         when(deliveryStaff.getId()).thenReturn(44L); when(deliveryStaff.getRole()).thenReturn(role); when(deliveryStaff.getStatus()).thenReturn(UserStatus.ACTIVE);
-        Order order = new Order(); order.setStatus(OrderStatus.READY_FOR_DELIVERY);
+        Order order = new Order(); order.setStatus(OrderStatus.READY_FOR_DELIVERY); order.setDeliveryStaff(deliveryStaff);
         when(orders.findByIdForUpdate(14L)).thenReturn(Optional.of(order));
         when(users.findById(44L)).thenReturn(Optional.of(deliveryStaff));
         when(payments.findByOrder_Id(14L)).thenReturn(Optional.empty());
@@ -98,6 +98,7 @@ class OrderLifecycleServiceTest {
         service.updateByDelivery(14L, 44L, "out_for_delivery", null);
 
         assertThat(order.getDeliveryStaff()).isSameAs(deliveryStaff);
+        assertThat(order.getDeliveryClaimedAt()).isNotNull();
         assertThat(order.getStatus()).isEqualTo(OrderStatus.OUT_FOR_DELIVERY);
         assertThat(order.getDispatchedAt()).isNotNull();
         verify(histories, times(2)).save(any(OrderStatusHistory.class));
@@ -111,5 +112,78 @@ class OrderLifecycleServiceTest {
 
         assertThatThrownBy(() -> service.updateByDelivery(15L, 45L, "out_for_delivery", null))
             .extracting("code").isEqualTo("ORDER_NOT_ASSIGNED_TO_DELIVERY");
+    }
+
+    @Test void deliveryStaffCannotClaimAnUnassignedOrder() {
+        Role role = mock(Role.class);
+        when(role.getName()).thenReturn("delivery_staff");
+        User deliveryStaff = mock(User.class);
+        when(deliveryStaff.getRole()).thenReturn(role);
+        when(deliveryStaff.getStatus()).thenReturn(UserStatus.ACTIVE);
+        Order order = new Order();
+        order.setStatus(OrderStatus.READY_FOR_DELIVERY);
+        when(orders.findByIdForUpdate(19L)).thenReturn(Optional.of(order));
+        when(users.findById(44L)).thenReturn(Optional.of(deliveryStaff));
+
+        assertThatThrownBy(() -> service.claimForDelivery(19L, 44L))
+            .extracting("code").isEqualTo("ORDER_NOT_ASSIGNED_TO_DELIVERY");
+        verify(histories, never()).save(any());
+    }
+
+    @Test void assignedDeliveryMustClaimBeforeStarting() {
+        User deliveryStaff = mock(User.class);
+        when(deliveryStaff.getId()).thenReturn(44L);
+        Order order = new Order();
+        order.setStatus(OrderStatus.READY_FOR_DELIVERY);
+        order.setDeliveryStaff(deliveryStaff);
+        when(orders.findByIdForUpdate(16L)).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> service.updateByDelivery(16L, 44L, "out_for_delivery", null))
+            .extracting("code").isEqualTo("DELIVERY_ORDER_NOT_CLAIMED");
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.READY_FOR_DELIVERY);
+    }
+
+    @Test void claimingAnOrderTwiceIsIdempotent() {
+        Role role = mock(Role.class);
+        when(role.getName()).thenReturn("delivery_staff");
+        User deliveryStaff = mock(User.class);
+        when(deliveryStaff.getId()).thenReturn(44L);
+        when(deliveryStaff.getName()).thenReturn("Nhân viên giao hàng");
+        when(deliveryStaff.getRole()).thenReturn(role);
+        when(deliveryStaff.getStatus()).thenReturn(UserStatus.ACTIVE);
+        Order order = new Order();
+        order.setStatus(OrderStatus.READY_FOR_DELIVERY);
+        order.setDeliveryStaff(deliveryStaff);
+        when(orders.findByIdForUpdate(17L)).thenReturn(Optional.of(order));
+        when(users.findById(44L)).thenReturn(Optional.of(deliveryStaff));
+
+        service.claimForDelivery(17L, 44L);
+        var claimedAt = order.getDeliveryClaimedAt();
+        service.claimForDelivery(17L, 44L);
+
+        assertThat(claimedAt).isNotNull();
+        assertThat(order.getDeliveryClaimedAt()).isEqualTo(claimedAt);
+        verify(histories, times(1)).save(any(OrderStatusHistory.class));
+    }
+
+    @Test void failedDeliveryCanReturnToQueueAndClearsAssignment() {
+        User deliveryStaff = mock(User.class);
+        when(deliveryStaff.getId()).thenReturn(44L);
+        Order order = new Order();
+        order.setStatus(OrderStatus.OUT_FOR_DELIVERY);
+        order.setDeliveryStaff(deliveryStaff);
+        order.setDeliveryClaimedAt(java.time.LocalDateTime.now());
+        when(orders.findByIdForUpdate(18L)).thenReturn(Optional.of(order));
+        when(payments.findByOrder_Id(18L)).thenReturn(Optional.empty());
+
+        service.updateByDelivery(18L, 44L, "delivery_failed", "Khách không nghe máy");
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.DELIVERY_FAILED);
+        assertThat(order.getDeliveryFailureReason()).isEqualTo("Khách không nghe máy");
+
+        service.updateByStaff(18L, "ready_for_delivery", "Chuẩn bị giao lại");
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.READY_FOR_DELIVERY);
+        assertThat(order.getDeliveryStaff()).isNull();
+        assertThat(order.getDeliveryClaimedAt()).isNull();
+        assertThat(order.getDeliveryFailureReason()).isNull();
     }
 }

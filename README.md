@@ -45,6 +45,16 @@ Giai đoạn 5 đã triển khai coupon và thanh toán:
 - UI có lựa chọn phương thức, trang `/payment-result` và trạng thái payment trong
   chi tiết đơn. VNPAY chỉ được bật khi merchant credentials được cấu hình.
 
+Giai đoạn 6 đã hoàn thiện quy trình vận hành đơn:
+
+- Admin và staff xem đơn mới; staff xác nhận, từ chối và chuyển đơn sang trạng thái
+  sẵn sàng giao.
+- Admin phân công tài khoản `delivery_staff` đang hoạt động cho đơn sẵn sàng giao.
+- Delivery staff phải nhận đơn trước khi bắt đầu giao, sau đó cập nhật giao thành công
+  hoặc thất bại. Đơn thất bại có thể được staff đưa lại hàng chờ giao và phân công lại.
+- Mọi lần đổi trạng thái, phân công và nhận đơn đều được ghi vào `order_status_history`.
+- UI vận hành gồm `/admin/orders`, `/staff` và `/delivery`.
+
 ## Cấu trúc
 
 - `frontend/`: Next.js 16, React 19 và TypeScript.
@@ -73,6 +83,7 @@ Các địa chỉ local:
 Các cổng đăng nhập frontend:
 
 - Khách hàng: `http://localhost:3000/login` → `/`
+- Nhân viên: `http://localhost:3000/staff/login` → `/staff`
 - Giao hàng: `http://localhost:3000/delivery/login` → `/delivery`
 - Quản trị viên: `http://localhost:3000/admin/login` → `/admin`
 
@@ -96,4 +107,5 @@ Image backend chỉ được tạo khi toàn bộ unit test Maven vượt qua.
 - [Module giỏ hàng và yêu thích](docs/api/cart-wishlist.md)
 - [Module checkout và đơn hàng](docs/api/orders.md)
 - [Module thanh toán](docs/api/payments.md)
+- [Quy trình vận hành đơn](docs/api/order-operations.md)
 - [Database local](database/README.md)

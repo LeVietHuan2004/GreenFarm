@@ -20,6 +20,7 @@ public class Order {
     @Column(name = "total_price", nullable = false) private BigDecimal totalPrice;
     @Convert(converter = OrderStatusConverter.class) @Column(nullable = false) private OrderStatus status;
     @Column(name = "dispatched_at") private LocalDateTime dispatchedAt;
+    @Column(name = "delivery_claimed_at") private LocalDateTime deliveryClaimedAt;
     @Column(name = "delivered_at") private LocalDateTime deliveredAt;
     @Column(name = "inventory_released_at") private LocalDateTime inventoryReleasedAt;
     @Column(name = "delivery_failure_reason") private String deliveryFailureReason;
@@ -44,6 +45,7 @@ public class Order {
     public BigDecimal getTotalPrice(){return totalPrice;} public void setTotalPrice(BigDecimal v){totalPrice=v;}
     public OrderStatus getStatus(){return status;} public void setStatus(OrderStatus v){status=v;}
     public LocalDateTime getDispatchedAt(){return dispatchedAt;} public void setDispatchedAt(LocalDateTime v){dispatchedAt=v;}
+    public LocalDateTime getDeliveryClaimedAt(){return deliveryClaimedAt;} public void setDeliveryClaimedAt(LocalDateTime v){deliveryClaimedAt=v;}
     public LocalDateTime getDeliveredAt(){return deliveredAt;} public void setDeliveredAt(LocalDateTime v){deliveredAt=v;}
     public LocalDateTime getInventoryReleasedAt(){return inventoryReleasedAt;} public void setInventoryReleasedAt(LocalDateTime v){inventoryReleasedAt=v;}
     public String getDeliveryFailureReason(){return deliveryFailureReason;} public void setDeliveryFailureReason(String v){deliveryFailureReason=v;}

@@ -89,7 +89,7 @@ public class OrderService {
         return orders.findAllByUser_IdOrderByCreatedAtDescIdDesc(userId).stream().map(order -> new OrderSummaryResponse(
             order.getId(), order.getStatus().getValue(), order.getItems().stream().mapToInt(OrderItem::getQuantity).sum(),
             order.getTotalPrice(), order.getRecipientName(), order.getShippingCity(), order.getCreatedAt(),
-            deliveryStaffId(order), deliveryStaffName(order))).toList();
+            deliveryStaffId(order), deliveryStaffName(order), order.getDeliveryClaimedAt())).toList();
     }
 
     @Transactional(readOnly = true)
@@ -203,12 +203,12 @@ public class OrderService {
     }
     private OrderSummaryResponse toSummary(Order order) {
         return new OrderSummaryResponse(order.getId(), order.getStatus().getValue(), order.getItems().stream().mapToInt(OrderItem::getQuantity).sum(),
-            order.getTotalPrice(), order.getRecipientName(), order.getShippingCity(), order.getCreatedAt(), deliveryStaffId(order), deliveryStaffName(order));
+            order.getTotalPrice(), order.getRecipientName(), order.getShippingCity(), order.getCreatedAt(), deliveryStaffId(order), deliveryStaffName(order), order.getDeliveryClaimedAt());
     }
     private OrderResponse toResponse(Order order, List<OrderStatusHistory> history, PaymentResponse payment) {
         var items=order.getItems().stream().map(item -> new OrderItemResponse(item.getId(), item.getProduct().getId(), item.getProduct().getSlug(), item.getProductName(), item.getProductUnit(), item.getProductImage(), item.getQuantity(), item.getPrice(), item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))).toList();
         var statusHistory=history.stream().map(item -> new OrderStatusHistoryResponse(item.getId(), item.getStatus().getValue(), item.getNote(), item.getChangedAt())).toList();
-        return new OrderResponse(order.getId(),order.getStatus().getValue(),order.getSubtotal(),order.getShippingFee(),order.getDiscountAmount(),order.getTotalPrice(),order.getCouponCode(),order.getRecipientName(),order.getRecipientPhone(),order.getShippingAddressLine(),order.getShippingCity(),items,statusHistory,order.getCreatedAt(),order.getUpdatedAt(),payment,deliveryStaffId(order),deliveryStaffName(order),order.getDeliveryFailureReason());
+        return new OrderResponse(order.getId(),order.getStatus().getValue(),order.getSubtotal(),order.getShippingFee(),order.getDiscountAmount(),order.getTotalPrice(),order.getCouponCode(),order.getRecipientName(),order.getRecipientPhone(),order.getShippingAddressLine(),order.getShippingCity(),items,statusHistory,order.getCreatedAt(),order.getUpdatedAt(),payment,deliveryStaffId(order),deliveryStaffName(order),order.getDeliveryClaimedAt(),order.getDeliveryFailureReason());
     }
     private OrderResponse toOperationalResponse(Order order) { return toResponse(order, histories.findAllByOrder_IdOrderByChangedAtAscIdAsc(order.getId()), paymentService.findForOrder(order.getId())); }
     private Long deliveryStaffId(Order order) { return order.getDeliveryStaff() == null ? null : order.getDeliveryStaff().getId(); }

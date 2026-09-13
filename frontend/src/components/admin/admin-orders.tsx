@@ -86,7 +86,15 @@ export function AdminOrders() {
     setUpdatingId(order.id); setMessage(null); setError(null);
     try {
       const updated = await assignAdminOrderDelivery(order.id, deliveryStaffId);
-      setOrders((current) => ({ ...current, content: current.content.map((item) => item.id === order.id ? { ...item, deliveryStaffId: updated.deliveryStaffId, deliveryStaffName: updated.deliveryStaffName } : item) }));
+      setOrders((current) => ({
+        ...current,
+        content: current.content.map((item) => item.id === order.id ? {
+          ...item,
+          deliveryStaffId: updated.deliveryStaffId,
+          deliveryStaffName: updated.deliveryStaffName,
+          deliveryClaimedAt: updated.deliveryClaimedAt
+        } : item)
+      }));
       setMessage(`Don hang #${order.id} da duoc phan cong giao hang.`);
     } catch (requestError) { setError(getApiErrorMessage(requestError)); }
     finally { setUpdatingId(null); }
@@ -116,7 +124,9 @@ export function AdminOrders() {
           <div className="admin-order-list">
             {orders.content.map((order) => {
               const current = order.status as AdminOrderStatus;
-              const available = transitions[current] ?? [];
+              const available: AdminOrderStatus[] = current === "ready_for_delivery" && !order.deliveryClaimedAt
+                ? ["canceled"]
+                : transitions[current] ?? [];
               return (
                 <article className="admin-order-row" key={order.id}>
                   <div className="admin-order-id"><span><PackageCheck size={19} /></span><div><strong>Đơn #{order.id}</strong><small>{formatDateTime(order.createdAt)}</small></div></div>
@@ -128,6 +138,7 @@ export function AdminOrders() {
                       <option value="">{order.deliveryStaffName ?? "Chưa phân công"}</option>
                       {deliveryStaff.map((staff) => <option key={staff.id} value={staff.id}>{staff.name}</option>)}
                     </select>
+                    {order.deliveryStaffId && <small>{order.deliveryClaimedAt ? "Đã nhận đơn" : "Chờ nhận đơn"}</small>}
                   </label>
                   <label className="admin-order-action"><span>Bước tiếp theo</span>
                     <select

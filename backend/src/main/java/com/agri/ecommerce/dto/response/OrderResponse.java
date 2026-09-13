@@ -10,4 +10,5 @@ public record OrderResponse(Long id, String status, BigDecimal subtotal, BigDeci
                             String shippingCity, List<OrderItemResponse> items,
                             List<OrderStatusHistoryResponse> statusHistory, LocalDateTime createdAt,
                             LocalDateTime updatedAt, PaymentResponse payment, Long deliveryStaffId,
-                            String deliveryStaffName, String deliveryFailureReason) {}
+                            String deliveryStaffName, LocalDateTime deliveryClaimedAt,
+                            String deliveryFailureReason) {}

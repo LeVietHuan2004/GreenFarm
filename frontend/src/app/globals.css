@@ -3221,5 +3221,17 @@ a.portal-module:hover {
 .operation-details span { display: flex; align-items: flex-start; gap: 6px; line-height: 1.55; }
 .operation-actions { justify-content: flex-start; }
 .operation-actions .primary-button, .operation-actions .secondary-button { min-height: 38px; padding: 0 13px; }
+.operation-history { border-top: 1px dashed var(--line); padding-top: 12px; }
+.operation-history summary { display: flex; align-items: center; gap: 7px; color: #42554a; font-size: 13px; font-weight: 700; cursor: pointer; }
+.operation-history ol { display: grid; gap: 9px; margin: 12px 0 0; padding-left: 22px; }
+.operation-history li { padding-left: 4px; color: var(--muted); }
+.operation-history li span, .operation-history li small { display: block; }
+.operation-history li span { color: var(--ink); font-size: 13px; font-weight: 700; }
+.operation-history li small { margin-top: 2px; line-height: 1.45; }
+.success-text { color: var(--green); }
 .spin { animation: operation-spin .8s linear infinite; }
 @keyframes operation-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 640px) {
+  .operation-card-main, .operation-details, .operation-actions { align-items: flex-start; flex-direction: column; }
+}

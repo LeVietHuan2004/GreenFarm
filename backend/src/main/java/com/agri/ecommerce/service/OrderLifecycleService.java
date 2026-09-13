@@ -75,9 +75,19 @@ public class OrderLifecycleService {
         }
 
         LocalDateTime now = LocalDateTime.now();
+        if (target == OrderStatus.OUT_FOR_DELIVERY) {
+            if (order.getDeliveryStaff() == null) {
+                throw conflict("DELIVERY_STAFF_NOT_ASSIGNED", "Đơn hàng chưa được phân công nhân viên giao hàng");
+            }
+            if (order.getDeliveryClaimedAt() == null) {
+                throw conflict("DELIVERY_ORDER_NOT_CLAIMED", "Nhân viên giao hàng phải nhận đơn trước khi bắt đầu giao");
+            }
+        }
+
         order.setStatus(target);
         if (target == OrderStatus.READY_FOR_DELIVERY && previousStatus == OrderStatus.DELIVERY_FAILED) {
             order.setDeliveryStaff(null);
+            order.setDeliveryClaimedAt(null);
             order.setDeliveryFailureReason(null);
         }
         if (target == OrderStatus.OUT_FOR_DELIVERY) {
@@ -114,7 +124,11 @@ public class OrderLifecycleService {
             throw conflict("ORDER_NOT_READY_FOR_DELIVERY", "Đơn hàng chưa sẵn sàng để phân công giao");
         }
         User deliveryStaff = requireActiveDeliveryStaff(deliveryStaffId);
+        if (order.getDeliveryStaff() != null && order.getDeliveryStaff().getId().equals(deliveryStaffId)) {
+            return order;
+        }
         order.setDeliveryStaff(deliveryStaff);
+        order.setDeliveryClaimedAt(null);
         addHistory(order, order.getStatus(), "Đã phân công giao hàng cho " + deliveryStaff.getName());
         return orders.save(order);
     }
@@ -125,13 +139,16 @@ public class OrderLifecycleService {
         if (order.getStatus() != OrderStatus.READY_FOR_DELIVERY) {
             throw conflict("ORDER_NOT_READY_FOR_DELIVERY", "Đơn hàng chưa sẵn sàng để nhận giao");
         }
-        if (order.getDeliveryStaff() != null && !order.getDeliveryStaff().getId().equals(deliveryStaffId)) {
+        User deliveryStaff = requireActiveDeliveryStaff(deliveryStaffId);
+        if (order.getDeliveryStaff() == null) {
+            throw conflict("ORDER_NOT_ASSIGNED_TO_DELIVERY", "Đơn hàng chưa được phân công cho bạn");
+        }
+        if (!order.getDeliveryStaff().getId().equals(deliveryStaffId)) {
             throw conflict("ORDER_ASSIGNED_TO_ANOTHER_DELIVERY", "Đơn hàng đã được phân công cho nhân viên giao khác");
         }
-        if (order.getDeliveryStaff() == null) {
-            User deliveryStaff = requireActiveDeliveryStaff(deliveryStaffId);
-            order.setDeliveryStaff(deliveryStaff);
-            addHistory(order, order.getStatus(), "Nhân viên giao hàng đã nhận đơn");
+        if (order.getDeliveryClaimedAt() == null) {
+            order.setDeliveryClaimedAt(LocalDateTime.now());
+            addHistory(order, order.getStatus(), "Nhân viên giao hàng " + deliveryStaff.getName() + " đã nhận đơn");
         }
         return orders.save(order);
     }
