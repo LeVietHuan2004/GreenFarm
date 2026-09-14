@@ -24,10 +24,11 @@ class OrderLifecycleServiceTest {
     @Mock ProductRepository products;
     @Mock CouponRepository coupons;
     @Mock UserRepository users;
+    @Mock NotificationService notifications;
     OrderLifecycleService service;
 
     @BeforeEach void setUp() {
-        service = new OrderLifecycleService(orders, histories, payments, products, coupons, users);
+        service = new OrderLifecycleService(orders, histories, payments, products, coupons, users, notifications);
         lenient().when(orders.save(any(Order.class))).thenAnswer(call -> call.getArgument(0));
         lenient().when(payments.save(any(Payment.class))).thenAnswer(call -> call.getArgument(0));
     }

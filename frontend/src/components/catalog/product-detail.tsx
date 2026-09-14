@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 import { CatalogImage } from "@/components/catalog/catalog-image";
 import { AddToCart } from "@/components/commerce/product-actions";
+import { ProductReviews } from "@/components/review/product-reviews";
 import { formatPrice, primaryProductImage, productStatusLabel } from "@/lib/catalog-format";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { getPublicProduct } from "@/services/catalog-service";
@@ -80,6 +81,7 @@ export function ProductDetail({ slug }: { slug: string }) {
           <AddToCart product={product} />
         </section>
       </article>
+      <ProductReviews productId={product.id} />
     </main>
   );
 }

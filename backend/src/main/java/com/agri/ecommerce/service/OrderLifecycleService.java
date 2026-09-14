@@ -32,6 +32,7 @@ public class OrderLifecycleService {
     private final ProductRepository products;
     private final CouponRepository coupons;
     private final UserRepository users;
+    private final NotificationService notifications;
 
     public OrderLifecycleService(
         OrderRepository orders,
@@ -39,7 +40,8 @@ public class OrderLifecycleService {
         PaymentRepository payments,
         ProductRepository products,
         CouponRepository coupons,
-        UserRepository users
+        UserRepository users,
+        NotificationService notifications
     ) {
         this.orders = orders;
         this.histories = histories;
@@ -47,6 +49,7 @@ public class OrderLifecycleService {
         this.products = products;
         this.coupons = coupons;
         this.users = users;
+        this.notifications = notifications;
     }
 
     @Transactional
@@ -105,7 +108,9 @@ public class OrderLifecycleService {
             payments.save(payment);
         }
         addHistory(order, target, defaultNote(note, defaultStatusNote(target)));
-        return orders.save(order);
+        Order saved = orders.save(order);
+        notifications.notifyUser(saved.getUser(), "order", "Đơn hàng #" + saved.getId() + ": " + defaultStatusNote(target), "/orders/" + saved.getId());
+        return saved;
     }
 
     @Transactional
@@ -130,7 +135,10 @@ public class OrderLifecycleService {
         order.setDeliveryStaff(deliveryStaff);
         order.setDeliveryClaimedAt(null);
         addHistory(order, order.getStatus(), "Đã phân công giao hàng cho " + deliveryStaff.getName());
-        return orders.save(order);
+        Order saved = orders.save(order);
+        notifications.notifyUser(deliveryStaff, "delivery", "Bạn được phân công giao đơn hàng #" + saved.getId(), "/delivery");
+        notifications.notifyUser(saved.getUser(), "order", "Đơn hàng #" + saved.getId() + " đã được phân công giao hàng", "/orders/" + saved.getId());
+        return saved;
     }
 
     @Transactional
@@ -149,6 +157,7 @@ public class OrderLifecycleService {
         if (order.getDeliveryClaimedAt() == null) {
             order.setDeliveryClaimedAt(LocalDateTime.now());
             addHistory(order, order.getStatus(), "Nhân viên giao hàng " + deliveryStaff.getName() + " đã nhận đơn");
+            notifications.notifyUser(order.getUser(), "delivery", "Nhân viên giao hàng đã nhận đơn #" + order.getId(), "/orders/" + order.getId());
         }
         return orders.save(order);
     }
@@ -170,7 +179,9 @@ public class OrderLifecycleService {
             order.setStatus(target);
             order.setDeliveryFailureReason(defaultNote(note, "Giao hàng không thành công"));
             addHistory(order, target, order.getDeliveryFailureReason());
-            return orders.save(order);
+            Order saved = orders.save(order);
+            notifications.notifyUser(saved.getUser(), "delivery", "Giao đơn #" + saved.getId() + " chưa thành công: " + saved.getDeliveryFailureReason(), "/orders/" + saved.getId());
+            return saved;
         }
         return updateStatus(orderId, rawStatus, note);
     }
@@ -197,7 +208,8 @@ public class OrderLifecycleService {
     }
 
     private void cancel(Order order, Payment payment, String note) {
-        if (order.getStatus() != OrderStatus.CANCELED) {
+        boolean newlyCanceled = order.getStatus() != OrderStatus.CANCELED;
+        if (newlyCanceled) {
             order.setStatus(OrderStatus.CANCELED);
             addHistory(order, OrderStatus.CANCELED, note);
         }
@@ -207,7 +219,8 @@ public class OrderLifecycleService {
             payments.save(payment);
         }
         releaseInventoryAndCoupon(order);
-        orders.save(order);
+        Order saved = orders.save(order);
+        if (newlyCanceled) notifications.notifyUser(saved.getUser(), "order", "Đơn hàng #" + saved.getId() + " đã bị hủy", "/orders/" + saved.getId());
     }
 
     private void releaseInventoryAndCoupon(Order order) {

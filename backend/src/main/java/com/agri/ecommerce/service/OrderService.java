@@ -29,12 +29,14 @@ public class OrderService {
     private final UserRepository users;
     private final PaymentService paymentService;
     private final OrderLifecycleService orderLifecycle;
+    private final NotificationService notifications;
 
     public OrderService(OrderRepository orders, OrderStatusHistoryRepository histories, ShippingAddressService addressService,
                         CartItemRepository carts, ProductRepository products, CouponRepository coupons, UserRepository users,
-                        PaymentService paymentService, OrderLifecycleService orderLifecycle) {
+                        PaymentService paymentService, OrderLifecycleService orderLifecycle, NotificationService notifications) {
         this.orders=orders; this.histories=histories; this.addressService=addressService; this.carts=carts;
         this.products=products; this.coupons=coupons; this.users=users; this.paymentService=paymentService; this.orderLifecycle=orderLifecycle;
+        this.notifications=notifications;
     }
 
     @Transactional(readOnly = true)
@@ -81,6 +83,9 @@ public class OrderService {
         PaymentResponse payment = paymentService.createForOrder(saved, PaymentMethod.fromRequestValue(request.paymentMethod()), clientIp);
         products.saveAll(lockedProducts.values());
         carts.deleteAllByUser_Id(userId);
+        notifications.notifyUser(saved.getUser(), "order", "Đơn hàng #" + saved.getId() + " đã được tạo", "/orders/" + saved.getId());
+        notifications.notifyRole("admin", "order", "Có đơn hàng mới #" + saved.getId(), "/admin/orders");
+        notifications.notifyRole("staff", "order", "Có đơn hàng mới #" + saved.getId(), "/staff");
         return toResponse(saved, saved.getStatusHistory(), payment);
     }
 

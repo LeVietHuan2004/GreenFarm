@@ -55,6 +55,17 @@ Giai đoạn 6 đã hoàn thiện quy trình vận hành đơn:
 - Mọi lần đổi trạng thái, phân công và nhận đơn đều được ghi vào `order_status_history`.
 - UI vận hành gồm `/admin/orders`, `/staff` và `/delivery`.
 
+Giai đoạn 7 đã hoàn thiện review, liên hệ và thông báo:
+
+- Khách hàng chỉ có thể đánh giá sản phẩm đã nhận hàng; mỗi tài khoản có một đánh giá
+  cho mỗi sản phẩm và có thể cập nhật lại nội dung.
+- Khách hoặc khách hàng đăng nhập có thể gửi yêu cầu hỗ trợ tại `/contact`; tài khoản
+  đăng nhập xem được lịch sử yêu cầu và phản hồi.
+- Admin/staff có màn hình xử lý liên hệ tại `/admin/contacts` và `/staff/contacts`, hỗ trợ
+  lọc trạng thái, phản hồi và đánh dấu đã xử lý.
+- Thông báo được tạo cho các sự kiện đơn hàng, giao hàng và liên hệ; người dùng xem và
+  đánh dấu đã đọc từ menu thông báo trên header.
+
 ## Cấu trúc
 
 - `frontend/`: Next.js 16, React 19 và TypeScript.
@@ -108,4 +119,5 @@ Image backend chỉ được tạo khi toàn bộ unit test Maven vượt qua.
 - [Module checkout và đơn hàng](docs/api/orders.md)
 - [Module thanh toán](docs/api/payments.md)
 - [Quy trình vận hành đơn](docs/api/order-operations.md)
+- [Review, liên hệ và thông báo](docs/api/engagement.md)
 - [Database local](database/README.md)

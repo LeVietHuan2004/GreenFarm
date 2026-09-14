@@ -26,4 +26,13 @@ class CommerceValidationTest {
             assertThat(validator.validate(new MergeCartRequest(List.of(new CartItemRequest(1L, 1))))).isEmpty();
         }
     }
+
+    @Test
+    void rejectsContactMessagesShorterThanTenCharacters() {
+        try (var factory = Validation.buildDefaultValidatorFactory()) {
+            var validator = factory.getValidator();
+            assertThat(validator.validate(new ContactRequest("Khách hàng", null, null, "quá ngắn"))).isNotEmpty();
+            assertThat(validator.validate(new ContactRequest("Khách hàng", null, null, "Nội dung đủ dài"))).isEmpty();
+        }
+    }
 }

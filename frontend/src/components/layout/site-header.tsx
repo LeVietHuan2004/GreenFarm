@@ -7,6 +7,7 @@ import { FormEvent, useState } from "react";
 
 import { RoleLoginMenu } from "@/components/auth/role-login-menu";
 import { useCommerce } from "@/components/commerce/commerce-provider";
+import { NotificationMenu } from "@/components/notifications/notification-menu";
 import { getRoleHome, getRoleLogin } from "@/config/login-portals";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -54,7 +55,7 @@ export function SiteHeader() {
           <Link href="/#categories">Danh mục</Link>
           <Link href="/products">Sản phẩm</Link>
           <Link href="/#delivery">Giao hàng</Link>
-          <Link href="/#support">Liên hệ</Link>
+          <Link href="/contact">Liên hệ</Link>
         </nav>
 
         <nav className="account-nav" aria-label="Tài khoản">
@@ -73,6 +74,7 @@ export function SiteHeader() {
           {hasHydrated && user?.role === "customer" && <Link href="/orders" className="header-icon-link" aria-label="Đơn hàng" title="Đơn hàng"><ReceiptText size={18}/></Link>}
           {hasHydrated && user ? (
             <>
+              <NotificationMenu />
               <Link href={getRoleHome(user.role)} className="secondary-button compact-button portal-link">
                 <LayoutDashboard size={17} aria-hidden="true" />
                 Khu vực

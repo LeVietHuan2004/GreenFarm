@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Bell,
   Boxes,
   ChevronRight,
   CircleHelp,
@@ -9,6 +8,7 @@ import {
   LayoutDashboard,
   Leaf,
   LogOut,
+  MessageCircleMore,
   Menu,
   Search,
   Settings,
@@ -26,9 +26,10 @@ import { useRouter } from "next/navigation";
 import { FormEvent, ReactNode, useState } from "react";
 
 import { RoleGuard } from "@/components/auth/role-guard";
+import { NotificationMenu } from "@/components/notifications/notification-menu";
 import { useAuthStore } from "@/stores/auth-store";
 
-export type AdminSection = "dashboard" | "users" | "categories" | "products" | "orders" | "coupons";
+export type AdminSection = "dashboard" | "users" | "categories" | "products" | "orders" | "coupons" | "contacts";
 
 type AdminShellProps = {
   active: AdminSection;
@@ -43,7 +44,8 @@ const sectionTitles: Record<AdminSection, { title: string; description: string }
   categories: { title: "Danh mục", description: "Cấu trúc catalog cửa hàng" },
   products: { title: "Sản phẩm", description: "Nội dung, tồn kho và hình ảnh" },
   orders: { title: "Đơn hàng", description: "Xử lý đơn và trạng thái thanh toán" },
-  coupons: { title: "Mã giảm giá", description: "Ưu đãi, thời hạn và lượt sử dụng" }
+  coupons: { title: "Mã giảm giá", description: "Ưu đãi, thời hạn và lượt sử dụng" },
+  contacts: { title: "Liên hệ", description: "Yêu cầu hỗ trợ của khách hàng" }
 };
 
 const primaryItems = [
@@ -52,7 +54,8 @@ const primaryItems = [
   { key: "categories" as const, label: "Danh mục", detail: "Nhóm sản phẩm", href: "/admin/categories", icon: Tags },
   { key: "products" as const, label: "Sản phẩm", detail: "Giá, kho và hình ảnh", href: "/admin/products", icon: Boxes },
   { key: "orders" as const, label: "Đơn hàng", detail: "Xử lý và giao nhận", href: "/admin/orders", icon: ShoppingCart },
-  { key: "coupons" as const, label: "Mã giảm giá", detail: "Ưu đãi cửa hàng", href: "/admin/coupons", icon: TicketPercent }
+  { key: "coupons" as const, label: "Mã giảm giá", detail: "Ưu đãi cửa hàng", href: "/admin/coupons", icon: TicketPercent },
+  { key: "contacts" as const, label: "Liên hệ", detail: "Hỗ trợ khách hàng", href: "/admin/contacts", icon: MessageCircleMore }
 ];
 
 const futureItems = [
@@ -141,7 +144,7 @@ export function AdminShell({ active, children }: AdminShellProps) {
               <input value={quickSearch} onChange={(event) => setQuickSearch(event.target.value)} placeholder="Tìm nhanh sản phẩm..." aria-label="Tìm nhanh sản phẩm" />
             </form>
             <button type="button" className="admin-topbar-icon" aria-label="Trợ giúp" title="Trợ giúp"><CircleHelp size={18} /></button>
-            <button type="button" className="admin-topbar-icon" aria-label="Thông báo" title="Thông báo"><Bell size={18} /><i /></button>
+            <NotificationMenu admin />
             <div className="admin-topbar-account">
               <span><UserRound size={18} /></span>
               <div><strong>{user?.name}</strong><small>Quản trị viên</small></div>

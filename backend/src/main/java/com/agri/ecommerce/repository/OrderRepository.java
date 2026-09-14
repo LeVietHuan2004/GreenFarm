@@ -20,6 +20,15 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Page<Order> findAllByStatusOrderByCreatedAtDescIdDesc(com.agri.ecommerce.entity.OrderStatus status, Pageable pageable);
     List<Order> findAllByStatusInOrderByCreatedAtDescIdDesc(List<com.agri.ecommerce.entity.OrderStatus> statuses);
     List<Order> findAllByDeliveryStaff_IdOrderByCreatedAtDescIdDesc(Long deliveryStaffId);
+    @Query("""
+        select (count(purchaseOrder) > 0) from Order purchaseOrder
+        join purchaseOrder.items item
+        where purchaseOrder.user.id = :userId
+          and item.product.id = :productId
+          and purchaseOrder.status in :statuses
+        """)
+    boolean hasPurchasedProduct(@Param("userId") Long userId, @Param("productId") Long productId,
+                                @Param("statuses") List<com.agri.ecommerce.entity.OrderStatus> statuses);
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select purchaseOrder from Order purchaseOrder where purchaseOrder.id = :id")
     Optional<Order> findByIdForUpdate(@Param("id") Long id);

@@ -4,6 +4,7 @@ import com.agri.ecommerce.entity.User;
 import com.agri.ecommerce.entity.UserStatus;
 import jakarta.persistence.LockModeType;
 import java.util.Optional;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,6 +22,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmailIgnoreCase(String email);
 
     boolean existsByEmailIgnoreCase(String email);
+
+    @Query("select user from User user where lower(user.role.name) = lower(:role) and user.status = :status")
+    List<User> findAllByRoleAndStatus(@Param("role") String role, @Param("status") UserStatus status);
 
     @Query("""
         select user from User user

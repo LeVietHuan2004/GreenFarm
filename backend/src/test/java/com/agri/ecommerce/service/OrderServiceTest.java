@@ -28,13 +28,14 @@ class OrderServiceTest {
     @Mock UserRepository users;
     @Mock PaymentService paymentService;
     @Mock OrderLifecycleService orderLifecycle;
+    @Mock NotificationService notifications;
     OrderService service;
     Product product;
     CartItem cartItem;
     ShippingAddress address;
 
     @BeforeEach void setUp(){
-        service=new OrderService(orders,histories,addresses,carts,products,coupons,users,paymentService,orderLifecycle);
+        service=new OrderService(orders,histories,addresses,carts,products,coupons,users,paymentService,orderLifecycle,notifications);
         product=mock(Product.class);
         lenient().when(product.getId()).thenReturn(10L);
         lenient().when(product.getName()).thenReturn("Rau sạch");

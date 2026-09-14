@@ -28,6 +28,8 @@ Schema cũ được Flyway đánh dấu là baseline phiên bản 1. Mọi thay 
 - V8: cấp quyền xử lý đơn cho vai trò `staff`.
 - V9: ghi nhận thời điểm delivery staff nhận đơn và bổ sung trạng thái
   `delivery_failed` cho `order_status_history`.
+- V10: chuẩn hóa review theo một tài khoản/sản phẩm, mở rộng quy trình liên hệ hỗ trợ,
+  thêm index thông báo và cấp quyền `manage_contacts` cho admin/staff.
 
 Khi backend khởi động, Flyway tự kiểm tra và chỉ chạy migration chưa được áp
 dụng. Không chỉnh trực tiếp một migration đã chạy; hãy tạo phiên bản mới.

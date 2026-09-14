@@ -1,6 +1,7 @@
 "use client";
 
 import { ClipboardList, History, LoaderCircle, MapPin, PackageCheck, XCircle } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { RoleGuard } from "@/components/auth/role-guard";
@@ -64,6 +65,7 @@ export function StaffOrdersDashboard() {
               <h1>Đơn chờ xử lý</h1>
               <p>Xác nhận đơn mới, chuẩn bị hàng và bàn giao cho bộ phận giao hàng.</p>
             </div>
+            <Link className="secondary-button" href="/staff/contacts">Hỗ trợ khách hàng</Link>
           </header>
 
           {error && <p className="catalog-notice error">{error}</p>}
