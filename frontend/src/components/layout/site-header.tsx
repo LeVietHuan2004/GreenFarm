@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart, LayoutDashboard, Leaf, LogOut, ReceiptText, Search, ShoppingBasket, UserRound } from "lucide-react";
+import { Coins, Heart, LayoutDashboard, Leaf, LogOut, ReceiptText, Search, ShoppingBasket, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
@@ -72,6 +72,7 @@ export function SiteHeader() {
             {cart.totalItems > 0 && <span className="commerce-count">{cart.totalItems > 99 ? "99+" : cart.totalItems}</span>}
           </Link>
           {hasHydrated && user?.role === "customer" && <Link href="/orders" className="header-icon-link" aria-label="Đơn hàng" title="Đơn hàng"><ReceiptText size={18}/></Link>}
+          {hasHydrated && user?.role === "customer" && <Link href="/points" className="header-icon-link" aria-label="Điểm tích lũy" title="Điểm tích lũy"><Coins size={18}/></Link>}
           {hasHydrated && user ? (
             <>
               <NotificationMenu />

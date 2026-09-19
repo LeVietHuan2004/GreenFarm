@@ -3,6 +3,7 @@ package com.agri.ecommerce.controller.admin;
 import com.agri.ecommerce.common.base.ApiResponse;
 import com.agri.ecommerce.dto.request.OrderStatusUpdateRequest;
 import com.agri.ecommerce.dto.request.DeliveryAssignmentRequest;
+import com.agri.ecommerce.dto.request.RefundOrderRequest;
 import com.agri.ecommerce.dto.response.OrderResponse;
 import com.agri.ecommerce.dto.response.OrderSummaryResponse;
 import com.agri.ecommerce.dto.response.PageResponse;
@@ -40,6 +41,11 @@ public class OrderAdminController {
     @PatchMapping("/{id}/status")
     public ApiResponse<OrderResponse> updateStatus(@PathVariable Long id, @Valid @RequestBody OrderStatusUpdateRequest request) {
         return ApiResponse.success("Cập nhật trạng thái đơn hàng thành công", service.updateStatus(id, request.status(), request.note()));
+    }
+
+    @PatchMapping("/{id}/refund-confirmation")
+    public ApiResponse<OrderResponse> confirmRefundAndCancel(@PathVariable Long id, @Valid @RequestBody RefundOrderRequest request) {
+        return ApiResponse.success("Đã ghi nhận hoàn tiền và hủy đơn hàng", service.confirmRefundAndCancel(id, request.note()));
     }
     @PatchMapping("/{id}/delivery-staff")
     public ApiResponse<OrderResponse> assignDeliveryStaff(@PathVariable Long id, @Valid @RequestBody DeliveryAssignmentRequest request) {

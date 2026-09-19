@@ -44,6 +44,9 @@ Giai đoạn 5 đã triển khai coupon và thanh toán:
   URL ký HMAC-SHA512 và cập nhật kết quả qua Return/IPN đã xác thực.
 - UI có lựa chọn phương thức, trang `/payment-result` và trạng thái payment trong
   chi tiết đơn. VNPAY chỉ được bật khi merchant credentials được cấu hình.
+- Sau khi đặt COD hoặc VNPAY thành công, khách xem ngay hóa đơn tại
+  `/orders/{id}/invoice`, có thể in/lưu PDF; hóa đơn HTML cũng được gửi vào email
+  đăng ký khi SMTP được bật.
 
 Giai đoạn 6 đã hoàn thiện quy trình vận hành đơn:
 
@@ -65,6 +68,15 @@ Giai đoạn 7 đã hoàn thiện review, liên hệ và thông báo:
   lọc trạng thái, phản hồi và đánh dấu đã xử lý.
 - Thông báo được tạo cho các sự kiện đơn hàng, giao hàng và liên hệ; người dùng xem và
   đánh dấu đã đọc từ menu thông báo trên header.
+
+Giai đoạn 8 bổ sung đánh giá theo đơn hàng và GreenFarm Rewards:
+
+- Khi đơn đã giao/hoàn tất, khách có thể đánh giá trực tiếp từng sản phẩm ngay trong
+  chi tiết đơn hàng.
+- Khách nhận điểm sau đơn giao thành công và sau mỗi đánh giá hợp lệ; lịch sử điểm có
+  tại `/points`.
+- Checkout cho phép dùng điểm để giảm giá, tối đa 50% giá trị thanh toán; một điểm đổi
+  100đ, và mỗi 10.000đ giá trị hợp lệ nhận một điểm.
 
 ## Cấu trúc
 
@@ -120,4 +132,5 @@ Image backend chỉ được tạo khi toàn bộ unit test Maven vượt qua.
 - [Module thanh toán](docs/api/payments.md)
 - [Quy trình vận hành đơn](docs/api/order-operations.md)
 - [Review, liên hệ và thông báo](docs/api/engagement.md)
+- [Điểm tích lũy và đổi điểm](docs/api/loyalty.md)
 - [Database local](database/README.md)

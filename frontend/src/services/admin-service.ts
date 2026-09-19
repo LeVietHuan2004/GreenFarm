@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/axios-client";
-import type { AdminCoupon, AdminCouponFilters, AdminCouponInput, AdminOrder, AdminOrderFilters, AdminOrderSummary, AdminOrderStatus, AdminRole, AdminUserFilters, AdminUserUpdate } from "@/types/admin";
+import type { AdminCoupon, AdminCouponFilters, AdminCouponInput, AdminOrder, AdminOrderFilters, AdminOrderSummary, AdminOrderStatus, AdminRole, AdminUserFilters, AdminUserUpdate, CouponUsage } from "@/types/admin";
 import type { ApiResponse, User } from "@/types/auth";
 import type { PageData } from "@/types/catalog";
 
@@ -64,4 +64,13 @@ export async function updateAdminCoupon(id: number, input: AdminCouponInput) {
 export async function updateAdminCouponActive(id: number, active: boolean) {
   const response = await apiClient.patch<ApiResponse<AdminCoupon>>(`/admin/coupons/${id}/active`, { active });
   return response.data.data;
+}
+
+export async function getAdminCouponUsages(id: number) {
+  const response = await apiClient.get<ApiResponse<CouponUsage[]>>(`/admin/coupons/${id}/usages`);
+  return response.data.data;
+}
+
+export async function deleteAdminCoupon(id: number) {
+  await apiClient.delete(`/admin/coupons/${id}`);
 }

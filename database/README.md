@@ -30,6 +30,8 @@ Schema cũ được Flyway đánh dấu là baseline phiên bản 1. Mọi thay 
   `delivery_failed` cho `order_status_history`.
 - V10: chuẩn hóa review theo một tài khoản/sản phẩm, mở rộng quy trình liên hệ hỗ trợ,
   thêm index thông báo và cấp quyền `manage_contacts` cho admin/staff.
+- V11: lưu mốc gửi email hóa đơn để tránh gửi trùng khi VNPAY gọi lại callback.
+- V12: thêm số dư/sổ giao dịch điểm tích lũy và snapshot điểm đã đổi trên đơn hàng.
 
 Khi backend khởi động, Flyway tự kiểm tra và chỉ chạy migration chưa được áp
 dụng. Không chỉnh trực tiếp một migration đã chạy; hãy tạo phiên bản mới.

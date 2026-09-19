@@ -28,6 +28,8 @@ class PaymentServiceTest {
     private static final String SECRET = "test-secret";
     @Mock PaymentRepository payments;
     @Mock OrderLifecycleService orderLifecycle;
+    @Mock InvoiceEmailService invoiceEmails;
+    @Mock CouponEngineService couponEngine;
     @Mock Order order;
     PaymentService service;
 
@@ -45,10 +47,11 @@ class PaymentServiceTest {
         assertThat(response.status()).isEqualTo("pending");
         assertThat(response.referenceCode()).isEqualTo("COD-42");
         assertThat(response.paymentUrl()).isNull();
+        verify(invoiceEmails).sendInvoiceIfEnabled(any(Payment.class));
     }
 
     @Test void vnpayCannotCreateWhenSandboxIsNotConfigured() {
-        PaymentService unavailable = new PaymentService(payments, orderLifecycle, "", "", "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html", "", "http://localhost:3000/payment-result");
+        PaymentService unavailable = new PaymentService(payments, orderLifecycle, invoiceEmails, couponEngine, "", "", "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html", "", "http://localhost:3000/payment-result");
         assertThat(unavailable.options().vnpayAvailable()).isFalse();
         assertThatThrownBy(() -> unavailable.createForOrder(order, PaymentMethod.VNPAY, "127.0.0.1"))
             .extracting("code").isEqualTo("VNPAY_NOT_CONFIGURED");
@@ -70,6 +73,8 @@ class PaymentServiceTest {
         assertThat(outcome.ipnCode()).isEqualTo("00");
         assertThat(payment.getStatus()).isEqualTo(PaymentStatus.COMPLETED);
         assertThat(payment.getPaidAt()).isNotNull();
+        verify(couponEngine).markUsed(order);
+        verify(invoiceEmails).sendInvoiceIfEnabled(payment);
         verify(orderLifecycle, never()).cancelForFailedPayment(any(), any());
     }
 
@@ -106,6 +111,7 @@ class PaymentServiceTest {
         var outcome = service.handleVnpayCallback(signedParameters("5000000", "00", "00"));
         assertThat(outcome.success()).isTrue();
         assertThat(outcome.ipnCode()).isEqualTo("02");
+        verify(couponEngine, never()).markUsed(any());
         verify(orderLifecycle, never()).cancelForFailedPayment(any(), any());
     }
 
@@ -121,7 +127,7 @@ class PaymentServiceTest {
     }
 
     private PaymentService configuredService() {
-        return new PaymentService(payments, orderLifecycle, "TMNCODE", SECRET,
+        return new PaymentService(payments, orderLifecycle, invoiceEmails, couponEngine, "TMNCODE", SECRET,
             "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html", "https://merchant.example/api/payments/vnpay/return",
             "http://localhost:3000/payment-result");
     }

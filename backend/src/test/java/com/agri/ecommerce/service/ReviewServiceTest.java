@@ -15,9 +15,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class ReviewServiceTest {
-    @Mock ReviewRepository reviews; @Mock ProductRepository products; @Mock UserRepository users; @Mock OrderRepository orders;
+    @Mock ReviewRepository reviews; @Mock ProductRepository products; @Mock UserRepository users; @Mock OrderRepository orders; @Mock LoyaltyService loyalty;
     ReviewService service;
-    @BeforeEach void setUp(){service=new ReviewService(reviews,products,users,orders);}
+    @BeforeEach void setUp(){service=new ReviewService(reviews,products,users,orders,loyalty);}
 
     @Test void rejectsReviewWhenProductWasNotDelivered(){
         when(orders.hasPurchasedProduct(eq(1L),eq(2L),anyList())).thenReturn(false);
@@ -35,5 +35,6 @@ class ReviewServiceTest {
         when(reviews.save(any(Review.class))).thenAnswer(call->call.getArgument(0));
         var result=service.create(1L,new ReviewRequest(2L,5,"  Tươi ngon  "));
         assertThat(result.rating()).isEqualTo(5); assertThat(result.comment()).isEqualTo("Tươi ngon");
+        verify(loyalty).rewardReview(eq(1L), any(Review.class));
     }
 }

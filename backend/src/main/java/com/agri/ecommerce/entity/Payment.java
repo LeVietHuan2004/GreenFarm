@@ -17,6 +17,7 @@ public class Payment {
     @Column(name = "gateway_response_code") private String gatewayResponseCode;
     @Column(name = "gateway_payload", columnDefinition = "text") private String gatewayPayload;
     @Column(name = "paid_at") private LocalDateTime paidAt;
+    @Column(name = "invoice_email_sent_at") private LocalDateTime invoiceEmailSentAt;
     @Column(name = "expires_at") private LocalDateTime expiresAt;
     @Column(name = "created_at") private LocalDateTime createdAt;
     @Column(name = "updated_at") private LocalDateTime updatedAt;
@@ -34,6 +35,7 @@ public class Payment {
     public String getGatewayResponseCode() { return gatewayResponseCode; } public void setGatewayResponseCode(String value) { gatewayResponseCode = value; }
     public String getGatewayPayload() { return gatewayPayload; } public void setGatewayPayload(String value) { gatewayPayload = value; }
     public LocalDateTime getPaidAt() { return paidAt; } public void setPaidAt(LocalDateTime value) { paidAt = value; }
+    public LocalDateTime getInvoiceEmailSentAt() { return invoiceEmailSentAt; } public void setInvoiceEmailSentAt(LocalDateTime value) { invoiceEmailSentAt = value; }
     public LocalDateTime getExpiresAt() { return expiresAt; } public void setExpiresAt(LocalDateTime value) { expiresAt = value; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 }

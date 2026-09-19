@@ -7,4 +7,6 @@
 - `api/payments.md`: hợp đồng API thanh toán COD/VNPAY và coupon.
 - `api/order-operations.md`: quy trình vận hành đơn cho admin, staff và delivery staff.
 - `api/engagement.md`: hợp đồng API review, liên hệ hỗ trợ và thông báo.
+- `api/loyalty.md`: quy tắc tích điểm, đổi điểm và API GreenFarm Rewards.
+- `api/coupons.md`: quy tắc coupon/voucher, checkout, vòng đời lượt dùng và API quản trị.
 - `design/`: tài liệu thiết kế module và luồng nghiệp vụ ở các giai đoạn sau.

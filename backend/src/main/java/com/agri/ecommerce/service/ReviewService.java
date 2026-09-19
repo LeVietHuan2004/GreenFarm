@@ -19,9 +19,10 @@ public class ReviewService {
     private final ProductRepository products;
     private final UserRepository users;
     private final OrderRepository orders;
+    private final LoyaltyService loyalty;
 
-    public ReviewService(ReviewRepository reviews, ProductRepository products, UserRepository users, OrderRepository orders) {
-        this.reviews = reviews; this.products = products; this.users = users; this.orders = orders;
+    public ReviewService(ReviewRepository reviews, ProductRepository products, UserRepository users, OrderRepository orders, LoyaltyService loyalty) {
+        this.reviews = reviews; this.products = products; this.users = users; this.orders = orders; this.loyalty = loyalty;
     }
 
     @Transactional(readOnly = true)
@@ -49,7 +50,9 @@ public class ReviewService {
         review.setUser(users.getReferenceById(userId));
         review.setProduct(products.findById(request.productId()).orElseThrow(() -> notFound("PRODUCT_NOT_FOUND", "Không tìm thấy sản phẩm")));
         apply(review, request);
-        return toResponse(reviews.save(review));
+        Review saved = reviews.save(review);
+        loyalty.rewardReview(userId, saved);
+        return toResponse(saved);
     }
 
     @Transactional

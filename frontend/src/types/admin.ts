@@ -30,16 +30,25 @@ export type AdminOrderFilters = { status?: AdminOrderStatus; page?: number; size
 
 export type CouponType = "ORDER_DISCOUNT" | "FREESHIP";
 export type DiscountType = "PERCENTAGE" | "FIXED_AMOUNT";
+export type CouponScopeType = "ALL" | "CATEGORY" | "PRODUCT";
 export type AdminCoupon = {
   id: number;
   code: string;
+  name: string;
+  description: string | null;
   couponType: CouponType;
   discountType: DiscountType;
   discountPercentage: number;
   discountAmount: number | null;
+  maxDiscountAmount: number | null;
+  minimumOrderAmount: number | null;
+  scopeType: CouponScopeType;
+  categoryIds: number[];
+  productIds: number[];
   startsAt: string | null;
   expiresAt: string | null;
   usageLimit: number | null;
+  usageLimitPerUser: number | null;
   timesUsed: number;
   active: boolean;
   currentlyUsable: boolean;
@@ -48,13 +57,22 @@ export type AdminCoupon = {
 };
 export type AdminCouponInput = {
   code: string;
+  name: string;
+  description: string | null;
   couponType: CouponType;
   discountType: DiscountType;
   discountPercentage: number;
   discountAmount: number | null;
+  maxDiscountAmount: number | null;
+  minimumOrderAmount: number | null;
+  scopeType: CouponScopeType;
+  categoryIds: number[];
+  productIds: number[];
   startsAt: string | null;
   expiresAt: string | null;
   usageLimit: number | null;
+  usageLimitPerUser: number | null;
   active: boolean;
 };
 export type AdminCouponFilters = { search?: string; active?: boolean; page?: number; size?: number; sort?: string };
+export type CouponUsage = { id:number; userId:number; userName:string; orderId:number; discountAmount:number; status:"RESERVED"|"USED"|"RELEASED"; createdAt:string; usedAt:string|null; releasedAt:string|null };

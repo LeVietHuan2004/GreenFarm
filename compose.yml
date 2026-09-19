@@ -41,6 +41,15 @@ services:
       VNPAY_HASH_SECRET: ${VNPAY_HASH_SECRET:-}
       VNPAY_PAYMENT_URL: ${VNPAY_PAYMENT_URL:-https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}
       VNPAY_RETURN_URL: ${VNPAY_RETURN_URL:-}
+      STOREFRONT_URL: ${STOREFRONT_URL:-http://localhost:3000}
+      INVOICE_EMAIL_ENABLED: ${INVOICE_EMAIL_ENABLED:-false}
+      INVOICE_EMAIL_FROM: ${INVOICE_EMAIL_FROM:-}
+      MAIL_HOST: ${MAIL_HOST:-}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_SMTP_AUTH: ${MAIL_SMTP_AUTH:-true}
+      MAIL_SMTP_STARTTLS_ENABLE: ${MAIL_SMTP_STARTTLS_ENABLE:-true}
     ports:
       - "${BACKEND_PORT:-8080}:8080"
     depends_on:

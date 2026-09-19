@@ -62,6 +62,9 @@ public class User {
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 
+    @Column(name = "loyalty_points_balance", nullable = false)
+    private int loyaltyPointsBalance;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -175,6 +178,9 @@ public class User {
     public void setLastLoginAt(LocalDateTime lastLoginAt) {
         this.lastLoginAt = lastLoginAt;
     }
+
+    public int getLoyaltyPointsBalance() { return loyaltyPointsBalance; }
+    public void setLoyaltyPointsBalance(int loyaltyPointsBalance) { this.loyaltyPointsBalance = loyaltyPointsBalance; }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;

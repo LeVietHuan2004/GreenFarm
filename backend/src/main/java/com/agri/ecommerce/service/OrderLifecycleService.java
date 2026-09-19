@@ -30,26 +30,29 @@ public class OrderLifecycleService {
     private final OrderStatusHistoryRepository histories;
     private final PaymentRepository payments;
     private final ProductRepository products;
-    private final CouponRepository coupons;
+    private final CouponEngineService couponEngine;
     private final UserRepository users;
     private final NotificationService notifications;
+    private final LoyaltyService loyalty;
 
     public OrderLifecycleService(
         OrderRepository orders,
         OrderStatusHistoryRepository histories,
         PaymentRepository payments,
         ProductRepository products,
-        CouponRepository coupons,
+        CouponEngineService couponEngine,
         UserRepository users,
-        NotificationService notifications
+        NotificationService notifications,
+        LoyaltyService loyalty
     ) {
         this.orders = orders;
         this.histories = histories;
         this.payments = payments;
         this.products = products;
-        this.coupons = coupons;
+        this.couponEngine = couponEngine;
         this.users = users;
         this.notifications = notifications;
+        this.loyalty = loyalty;
     }
 
     @Transactional
@@ -109,6 +112,8 @@ public class OrderLifecycleService {
         }
         addHistory(order, target, defaultNote(note, defaultStatusNote(target)));
         Order saved = orders.save(order);
+        if (target == OrderStatus.PROCESSING) couponEngine.markUsed(saved);
+        if (target == OrderStatus.DELIVERED || target == OrderStatus.COMPLETED) loyalty.rewardOrder(saved);
         notifications.notifyUser(saved.getUser(), "order", "Đơn hàng #" + saved.getId() + ": " + defaultStatusNote(target), "/orders/" + saved.getId());
         return saved;
     }
@@ -207,7 +212,26 @@ public class OrderLifecycleService {
         cancel(order, payment, note);
     }
 
+    @Transactional
+    public Order confirmRefundAndCancel(Long orderId, String note) {
+        Order order = lockOrder(orderId);
+        Payment payment = payments.findByOrder_Id(orderId).orElseThrow(() ->
+            conflict("PAYMENT_NOT_FOUND", "Không tìm thấy giao dịch của đơn hàng"));
+        if (payment.getStatus() == PaymentStatus.REFUNDED && order.getStatus() == OrderStatus.CANCELED) {
+            return order;
+        }
+        if (payment.getStatus() != PaymentStatus.COMPLETED && payment.getStatus() != PaymentStatus.REFUNDED) {
+            throw conflict("PAYMENT_NOT_COMPLETED", "Chỉ có thể ghi nhận hoàn tiền cho giao dịch đã thanh toán");
+        }
+        payment.setStatus(PaymentStatus.REFUNDED);
+        payment.setGatewayResponseCode("REFUND_CONFIRMED");
+        payments.save(payment);
+        cancel(order, payment, defaultNote(note, "Đã xác nhận hoàn tiền và hủy đơn hàng"));
+        return order;
+    }
+
     private void cancel(Order order, Payment payment, String note) {
+        boolean preserveUsedCouponHistory = order.getStatus() == OrderStatus.COMPLETED;
         boolean newlyCanceled = order.getStatus() != OrderStatus.CANCELED;
         if (newlyCanceled) {
             order.setStatus(OrderStatus.CANCELED);
@@ -218,12 +242,14 @@ public class OrderLifecycleService {
             payment.setGatewayResponseCode("ORDER_CANCELED");
             payments.save(payment);
         }
-        releaseInventoryAndCoupon(order);
+        releaseInventory(order);
+        couponEngine.releaseForCancellation(order, preserveUsedCouponHistory);
+        loyalty.restoreRedemption(order);
         Order saved = orders.save(order);
         if (newlyCanceled) notifications.notifyUser(saved.getUser(), "order", "Đơn hàng #" + saved.getId() + " đã bị hủy", "/orders/" + saved.getId());
     }
 
-    private void releaseInventoryAndCoupon(Order order) {
+    private void releaseInventory(Order order) {
         if (order.getInventoryReleasedAt() != null) {
             return;
         }
@@ -247,13 +273,6 @@ public class OrderLifecycleService {
         }
         products.saveAll(lockedProducts.values());
 
-        if (order.getCoupon() != null) {
-            Coupon coupon = coupons.findByIdForUpdate(order.getCoupon().getId()).orElse(null);
-            if (coupon != null && coupon.getTimesUsed() > 0) {
-                coupon.setTimesUsed(coupon.getTimesUsed() - 1);
-                coupons.save(coupon);
-            }
-        }
         order.setInventoryReleasedAt(LocalDateTime.now());
     }
 

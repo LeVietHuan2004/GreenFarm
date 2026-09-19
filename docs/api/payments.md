@@ -22,6 +22,36 @@ Accepted values are `cod` and `vnpay`. A COD order receives a pending payment re
 For VNPAY, the response contains `payment.paymentUrl`; the client redirects the
 customer to that URL.
 
+## Hóa đơn trên web và email
+
+Khách được chuyển đến `/orders/{id}/invoice` ngay sau khi tạo đơn COD hoặc sau khi
+VNPAY xác nhận thanh toán. Trang hóa đơn chỉ dùng được bởi chủ đơn, hiển thị đầy đủ
+sản phẩm, địa chỉ, thanh toán, giảm giá và tổng tiền; người dùng có thể in/lưu PDF
+ngay từ trình duyệt.
+
+Backend gửi một hóa đơn HTML đến email đăng ký của khách hàng:
+
+- COD: gửi sau khi đơn được tạo thành công (thể hiện thanh toán khi nhận hàng).
+- VNPAY: chỉ gửi khi callback có chữ ký hợp lệ xác nhận thanh toán thành công.
+- Mốc gửi được lưu trên payment để callback lặp không gửi trùng.
+
+Tính năng gửi email được tắt mặc định để local development không cố gắng gửi SMTP.
+Thiết lập các biến sau trong `.env` để bật:
+
+```dotenv
+STOREFRONT_URL=https://your-domain.example
+INVOICE_EMAIL_ENABLED=true
+INVOICE_EMAIL_FROM=billing@your-domain.example
+MAIL_HOST=smtp.example.com
+MAIL_PORT=587
+MAIL_USERNAME=billing@your-domain.example
+MAIL_PASSWORD=your-smtp-app-password
+MAIL_SMTP_AUTH=true
+MAIL_SMTP_STARTTLS_ENABLE=true
+```
+
+Lỗi SMTP được ghi log và không làm đơn hàng hoặc thanh toán đã xác nhận bị rollback.
+
 ## VNPAY callbacks
 
 - `GET /api/payments/vnpay/return` verifies the signed browser return and redirects

@@ -3,7 +3,8 @@ package com.agri.ecommerce.entity;
 public enum PaymentStatus {
     PENDING("pending"),
     COMPLETED("completed"),
-    FAILED("failed");
+    FAILED("failed"),
+    REFUNDED("refunded");
 
     private final String value;
 

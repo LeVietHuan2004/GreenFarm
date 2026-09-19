@@ -1,6 +1,7 @@
 package com.agri.ecommerce.repository;
 
 import com.agri.ecommerce.entity.Order;
+import com.agri.ecommerce.entity.OrderItem;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -29,6 +30,15 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         """)
     boolean hasPurchasedProduct(@Param("userId") Long userId, @Param("productId") Long productId,
                                 @Param("statuses") List<com.agri.ecommerce.entity.OrderStatus> statuses);
+    @Query("""
+        select item from Order purchaseOrder join purchaseOrder.items item
+        where purchaseOrder.user.id = :userId and item.product.id = :productId
+          and purchaseOrder.status in :statuses
+        order by purchaseOrder.deliveredAt desc, purchaseOrder.id desc
+        """)
+    List<OrderItem> findPurchasedItems(@Param("userId") Long userId, @Param("productId") Long productId,
+                                       @Param("statuses") List<com.agri.ecommerce.entity.OrderStatus> statuses,
+                                       Pageable pageable);
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select purchaseOrder from Order purchaseOrder where purchaseOrder.id = :id")
     Optional<Order> findByIdForUpdate(@Param("id") Long id);

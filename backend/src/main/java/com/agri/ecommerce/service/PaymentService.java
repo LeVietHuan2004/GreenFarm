@@ -43,6 +43,8 @@ public class PaymentService {
 
     private final PaymentRepository payments;
     private final OrderLifecycleService orderLifecycle;
+    private final InvoiceEmailService invoiceEmails;
+    private final CouponEngineService couponEngine;
     private final String tmnCode;
     private final String hashSecret;
     private final String paymentUrl;
@@ -52,6 +54,8 @@ public class PaymentService {
     public PaymentService(
         PaymentRepository payments,
         OrderLifecycleService orderLifecycle,
+        InvoiceEmailService invoiceEmails,
+        CouponEngineService couponEngine,
         @Value("${app.payment.vnpay.tmn-code:}") String tmnCode,
         @Value("${app.payment.vnpay.hash-secret:}") String hashSecret,
         @Value("${app.payment.vnpay.payment-url:https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}") String paymentUrl,
@@ -60,6 +64,8 @@ public class PaymentService {
     ) {
         this.payments = payments;
         this.orderLifecycle = orderLifecycle;
+        this.invoiceEmails = invoiceEmails;
+        this.couponEngine = couponEngine;
         this.tmnCode = tmnCode;
         this.hashSecret = hashSecret;
         this.paymentUrl = paymentUrl;
@@ -93,6 +99,7 @@ public class PaymentService {
         payment = payments.save(payment);
 
         String redirectUrl = method == PaymentMethod.VNPAY ? buildVnpayUrl(payment, clientIp) : null;
+        if (method == PaymentMethod.COD) invoiceEmails.sendInvoiceIfEnabled(payment);
         return toResponse(payment, redirectUrl);
     }
 
@@ -135,6 +142,7 @@ public class PaymentService {
         }
 
         if (payment.getStatus() == PaymentStatus.COMPLETED) {
+            invoiceEmails.sendInvoiceIfEnabled(payment);
             return CallbackOutcome.confirmed("Giao dịch đã được xác nhận", payment.getOrder().getId(), reference, responseCode);
         }
         if (payment.getStatus() == PaymentStatus.FAILED || payment.getOrder().getStatus() == OrderStatus.CANCELED) {
@@ -154,6 +162,8 @@ public class PaymentService {
             payment.setStatus(PaymentStatus.FAILED);
         }
         payments.save(payment);
+        if (successful) couponEngine.markUsed(payment.getOrder());
+        if (successful) invoiceEmails.sendInvoiceIfEnabled(payment);
         if (!successful) {
             orderLifecycle.cancelForFailedPayment(payment.getOrder().getId(), "Thanh toán VNPAY không thành công");
         }

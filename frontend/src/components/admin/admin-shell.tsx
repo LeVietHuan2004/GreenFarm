@@ -29,7 +29,7 @@ import { RoleGuard } from "@/components/auth/role-guard";
 import { NotificationMenu } from "@/components/notifications/notification-menu";
 import { useAuthStore } from "@/stores/auth-store";
 
-export type AdminSection = "dashboard" | "users" | "categories" | "products" | "orders" | "coupons" | "contacts";
+export type AdminSection = "dashboard" | "users" | "categories" | "products" | "orders" | "coupons" | "contacts" | "profile";
 
 type AdminShellProps = {
   active: AdminSection;
@@ -45,7 +45,8 @@ const sectionTitles: Record<AdminSection, { title: string; description: string }
   products: { title: "Sản phẩm", description: "Nội dung, tồn kho và hình ảnh" },
   orders: { title: "Đơn hàng", description: "Xử lý đơn và trạng thái thanh toán" },
   coupons: { title: "Mã giảm giá", description: "Ưu đãi, thời hạn và lượt sử dụng" },
-  contacts: { title: "Liên hệ", description: "Yêu cầu hỗ trợ của khách hàng" }
+  contacts: { title: "Liên hệ", description: "Yêu cầu hỗ trợ của khách hàng" },
+  profile: { title: "Cài đặt tài khoản", description: "Hồ sơ và bảo mật quản trị viên" }
 };
 
 const primaryItems = [
@@ -123,7 +124,7 @@ export function AdminShell({ active, children }: AdminShellProps) {
           </nav>
 
           <div className="admin-sidebar-footer">
-            <Link href="/profile"><Settings size={17} /><span>Cài đặt tài khoản</span></Link>
+            <Link href="/admin/profile" className={active === "profile" ? "active" : ""}><Settings size={17} /><span>Cài đặt tài khoản</span></Link>
             <Link href="/" target="_blank"><Store size={17} /><span>Xem cửa hàng</span><ExternalLink size={13} /></Link>
             <div className="admin-sidebar-user">
               <span className="admin-user-avatar"><UserRound size={19} /></span>

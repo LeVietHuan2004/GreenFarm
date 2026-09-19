@@ -22,13 +22,14 @@ class OrderLifecycleServiceTest {
     @Mock OrderStatusHistoryRepository histories;
     @Mock PaymentRepository payments;
     @Mock ProductRepository products;
-    @Mock CouponRepository coupons;
+    @Mock CouponEngineService couponEngine;
     @Mock UserRepository users;
     @Mock NotificationService notifications;
+    @Mock LoyaltyService loyalty;
     OrderLifecycleService service;
 
     @BeforeEach void setUp() {
-        service = new OrderLifecycleService(orders, histories, payments, products, coupons, users, notifications);
+        service = new OrderLifecycleService(orders, histories, payments, products, couponEngine, users, notifications, loyalty);
         lenient().when(orders.save(any(Order.class))).thenAnswer(call -> call.getArgument(0));
         lenient().when(payments.save(any(Payment.class))).thenAnswer(call -> call.getArgument(0));
     }
@@ -38,15 +39,12 @@ class OrderLifecycleServiceTest {
         when(product.getId()).thenReturn(5L); when(product.getStock()).thenReturn(3);
         when(product.getStatus()).thenReturn(ProductStatus.OUT_OF_STOCK);
         OrderItem item = new OrderItem(); item.setProduct(product); item.setQuantity(2); item.setPrice(BigDecimal.TEN);
-        Coupon coupon = mock(Coupon.class);
-        when(coupon.getId()).thenReturn(7L); when(coupon.getTimesUsed()).thenReturn(2);
-        Order order = new Order(); order.setStatus(OrderStatus.PENDING); order.setCoupon(coupon); order.addItem(item);
+        Order order = new Order(); order.setStatus(OrderStatus.PENDING); order.addItem(item);
         Payment payment = new Payment(); payment.setOrder(order); payment.setPaymentMethod(PaymentMethod.VNPAY); payment.setStatus(PaymentStatus.FAILED);
 
         when(orders.findByIdForUpdate(11L)).thenReturn(Optional.of(order));
         when(payments.findByOrder_Id(11L)).thenReturn(Optional.of(payment));
         when(products.findAllByIdForUpdate(List.of(5L))).thenReturn(List.of(product));
-        when(coupons.findByIdForUpdate(7L)).thenReturn(Optional.of(coupon));
 
         service.cancelForFailedPayment(11L, "Thanh toán thất bại");
         service.cancelForFailedPayment(11L, "Lặp callback");
@@ -54,7 +52,7 @@ class OrderLifecycleServiceTest {
         assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELED);
         assertThat(order.getInventoryReleasedAt()).isNotNull();
         verify(product).setStock(5); verify(product).setStatus(ProductStatus.IN_STOCK);
-        verify(coupon).setTimesUsed(1);
+        verify(couponEngine, times(2)).releaseForCancellation(order, false);
         verify(products, times(1)).findAllByIdForUpdate(List.of(5L));
         verify(histories, times(1)).save(any(OrderStatusHistory.class));
     }
@@ -72,6 +70,40 @@ class OrderLifecycleServiceTest {
         assertThat(payment.getStatus()).isEqualTo(PaymentStatus.COMPLETED);
         assertThat(payment.getPaidAt()).isNotNull();
         assertThat(payment.getGatewayResponseCode()).isEqualTo("COD_COLLECTED");
+        verify(loyalty).rewardOrder(order);
+    }
+
+    @Test void confirmingARefundCancelsAndRestoresRedeemedPointsOnlyOnce() {
+        Order order = new Order();
+        order.setStatus(OrderStatus.PROCESSING);
+        order.setLoyaltyPointsUsed(120);
+        Payment payment = new Payment();
+        payment.setOrder(order);
+        payment.setPaymentMethod(PaymentMethod.VNPAY);
+        payment.setStatus(PaymentStatus.COMPLETED);
+        when(orders.findByIdForUpdate(20L)).thenReturn(Optional.of(order));
+        when(payments.findByOrder_Id(20L)).thenReturn(Optional.of(payment));
+
+        service.confirmRefundAndCancel(20L, "Đã hoàn tiền qua VNPAY");
+        service.confirmRefundAndCancel(20L, "Callback lặp");
+
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELED);
+        assertThat(payment.getStatus()).isEqualTo(PaymentStatus.REFUNDED);
+        assertThat(payment.getGatewayResponseCode()).isEqualTo("REFUND_CONFIRMED");
+        verify(loyalty, times(1)).restoreRedemption(order);
+        verify(histories, times(1)).save(any(OrderStatusHistory.class));
+        verify(payments, times(1)).save(payment);
+    }
+
+    @Test void completedRefundKeepsCouponUsageForAudit() {
+        Order order = new Order(); order.setStatus(OrderStatus.COMPLETED);
+        Payment payment = new Payment(); payment.setOrder(order); payment.setPaymentMethod(PaymentMethod.VNPAY); payment.setStatus(PaymentStatus.COMPLETED);
+        when(orders.findByIdForUpdate(21L)).thenReturn(Optional.of(order));
+        when(payments.findByOrder_Id(21L)).thenReturn(Optional.of(payment));
+
+        service.confirmRefundAndCancel(21L, "Hoàn đơn đã hoàn tất");
+
+        verify(couponEngine).releaseForCancellation(order, true);
     }
 
     @Test void onlineOrderCannotProcessBeforePaymentCompletes() {

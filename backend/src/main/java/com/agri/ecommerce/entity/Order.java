@@ -15,8 +15,13 @@ public class Order {
     @Column(nullable = false) private BigDecimal subtotal;
     @Column(name = "discount_amount", nullable = false) private BigDecimal discountAmount;
     @Column(name = "shipping_fee", nullable = false) private BigDecimal shippingFee;
+    @Column(name = "loyalty_points_used", nullable = false) private int loyaltyPointsUsed;
+    @Column(name = "loyalty_discount_amount", nullable = false) private BigDecimal loyaltyDiscountAmount = BigDecimal.ZERO;
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "coupon_id") private Coupon coupon;
     @Column(name = "coupon_code") private String couponCode;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "shipping_coupon_id") private Coupon shippingCoupon;
+    @Column(name = "shipping_coupon_code") private String shippingCouponCode;
+    @Column(name = "shipping_discount_amount", nullable = false) private BigDecimal shippingDiscountAmount = BigDecimal.ZERO;
     @Column(name = "total_price", nullable = false) private BigDecimal totalPrice;
     @Convert(converter = OrderStatusConverter.class) @Column(nullable = false) private OrderStatus status;
     @Column(name = "dispatched_at") private LocalDateTime dispatchedAt;
@@ -41,7 +46,12 @@ public class Order {
     public BigDecimal getSubtotal(){return subtotal;} public void setSubtotal(BigDecimal v){subtotal=v;}
     public BigDecimal getDiscountAmount(){return discountAmount;} public void setDiscountAmount(BigDecimal v){discountAmount=v;}
     public BigDecimal getShippingFee(){return shippingFee;} public void setShippingFee(BigDecimal v){shippingFee=v;}
+    public int getLoyaltyPointsUsed(){return loyaltyPointsUsed;} public void setLoyaltyPointsUsed(int v){loyaltyPointsUsed=v;}
+    public BigDecimal getLoyaltyDiscountAmount(){return loyaltyDiscountAmount;} public void setLoyaltyDiscountAmount(BigDecimal v){loyaltyDiscountAmount=v;}
     public Coupon getCoupon(){return coupon;} public void setCoupon(Coupon v){coupon=v;} public String getCouponCode(){return couponCode;} public void setCouponCode(String v){couponCode=v;}
+    public Coupon getShippingCoupon(){return shippingCoupon;} public void setShippingCoupon(Coupon value){shippingCoupon=value;}
+    public String getShippingCouponCode(){return shippingCouponCode;} public void setShippingCouponCode(String value){shippingCouponCode=value;}
+    public BigDecimal getShippingDiscountAmount(){return shippingDiscountAmount;} public void setShippingDiscountAmount(BigDecimal value){shippingDiscountAmount=value;}
     public BigDecimal getTotalPrice(){return totalPrice;} public void setTotalPrice(BigDecimal v){totalPrice=v;}
     public OrderStatus getStatus(){return status;} public void setStatus(OrderStatus v){status=v;}
     public LocalDateTime getDispatchedAt(){return dispatchedAt;} public void setDispatchedAt(LocalDateTime v){dispatchedAt=v;}

@@ -25,33 +25,38 @@ public class OrderService {
     private final ShippingAddressService addressService;
     private final CartItemRepository carts;
     private final ProductRepository products;
-    private final CouponRepository coupons;
+    private final CouponEngineService couponEngine;
     private final UserRepository users;
     private final PaymentService paymentService;
     private final OrderLifecycleService orderLifecycle;
     private final NotificationService notifications;
+    private final LoyaltyService loyalty;
 
     public OrderService(OrderRepository orders, OrderStatusHistoryRepository histories, ShippingAddressService addressService,
-                        CartItemRepository carts, ProductRepository products, CouponRepository coupons, UserRepository users,
-                        PaymentService paymentService, OrderLifecycleService orderLifecycle, NotificationService notifications) {
+                        CartItemRepository carts, ProductRepository products, CouponEngineService couponEngine, UserRepository users,
+                        PaymentService paymentService, OrderLifecycleService orderLifecycle, NotificationService notifications,
+                        LoyaltyService loyalty) {
         this.orders=orders; this.histories=histories; this.addressService=addressService; this.carts=carts;
-        this.products=products; this.coupons=coupons; this.users=users; this.paymentService=paymentService; this.orderLifecycle=orderLifecycle;
+        this.products=products; this.couponEngine=couponEngine; this.users=users; this.paymentService=paymentService; this.orderLifecycle=orderLifecycle;
         this.notifications=notifications;
+        this.loyalty=loyalty;
     }
 
     @Transactional(readOnly = true)
     public CheckoutPreviewResponse preview(Long userId, CheckoutRequest request) {
+        User user = users.findById(userId).orElseThrow(() -> new ApplicationException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "Không tìm thấy tài khoản"));
         addressService.findEntity(userId, request.shippingAddressId());
         var cart = requireCart(userId);
         validateCart(cart);
         BigDecimal subtotal = subtotal(cart);
-        Coupon coupon = findCoupon(request.couponCode(), false);
-        return calculate(subtotal, coupon);
+        BigDecimal shipping = shippingFee(subtotal);
+        CouponEngineService.Quote couponQuote = couponEngine.preview(userId, cart, subtotal, shipping, request.couponCode(), request.freeShippingCouponCode());
+        return calculate(subtotal, shipping, couponQuote, user, request.loyaltyPoints());
     }
 
     @Transactional
     public OrderResponse create(Long userId, CheckoutRequest request, String clientIp) {
-        users.findByIdForCommerceUpdate(userId).orElseThrow(() -> new ApplicationException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "Không tìm thấy tài khoản"));
+        User user = users.findByIdForCommerceUpdate(userId).orElseThrow(() -> new ApplicationException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "Không tìm thấy tài khoản"));
         ShippingAddress address = addressService.findEntity(userId, request.shippingAddressId());
         var cart = requireCart(userId);
         List<Long> productIds = cart.stream().map(item -> item.getProduct().getId()).sorted().toList();
@@ -59,16 +64,20 @@ public class OrderService {
         for (var item : cart) item.setProduct(lockedProducts.get(item.getProduct().getId()));
         validateCart(cart);
         BigDecimal subtotal = subtotal(cart);
-        Coupon coupon = findCoupon(request.couponCode(), true);
-        CheckoutPreviewResponse totals = calculate(subtotal, coupon);
+        BigDecimal shipping = shippingFee(subtotal);
+        CouponEngineService.Quote couponQuote = couponEngine.quoteForReservation(userId, cart, subtotal, shipping, request.couponCode(), request.freeShippingCouponCode());
+        CheckoutPreviewResponse totals = calculate(subtotal, shipping, couponQuote, user, request.loyaltyPoints());
 
         Order order = new Order();
-        order.setUser(users.getReferenceById(userId)); order.setShippingAddress(address);
+        order.setUser(user); order.setShippingAddress(address);
         order.setRecipientName(address.getFullName()); order.setRecipientPhone(address.getPhone());
         order.setShippingAddressLine(address.getAddress()); order.setShippingCity(address.getCity());
         order.setSubtotal(subtotal); order.setShippingFee(totals.shippingFee()); order.setDiscountAmount(totals.discountAmount());
+        order.setLoyaltyPointsUsed(totals.loyaltyPointsApplied()); order.setLoyaltyDiscountAmount(totals.loyaltyDiscountAmount());
+        order.setShippingDiscountAmount(totals.shippingDiscountAmount());
         order.setTotalPrice(totals.total()); order.setStatus(OrderStatus.PENDING);
-        if (coupon != null) { order.setCoupon(coupon); order.setCouponCode(coupon.getCode()); coupon.setTimesUsed(coupon.getTimesUsed()+1); coupons.save(coupon); }
+        if (couponQuote.productCoupon() != null) { order.setCoupon(couponQuote.productCoupon()); order.setCouponCode(couponQuote.productCoupon().getCode()); }
+        if (couponQuote.shippingCoupon() != null) { order.setShippingCoupon(couponQuote.shippingCoupon()); order.setShippingCouponCode(couponQuote.shippingCoupon().getCode()); }
 
         for (var cartItem : cart) {
             Product product = cartItem.getProduct();
@@ -80,6 +89,8 @@ public class OrderService {
         }
         OrderStatusHistory initial = new OrderStatusHistory(); initial.setStatus(OrderStatus.PENDING); initial.setNote("Đơn hàng đã được tạo"); order.addHistory(initial);
         Order saved = orders.save(order);
+        couponEngine.reserve(user, saved, couponQuote);
+        loyalty.redeem(user, saved, totals.loyaltyPointsApplied());
         PaymentResponse payment = paymentService.createForOrder(saved, PaymentMethod.fromRequestValue(request.paymentMethod()), clientIp);
         products.saveAll(lockedProducts.values());
         carts.deleteAllByUser_Id(userId);
@@ -131,6 +142,12 @@ public class OrderService {
         return toResponse(order, histories.findAllByOrder_IdOrderByChangedAtAscIdAsc(orderId), paymentService.findForOrder(orderId));
     }
 
+    @Transactional
+    public OrderResponse confirmRefundAndCancel(Long orderId, String note) {
+        Order order = orderLifecycle.confirmRefundAndCancel(orderId, note);
+        return toResponse(order, histories.findAllByOrder_IdOrderByChangedAtAscIdAsc(orderId), paymentService.findForOrder(orderId));
+    }
+
     @Transactional(readOnly = true)
     public List<OrderResponse> findStaffOrders() {
         return orders.findAllByStatusInOrderByCreatedAtDescIdDesc(List.of(OrderStatus.PENDING, OrderStatus.PROCESSING, OrderStatus.READY_FOR_DELIVERY, OrderStatus.DELIVERY_FAILED))
@@ -179,29 +196,19 @@ public class OrderService {
         }
     }
     private BigDecimal subtotal(List<CartItem> cart) { return cart.stream().map(item -> item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity()))).reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP); }
-    private Coupon findCoupon(String rawCode, boolean lock) {
-        if (rawCode==null || rawCode.isBlank()) return null;
-        String code=rawCode.trim();
-        Coupon coupon=(lock?coupons.findByCodeForUpdate(code):coupons.findByCodeIgnoreCase(code)).orElseThrow(() -> invalidCoupon("Mã giảm giá không tồn tại"));
-        LocalDateTime now=LocalDateTime.now();
-        if (!coupon.isActive() || (coupon.getStartsAt()!=null && now.isBefore(coupon.getStartsAt())) || (coupon.getExpiresAt()!=null && now.isAfter(coupon.getExpiresAt())) || (coupon.getUsageLimit()!=null && coupon.getTimesUsed()>=coupon.getUsageLimit()))
-            throw invalidCoupon("Mã giảm giá đã hết hạn hoặc hết lượt sử dụng");
-        return coupon;
+    private CheckoutPreviewResponse calculate(BigDecimal subtotal, BigDecimal shipping, CouponEngineService.Quote couponQuote,
+                                              User user, Integer requestedLoyaltyPoints) {
+        BigDecimal afterProductCoupon = subtotal.subtract(couponQuote.productDiscount()).setScale(2, RoundingMode.HALF_UP);
+        LoyaltyService.Quote loyaltyQuote = loyalty.quote(user, requestedLoyaltyPoints, afterProductCoupon);
+        BigDecimal total = afterProductCoupon.subtract(loyaltyQuote.discountAmount())
+            .add(shipping).subtract(couponQuote.shippingDiscount()).max(BigDecimal.ZERO).setScale(2, RoundingMode.HALF_UP);
+        return new CheckoutPreviewResponse(subtotal, shipping, couponQuote.productDiscount(), loyaltyQuote.discountAmount(),
+            loyaltyQuote.pointsApplied(), couponQuote.shippingDiscount(), total,
+            couponQuote.productCoupon() == null ? null : couponQuote.productCoupon().getCode(),
+            couponQuote.shippingCoupon() == null ? null : couponQuote.shippingCoupon().getCode(),
+            couponQuote.productDescription(), couponQuote.shippingDescription());
     }
-    private CheckoutPreviewResponse calculate(BigDecimal subtotal, Coupon coupon) {
-        BigDecimal shipping=subtotal.compareTo(FREE_SHIPPING_THRESHOLD)>=0?BigDecimal.ZERO:STANDARD_SHIPPING_FEE;
-        BigDecimal discount=BigDecimal.ZERO; String description=null;
-        if (coupon!=null) {
-            if (coupon.getCouponType() == CouponType.FREESHIP) { shipping=BigDecimal.ZERO; description="Miễn phí giao hàng"; }
-            else if (coupon.getDiscountType() == DiscountType.PERCENTAGE) { discount=subtotal.multiply(BigDecimal.valueOf(coupon.getDiscountPercentage())).divide(BigDecimal.valueOf(100),2,RoundingMode.HALF_UP); description="Giảm "+coupon.getDiscountPercentage()+"%"; }
-            else if (coupon.getDiscountType() == DiscountType.FIXED_AMOUNT) { discount=Optional.ofNullable(coupon.getDiscountAmount()).orElse(BigDecimal.ZERO); description="Giảm "+discount.setScale(0,RoundingMode.HALF_UP)+"đ"; }
-            else { throw invalidCoupon("Loại mã giảm giá không hợp lệ"); }
-        }
-        discount=discount.min(subtotal).max(BigDecimal.ZERO).setScale(2,RoundingMode.HALF_UP);
-        BigDecimal total=subtotal.subtract(discount).add(shipping).setScale(2,RoundingMode.HALF_UP);
-        return new CheckoutPreviewResponse(subtotal,shipping,discount,total,coupon==null?null:coupon.getCode(),description);
-    }
-    private ApplicationException invalidCoupon(String message){return new ApplicationException(HttpStatus.CONFLICT,"INVALID_COUPON",message);}
+    private BigDecimal shippingFee(BigDecimal subtotal) { return subtotal.compareTo(FREE_SHIPPING_THRESHOLD)>=0?BigDecimal.ZERO:STANDARD_SHIPPING_FEE; }
     private OrderStatus parseStatus(String value) {
         try { return OrderStatus.fromValue(value.trim()); }
         catch (IllegalArgumentException exception) { throw new ApplicationException(HttpStatus.BAD_REQUEST,"INVALID_ORDER_STATUS",exception.getMessage()); }
@@ -213,7 +220,7 @@ public class OrderService {
     private OrderResponse toResponse(Order order, List<OrderStatusHistory> history, PaymentResponse payment) {
         var items=order.getItems().stream().map(item -> new OrderItemResponse(item.getId(), item.getProduct().getId(), item.getProduct().getSlug(), item.getProductName(), item.getProductUnit(), item.getProductImage(), item.getQuantity(), item.getPrice(), item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))).toList();
         var statusHistory=history.stream().map(item -> new OrderStatusHistoryResponse(item.getId(), item.getStatus().getValue(), item.getNote(), item.getChangedAt())).toList();
-        return new OrderResponse(order.getId(),order.getStatus().getValue(),order.getSubtotal(),order.getShippingFee(),order.getDiscountAmount(),order.getTotalPrice(),order.getCouponCode(),order.getRecipientName(),order.getRecipientPhone(),order.getShippingAddressLine(),order.getShippingCity(),items,statusHistory,order.getCreatedAt(),order.getUpdatedAt(),payment,deliveryStaffId(order),deliveryStaffName(order),order.getDeliveryClaimedAt(),order.getDeliveryFailureReason());
+        return new OrderResponse(order.getId(),order.getStatus().getValue(),order.getSubtotal(),order.getShippingFee(),order.getDiscountAmount(),order.getTotalPrice(),order.getCouponCode(),order.getRecipientName(),order.getRecipientPhone(),order.getShippingAddressLine(),order.getShippingCity(),items,statusHistory,order.getCreatedAt(),order.getUpdatedAt(),payment,deliveryStaffId(order),deliveryStaffName(order),order.getDeliveryClaimedAt(),order.getDeliveryFailureReason(),order.getLoyaltyPointsUsed(),order.getLoyaltyDiscountAmount(),order.getShippingCouponCode(),order.getShippingDiscountAmount());
     }
     private OrderResponse toOperationalResponse(Order order) { return toResponse(order, histories.findAllByOrder_IdOrderByChangedAtAscIdAsc(order.getId()), paymentService.findForOrder(order.getId())); }
     private Long deliveryStaffId(Order order) { return order.getDeliveryStaff() == null ? null : order.getDeliveryStaff().getId(); }

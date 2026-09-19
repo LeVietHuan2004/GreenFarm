@@ -1,134 +1,67 @@
 "use client";
 
-import { BadgePercent, CalendarClock, Pencil, Plus, RotateCcw, TicketPercent } from "lucide-react";
-import { FormEvent, useCallback, useEffect, useState } from "react";
-
+import { BadgePercent, CalendarClock, Check, Pencil, Plus, RotateCcw, Search, TicketPercent, Trash2 } from "lucide-react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { formatPrice } from "@/lib/catalog-format";
-import { createAdminCoupon, getAdminCoupons, updateAdminCoupon, updateAdminCouponActive } from "@/services/admin-service";
+import { createAdminCoupon, deleteAdminCoupon, getAdminCoupons, getAdminCouponUsages, updateAdminCoupon, updateAdminCouponActive } from "@/services/admin-service";
+import { getAdminCategories, getAdminProducts } from "@/services/catalog-service";
 import { useAuthStore } from "@/stores/auth-store";
-import type { AdminCoupon, AdminCouponInput, CouponType, DiscountType } from "@/types/admin";
-import type { PageData } from "@/types/catalog";
+import type { AdminCoupon, AdminCouponInput, CouponScopeType, CouponType, CouponUsage, DiscountType } from "@/types/admin";
+import type { Category, PageData, Product } from "@/types/catalog";
 
 type CouponForm = {
-  code: string; couponType: CouponType; discountType: DiscountType; discountPercentage: string;
-  discountAmount: string; startsAt: string; expiresAt: string; usageLimit: string; active: boolean;
+  code:string; name:string; description:string; couponType:CouponType; discountType:DiscountType; discountPercentage:string;
+  discountAmount:string; maxDiscountAmount:string; minimumOrderAmount:string; scopeType:CouponScopeType;
+  categoryIds:number[]; productIds:number[]; startsAt:string; expiresAt:string; usageLimit:string; usageLimitPerUser:string; active:boolean;
 };
 
-const emptyPage: PageData<AdminCoupon> = { content: [], page: 0, size: 20, totalElements: 0, totalPages: 0, first: true, last: true };
-const emptyForm: CouponForm = { code: "", couponType: "ORDER_DISCOUNT", discountType: "PERCENTAGE", discountPercentage: "10", discountAmount: "", startsAt: "", expiresAt: "", usageLimit: "", active: true };
+const emptyPage:PageData<AdminCoupon>={content:[],page:0,size:20,totalElements:0,totalPages:0,first:true,last:true};
+const emptyForm:CouponForm={code:"",name:"",description:"",couponType:"ORDER_DISCOUNT",discountType:"PERCENTAGE",discountPercentage:"10",discountAmount:"",maxDiscountAmount:"",minimumOrderAmount:"",scopeType:"ALL",categoryIds:[],productIds:[],startsAt:"",expiresAt:"",usageLimit:"",usageLimitPerUser:"",active:true};
 
-function toForm(coupon: AdminCoupon): CouponForm {
-  return {
-    code: coupon.code, couponType: coupon.couponType, discountType: coupon.discountType,
-    discountPercentage: String(coupon.discountPercentage), discountAmount: coupon.discountAmount == null ? "" : String(coupon.discountAmount),
-    startsAt: coupon.startsAt?.slice(0, 16) ?? "", expiresAt: coupon.expiresAt?.slice(0, 16) ?? "",
-    usageLimit: coupon.usageLimit == null ? "" : String(coupon.usageLimit), active: coupon.active
-  };
-}
+function toForm(coupon:AdminCoupon):CouponForm{return {code:coupon.code,name:coupon.name,description:coupon.description??"",couponType:coupon.couponType,discountType:coupon.discountType,discountPercentage:String(coupon.discountPercentage),discountAmount:coupon.discountAmount==null?"":String(coupon.discountAmount),maxDiscountAmount:coupon.maxDiscountAmount==null?"":String(coupon.maxDiscountAmount),minimumOrderAmount:coupon.minimumOrderAmount==null?"":String(coupon.minimumOrderAmount),scopeType:coupon.scopeType,categoryIds:coupon.categoryIds,productIds:coupon.productIds,startsAt:coupon.startsAt?.slice(0,16)??"",expiresAt:coupon.expiresAt?.slice(0,16)??"",usageLimit:coupon.usageLimit==null?"":String(coupon.usageLimit),usageLimitPerUser:coupon.usageLimitPerUser==null?"":String(coupon.usageLimitPerUser),active:coupon.active};}
+function toInput(form:CouponForm):AdminCouponInput{return {code:form.code.trim().toUpperCase(),name:form.name.trim(),description:form.description.trim()||null,couponType:form.couponType,discountType:form.discountType,discountPercentage:form.couponType==="FREESHIP"?0:Number(form.discountPercentage||0),discountAmount:form.couponType==="ORDER_DISCOUNT"&&form.discountType==="FIXED_AMOUNT"?Number(form.discountAmount||0):null,maxDiscountAmount:form.maxDiscountAmount?Number(form.maxDiscountAmount):null,minimumOrderAmount:form.minimumOrderAmount?Number(form.minimumOrderAmount):null,scopeType:form.scopeType,categoryIds:form.scopeType==="CATEGORY"?form.categoryIds:[],productIds:form.scopeType==="PRODUCT"?form.productIds:[],startsAt:form.startsAt||null,expiresAt:form.expiresAt||null,usageLimit:form.usageLimit?Number(form.usageLimit):null,usageLimitPerUser:form.usageLimitPerUser?Number(form.usageLimitPerUser):null,active:form.active};}
+function toggle(values:number[],id:number){return values.includes(id)?values.filter(value=>value!==id):[...values,id];}
+function couponState(coupon:AdminCoupon){const now=Date.now();if(!coupon.active)return {label:"Đã tắt",className:"unavailable"};if(coupon.startsAt&&new Date(coupon.startsAt).getTime()>now)return {label:"Sắp diễn ra",className:"upcoming"};if(coupon.expiresAt&&new Date(coupon.expiresAt).getTime()<now)return {label:"Hết hạn",className:"expired"};if(!coupon.currentlyUsable)return {label:"Hết lượt",className:"unavailable"};return {label:"Đang hoạt động",className:"usable"};}
 
-function toInput(form: CouponForm): AdminCouponInput {
-  return {
-    code: form.code.trim().toUpperCase(), couponType: form.couponType, discountType: form.discountType,
-    discountPercentage: form.couponType === "FREESHIP" ? 0 : Number(form.discountPercentage || 0),
-    discountAmount: form.couponType === "ORDER_DISCOUNT" && form.discountType === "FIXED_AMOUNT" ? Number(form.discountAmount || 0) : null,
-    startsAt: form.startsAt || null, expiresAt: form.expiresAt || null,
-    usageLimit: form.usageLimit ? Number(form.usageLimit) : null, active: form.active
-  };
-}
+export function AdminCoupons(){
+  const {user,token,hasHydrated}=useAuthStore(); const adminReady=hasHydrated&&Boolean(token)&&user?.role==="admin";
+  const [coupons,setCoupons]=useState<PageData<AdminCoupon>>(emptyPage); const [categories,setCategories]=useState<Category[]>([]); const [products,setProducts]=useState<Product[]>([]);
+  const [activeFilter,setActiveFilter]=useState<""|"true"|"false">(""); const [form,setForm]=useState<CouponForm>(emptyForm); const [editingId,setEditingId]=useState<number|null>(null);
+  const [protectedLocked,setProtectedLocked]=useState(false); const [productSearch,setProductSearch]=useState(""); const [saving,setSaving]=useState(false);
+  const [error,setError]=useState<string|null>(null); const [message,setMessage]=useState<string|null>(null); const [usageHistory,setUsageHistory]=useState<{couponId:number;rows:CouponUsage[]}|null>(null);
+  const filteredProducts=useMemo(()=>{const query=productSearch.trim().toLocaleLowerCase("vi");return query?products.filter(product=>product.name.toLocaleLowerCase("vi").includes(query)||String(product.id)===query):products;},[productSearch,products]);
 
-export function AdminCoupons() {
-  const { user, token, hasHydrated } = useAuthStore();
-  const adminReady = hasHydrated && Boolean(token) && user?.role === "admin";
-  const [coupons, setCoupons] = useState<PageData<AdminCoupon>>(emptyPage);
-  const [activeFilter, setActiveFilter] = useState<"" | "true" | "false">("");
-  const [form, setForm] = useState<CouponForm>(emptyForm);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const loadCoupons=useCallback(async()=>{try{setCoupons(await getAdminCoupons({active:activeFilter===""?undefined:activeFilter==="true",page:0,size:50,sort:"createdAt,desc"}));setError(null);}catch(reason){setError(getApiErrorMessage(reason));}},[activeFilter]);
+  useEffect(()=>{if(!adminReady)return;const timer=window.setTimeout(()=>{void loadCoupons();Promise.all([getAdminCategories(),getAdminProducts({page:0,size:100,sort:"name,asc"})]).then(([categoryRows,productPage])=>{setCategories(categoryRows);setProducts(productPage.content);}).catch(reason=>setError(getApiErrorMessage(reason)));},0);return()=>window.clearTimeout(timer);},[adminReady,loadCoupons]);
 
-  const loadCoupons = useCallback(async () => {
-    try {
-      setCoupons(await getAdminCoupons({ active: activeFilter === "" ? undefined : activeFilter === "true", page: 0, size: 50, sort: "createdAt,desc" }));
-      setError(null);
-    } catch (requestError) {
-      setError(getApiErrorMessage(requestError));
-    }
-  }, [activeFilter]);
+  const resetForm=()=>{setEditingId(null);setProtectedLocked(false);setForm(emptyForm);setProductSearch("");};
+  const beginEdit=async(coupon:AdminCoupon)=>{setEditingId(coupon.id);setForm(toForm(coupon));setProtectedLocked(coupon.timesUsed>0);setError(null);try{const rows=await getAdminCouponUsages(coupon.id);setProtectedLocked(rows.length>0);setUsageHistory({couponId:coupon.id,rows});}catch(reason){setError(getApiErrorMessage(reason));}};
+  const submit=async(event:FormEvent<HTMLFormElement>)=>{event.preventDefault();if(form.scopeType==="CATEGORY"&&form.categoryIds.length===0){setError("Hãy chọn ít nhất một danh mục áp dụng.");return;}if(form.scopeType==="PRODUCT"&&form.productIds.length===0){setError("Hãy chọn ít nhất một sản phẩm áp dụng.");return;}setSaving(true);setError(null);setMessage(null);try{const saved=editingId==null?await createAdminCoupon(toInput(form)):await updateAdminCoupon(editingId,toInput(form));setMessage(`Đã ${editingId==null?"tạo":"cập nhật"} mã ${saved.code}.`);resetForm();await loadCoupons();}catch(reason){setError(getApiErrorMessage(reason));}finally{setSaving(false);}};
+  const toggleActive=async(coupon:AdminCoupon)=>{setError(null);try{const updated=await updateAdminCouponActive(coupon.id,!coupon.active);setCoupons(current=>({...current,content:current.content.map(item=>item.id===updated.id?updated:item)}));setMessage(`${updated.code} đã được ${updated.active?"kích hoạt":"tạm dừng"}.`);}catch(reason){setError(getApiErrorMessage(reason));}};
+  const removeCoupon=async(coupon:AdminCoupon)=>{if(!window.confirm(`Xóa mã ${coupon.code}? Coupon đã có lịch sử chỉ có thể tạm dừng.`))return;setError(null);try{await deleteAdminCoupon(coupon.id);if(editingId===coupon.id)resetForm();setMessage(`Đã xóa mã ${coupon.code}.`);await loadCoupons();}catch(reason){setError(getApiErrorMessage(reason));}};
+  const showHistory=async(coupon:AdminCoupon)=>{try{setUsageHistory({couponId:coupon.id,rows:await getAdminCouponUsages(coupon.id)});}catch(reason){setError(getApiErrorMessage(reason));}};
 
-  useEffect(() => {
-    if (!adminReady) return;
-    const timer = window.setTimeout(() => { void loadCoupons(); }, 0);
-    return () => window.clearTimeout(timer);
-  }, [adminReady, loadCoupons]);
+  return <AdminShell active="coupons"><main className="admin-catalog-main admin-operations-main admin-voucher-main">
+    <header className="admin-page-heading"><div><span className="eyebrow">Khuyến mãi · Voucher</span><h1>Quản lý voucher</h1><p>Tạo ưu đãi theo từng bước, chọn đúng sản phẩm và kiểm soát lượt sử dụng.</p></div><span className="admin-count"><TicketPercent size={15}/>{coupons.totalElements} mã</span></header>
+    {error&&<p className="catalog-notice error">{error}</p>}{message&&<p className="catalog-notice success">{message}</p>}
+    <div className="voucher-builder-layout">
+      <form className="admin-list-card voucher-builder" onSubmit={submit}>
+        <div className="voucher-builder-heading"><span><Plus size={19}/></span><div><strong>{editingId==null?"Tạo voucher mới":`Chỉnh sửa ${form.code}`}</strong><small>Hoàn thành lần lượt 4 bước bên dưới</small></div></div>
+        <ol className="voucher-steps"><li className="active"><span>1</span>Thông tin</li><li><span>2</span>Ưu đãi</li><li><span>3</span>Phạm vi</li><li><span>4</span>Phát hành</li></ol>
 
-  const resetForm = () => { setEditingId(null); setForm(emptyForm); };
+        <fieldset><legend><span>1</span><div>Thông tin chương trình<small>Đặt tên và mã dễ nhận biết</small></div></legend><div className="admin-form-grid"><label>Mã voucher<input required maxLength={50} pattern="[A-Za-z0-9_-]+" value={form.code} onChange={event=>setForm({...form,code:event.target.value.toUpperCase()})} placeholder="GREEN10"/></label><label>Tên chương trình<input required maxLength={150} value={form.name} onChange={event=>setForm({...form,name:event.target.value})} placeholder="Ưu đãi khách hàng mới"/></label></div><label>Mô tả<textarea maxLength={500} value={form.description} onChange={event=>setForm({...form,description:event.target.value})} placeholder="Mô tả ngắn điều kiện và lợi ích của voucher"/></label></fieldset>
 
-  const submit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setSaving(true); setError(null); setMessage(null);
-    try {
-      const saved = editingId == null ? await createAdminCoupon(toInput(form)) : await updateAdminCoupon(editingId, toInput(form));
-      setMessage(`Đã ${editingId == null ? "tạo" : "cập nhật"} mã ${saved.code}.`);
-      resetForm();
-      await loadCoupons();
-    } catch (requestError) {
-      setError(getApiErrorMessage(requestError));
-    } finally {
-      setSaving(false);
-    }
-  };
+        <fieldset disabled={protectedLocked}><legend><span>2</span><div>Giá trị ưu đãi<small>{protectedLocked?"Đã khóa vì voucher có lịch sử sử dụng":"Chọn loại và mức giảm"}</small></div></legend><div className="voucher-choice-grid"><button type="button" className={form.couponType==="ORDER_DISCOUNT"?"selected":""} onClick={()=>setForm({...form,couponType:"ORDER_DISCOUNT"})}><BadgePercent size={18}/><strong>Giảm tiền hàng</strong><small>Theo % hoặc số tiền</small></button><button type="button" className={form.couponType==="FREESHIP"?"selected":""} onClick={()=>setForm({...form,couponType:"FREESHIP"})}><TicketPercent size={18}/><strong>Giảm phí vận chuyển</strong><small>Tối đa bằng phí ship</small></button></div>{form.couponType==="ORDER_DISCOUNT"&&<div className="admin-form-grid"><label>Cách giảm<select value={form.discountType} onChange={event=>setForm({...form,discountType:event.target.value as DiscountType})}><option value="PERCENTAGE">Phần trăm</option><option value="FIXED_AMOUNT">Số tiền cố định</option></select></label>{form.discountType==="PERCENTAGE"?<label>Mức giảm (%)<input required type="number" min="1" max="100" value={form.discountPercentage} onChange={event=>setForm({...form,discountPercentage:event.target.value})}/></label>:<label>Số tiền giảm<input required type="number" min="1" value={form.discountAmount} onChange={event=>setForm({...form,discountAmount:event.target.value})}/></label>}</div>}<div className="admin-form-grid"><label>Giảm tối đa<input type="number" min="1" value={form.maxDiscountAmount} onChange={event=>setForm({...form,maxDiscountAmount:event.target.value})} placeholder={form.couponType==="FREESHIP"?"Ví dụ 30.000":"Không giới hạn"}/></label><label>Giá trị đơn tối thiểu<input type="number" min="0" value={form.minimumOrderAmount} onChange={event=>setForm({...form,minimumOrderAmount:event.target.value})} placeholder="0"/></label></div></fieldset>
 
-  const toggleActive = async (coupon: AdminCoupon) => {
-    setError(null); setMessage(null);
-    try {
-      const updated = await updateAdminCouponActive(coupon.id, !coupon.active);
-      setCoupons((current) => ({ ...current, content: current.content.map((item) => item.id === updated.id ? updated : item) }));
-      setMessage(`${updated.code} đã được ${updated.active ? "kích hoạt" : "tạm dừng"}.`);
-    } catch (requestError) {
-      setError(getApiErrorMessage(requestError));
-    }
-  };
+        <fieldset disabled={protectedLocked}><legend><span>3</span><div>Phạm vi áp dụng<small>{protectedLocked?"Phạm vi đã khóa":"Không cần nhập ID thủ công"}</small></div></legend><div className="voucher-scope-tabs">{(["ALL","CATEGORY","PRODUCT"] as CouponScopeType[]).map(scope=><button type="button" key={scope} className={form.scopeType===scope?"selected":""} onClick={()=>setForm({...form,scopeType:scope})}>{scope==="ALL"?"Toàn cửa hàng":scope==="CATEGORY"?"Theo danh mục":"Theo sản phẩm"}</button>)}</div>{form.scopeType==="ALL"&&<p className="voucher-hint"><Check size={15}/>Áp dụng cho toàn bộ sản phẩm hợp lệ trong giỏ hàng.</p>}{form.scopeType==="CATEGORY"&&<div className="voucher-option-list">{categories.map(category=><label key={category.id} className={form.categoryIds.includes(category.id)?"selected":""}><input type="checkbox" checked={form.categoryIds.includes(category.id)} onChange={()=>setForm({...form,categoryIds:toggle(form.categoryIds,category.id)})}/><span><strong>{category.name}</strong><small>{category.productCount} sản phẩm</small></span><Check size={15}/></label>)}</div>}{form.scopeType==="PRODUCT"&&<><label className="voucher-product-search"><Search size={15}/><input value={productSearch} onChange={event=>setProductSearch(event.target.value)} placeholder="Tìm tên hoặc ID sản phẩm"/></label><div className="voucher-option-list products">{filteredProducts.map(product=><label key={product.id} className={form.productIds.includes(product.id)?"selected":""}><input type="checkbox" checked={form.productIds.includes(product.id)} onChange={()=>setForm({...form,productIds:toggle(form.productIds,product.id)})}/><span><strong>{product.name}</strong><small>#{product.id} · {formatPrice(product.price)}</small></span><Check size={15}/></label>)}</div></>}</fieldset>
 
-  return (
-    <AdminShell active="coupons">
-      <main className="admin-catalog-main admin-operations-main">
-        <header className="admin-page-heading">
-          <div><span className="eyebrow">Khuyến mãi · Coupon</span><h1>Quản lý mã giảm giá</h1><p>Tạo ưu đãi, đặt thời hạn và kiểm soát số lượt sử dụng.</p></div>
-          <span className="admin-count"><TicketPercent size={15} /> {coupons.totalElements} mã</span>
-        </header>
-        {error && <p className="catalog-notice error">{error}</p>}
-        {message && <p className="catalog-notice success">{message}</p>}
+        <fieldset><legend><span>4</span><div>Thời gian và giới hạn<small>Kiểm soát cách voucher được phát hành</small></div></legend><div className="admin-form-grid"><label>Bắt đầu<input type="datetime-local" value={form.startsAt} onChange={event=>setForm({...form,startsAt:event.target.value})}/></label><label>Kết thúc<input type="datetime-local" value={form.expiresAt} onChange={event=>setForm({...form,expiresAt:event.target.value})}/></label><label>Tổng lượt sử dụng<input type="number" min="1" value={form.usageLimit} onChange={event=>setForm({...form,usageLimit:event.target.value})} placeholder="Không giới hạn"/></label><label>Lượt mỗi khách<input type="number" min="1" value={form.usageLimitPerUser} onChange={event=>setForm({...form,usageLimitPerUser:event.target.value})} placeholder="Không giới hạn"/></label></div><label className="voucher-publish-toggle"><input type="checkbox" checked={form.active} onChange={event=>setForm({...form,active:event.target.checked})}/><span><strong>Kích hoạt voucher</strong><small>Tắt lựa chọn này nếu chỉ muốn lưu bản nháp</small></span></label></fieldset>
+        <div className="voucher-builder-actions"><button className="primary-button" disabled={saving}>{saving?"Đang lưu...":editingId==null?"Tạo voucher":"Lưu thay đổi"}</button>{editingId!=null&&<button className="secondary-button" type="button" onClick={resetForm}><RotateCcw size={15}/>Hủy chỉnh sửa</button>}</div>
+      </form>
 
-        <div className="admin-coupon-layout">
-          <form className="admin-list-card admin-coupon-form" onSubmit={submit}>
-            <div className="admin-form-heading"><span><Plus size={18} /></span><div><strong>{editingId == null ? "Tạo mã mới" : `Sửa ${form.code}`}</strong><small>Thông tin áp dụng tại checkout</small></div></div>
-            <label>Mã coupon<input required maxLength={50} pattern="[A-Za-z0-9_-]+" value={form.code} onChange={(event) => setForm({ ...form, code: event.target.value.toUpperCase() })} placeholder="GREEN10" /></label>
-            <label>Loại ưu đãi<select value={form.couponType} onChange={(event) => setForm({ ...form, couponType: event.target.value as CouponType })}><option value="ORDER_DISCOUNT">Giảm giá đơn hàng</option><option value="FREESHIP">Miễn phí giao hàng</option></select></label>
-            {form.couponType === "ORDER_DISCOUNT" && <>
-              <label>Cách giảm<select value={form.discountType} onChange={(event) => setForm({ ...form, discountType: event.target.value as DiscountType })}><option value="PERCENTAGE">Theo phần trăm</option><option value="FIXED_AMOUNT">Số tiền cố định</option></select></label>
-              {form.discountType === "PERCENTAGE" ? <label>Phần trăm (%)<input required type="number" min="1" max="100" value={form.discountPercentage} onChange={(event) => setForm({ ...form, discountPercentage: event.target.value })} /></label> : <label>Số tiền giảm<input required type="number" min="1" value={form.discountAmount} onChange={(event) => setForm({ ...form, discountAmount: event.target.value })} /></label>}
-            </>}
-            <div className="admin-form-grid"><label>Bắt đầu<input type="datetime-local" value={form.startsAt} onChange={(event) => setForm({ ...form, startsAt: event.target.value })} /></label><label>Hết hạn<input type="datetime-local" value={form.expiresAt} onChange={(event) => setForm({ ...form, expiresAt: event.target.value })} /></label></div>
-            <label>Giới hạn lượt dùng<input type="number" min="1" value={form.usageLimit} onChange={(event) => setForm({ ...form, usageLimit: event.target.value })} placeholder="Không giới hạn" /></label>
-            <label className="admin-checkbox"><input type="checkbox" checked={form.active} onChange={(event) => setForm({ ...form, active: event.target.checked })} /> Kích hoạt ngay</label>
-            <div className="admin-form-actions"><button className="primary-button" disabled={saving} type="submit">{saving ? "Đang lưu..." : editingId == null ? "Tạo coupon" : "Lưu thay đổi"}</button>{editingId != null && <button className="secondary-button" type="button" onClick={resetForm}><RotateCcw size={15} /> Hủy sửa</button>}</div>
-          </form>
-
-          <section className="admin-list-card admin-coupon-list">
-            <div className="admin-operations-toolbar"><label>Hiển thị<select value={activeFilter} onChange={(event) => setActiveFilter(event.target.value as typeof activeFilter)}><option value="">Tất cả</option><option value="true">Đang bật</option><option value="false">Đã tắt</option></select></label></div>
-            {coupons.content.map((coupon) => <article className="admin-coupon-row" key={coupon.id}>
-              <div className="admin-coupon-code"><span><BadgePercent size={19} /></span><div><strong>{coupon.code}</strong><small>{coupon.couponType === "FREESHIP" ? "Miễn phí giao hàng" : coupon.discountType === "PERCENTAGE" ? `Giảm ${coupon.discountPercentage}%` : `Giảm ${formatPrice(coupon.discountAmount ?? 0)}`}</small></div></div>
-              <div className="admin-coupon-meta"><span><CalendarClock size={14} />{coupon.expiresAt ? new Intl.DateTimeFormat("vi-VN", { dateStyle: "short", timeStyle: "short" }).format(new Date(coupon.expiresAt)) : "Không hết hạn"}</span><span>{coupon.timesUsed}/{coupon.usageLimit ?? "∞"} lượt</span></div>
-              <span className={`admin-coupon-state ${coupon.currentlyUsable ? "usable" : "unavailable"}`}>{coupon.currentlyUsable ? "Có thể dùng" : coupon.active ? "Chưa/đã hết hạn" : "Đã tắt"}</span>
-              <div className="admin-coupon-actions"><button type="button" onClick={() => { setEditingId(coupon.id); setForm(toForm(coupon)); }}><Pencil size={15} /> Sửa</button><button type="button" onClick={() => void toggleActive(coupon)}>{coupon.active ? "Tạm dừng" : "Kích hoạt"}</button></div>
-            </article>)}
-            {coupons.content.length === 0 && <div className="admin-empty">Chưa có mã giảm giá phù hợp.</div>}
-          </section>
-        </div>
-      </main>
-    </AdminShell>
-  );
+      <section className="admin-list-card admin-coupon-list voucher-list"><div className="admin-operations-toolbar"><strong>Voucher hiện có</strong><label>Trạng thái<select value={activeFilter} onChange={event=>setActiveFilter(event.target.value as typeof activeFilter)}><option value="">Tất cả</option><option value="true">Đang bật</option><option value="false">Đã tắt</option></select></label></div>{coupons.content.map(coupon=>{const state=couponState(coupon);return <article className="admin-coupon-row" key={coupon.id}><div className="admin-coupon-code"><span><BadgePercent size={19}/></span><div><strong>{coupon.code}</strong><small>{coupon.name}</small><small>{coupon.couponType==="FREESHIP"?`Giảm phí ship${coupon.maxDiscountAmount?` tối đa ${formatPrice(coupon.maxDiscountAmount)}`:""}`:coupon.discountType==="PERCENTAGE"?`Giảm ${coupon.discountPercentage}%${coupon.maxDiscountAmount?` · tối đa ${formatPrice(coupon.maxDiscountAmount)}`:""}`:`Giảm ${formatPrice(coupon.discountAmount??0)}`}</small></div></div><div className="admin-coupon-meta"><span><CalendarClock size={14}/>{coupon.expiresAt?new Intl.DateTimeFormat("vi-VN",{dateStyle:"short",timeStyle:"short"}).format(new Date(coupon.expiresAt)):"Không hết hạn"}</span><span>{coupon.timesUsed}/{coupon.usageLimit??"∞"} lượt · mỗi khách {coupon.usageLimitPerUser??"∞"}</span><span>{coupon.scopeType==="ALL"?"Toàn cửa hàng":coupon.scopeType==="CATEGORY"?`${coupon.categoryIds.length} danh mục`:`${coupon.productIds.length} sản phẩm`}</span></div><span className={`admin-coupon-state ${state.className}`}>{state.label}</span><div className="admin-coupon-actions"><button type="button" onClick={()=>void beginEdit(coupon)}><Pencil size={15}/>Sửa</button><button type="button" onClick={()=>void showHistory(coupon)}>Lịch sử</button><button type="button" onClick={()=>void toggleActive(coupon)}>{coupon.active?"Tạm dừng":"Kích hoạt"}</button><button type="button" onClick={()=>void removeCoupon(coupon)}><Trash2 size={15}/>Xóa</button></div>{usageHistory?.couponId===coupon.id&&<div className="admin-coupon-usage-history">{usageHistory.rows.map(row=><small key={row.id}>Đơn #{row.orderId} · {row.userName} · {row.status} · {formatPrice(row.discountAmount)}</small>)}{usageHistory.rows.length===0&&<small>Chưa có lượt sử dụng.</small>}</div>}</article>;})}{coupons.content.length===0&&<div className="admin-empty">Chưa có voucher phù hợp.</div>}</section>
+    </div>
+  </main></AdminShell>;
 }

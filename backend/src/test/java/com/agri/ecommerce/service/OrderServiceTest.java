@@ -24,18 +24,19 @@ class OrderServiceTest {
     @Mock ShippingAddressService addresses;
     @Mock CartItemRepository carts;
     @Mock ProductRepository products;
-    @Mock CouponRepository coupons;
+    @Mock CouponEngineService couponEngine;
     @Mock UserRepository users;
     @Mock PaymentService paymentService;
     @Mock OrderLifecycleService orderLifecycle;
     @Mock NotificationService notifications;
+    @Mock LoyaltyService loyalty;
     OrderService service;
     Product product;
     CartItem cartItem;
     ShippingAddress address;
 
     @BeforeEach void setUp(){
-        service=new OrderService(orders,histories,addresses,carts,products,coupons,users,paymentService,orderLifecycle,notifications);
+        service=new OrderService(orders,histories,addresses,carts,products,couponEngine,users,paymentService,orderLifecycle,notifications,loyalty);
         product=mock(Product.class);
         lenient().when(product.getId()).thenReturn(10L);
         lenient().when(product.getName()).thenReturn("Rau sạch");
@@ -48,36 +49,38 @@ class OrderServiceTest {
         address=new ShippingAddress();address.setFullName("Nguyễn Văn A");address.setPhone("0901234567");address.setAddress("1 Đường X");address.setCity("TP.HCM");
         lenient().when(addresses.findEntity(1L,2L)).thenReturn(address);
         lenient().when(carts.findAllByUser_IdOrderByCreatedAtDescIdDesc(1L)).thenReturn(List.of(cartItem));
+        User user = new User(); user.setLoyaltyPointsBalance(100);
+        lenient().when(users.findById(1L)).thenReturn(Optional.of(user));
+        lenient().when(users.findByIdForCommerceUpdate(1L)).thenReturn(Optional.of(user));
+        lenient().when(loyalty.quote(any(), any(), any())).thenReturn(new LoyaltyService.Quote(0, BigDecimal.ZERO));
+        lenient().when(couponEngine.preview(anyLong(), anyList(), any(), any(), any(), any())).thenReturn(emptyCouponQuote());
+        lenient().when(couponEngine.quoteForReservation(anyLong(), anyList(), any(), any(), any(), any())).thenReturn(emptyCouponQuote());
     }
 
     @Test void previewCalculatesStandardAndFreeShipping(){
-        var standard=service.preview(1L,new CheckoutRequest(2L,null,null));
+        var standard=service.preview(1L,new CheckoutRequest(2L,null,null,null,null));
         assertThat(standard.subtotal()).isEqualByComparingTo("400000");
         assertThat(standard.shippingFee()).isEqualByComparingTo("30000");
         assertThat(standard.total()).isEqualByComparingTo("430000");
         cartItem.setQuantity(3);
-        var free=service.preview(1L,new CheckoutRequest(2L,null,null));
+        var free=service.preview(1L,new CheckoutRequest(2L,null,null,null,null));
         assertThat(free.shippingFee()).isZero();
         assertThat(free.total()).isEqualByComparingTo("600000");
     }
 
     @Test void previewAppliesPercentageCouponAndCapsDiscount(){
-        Coupon coupon=mock(Coupon.class);
-        when(coupons.findByCodeIgnoreCase("SAVE20")).thenReturn(Optional.of(coupon));
-        when(coupon.isActive()).thenReturn(true);when(coupon.getCode()).thenReturn("SAVE20");
-        when(coupon.getUsageLimit()).thenReturn(null);
-        when(coupon.getCouponType()).thenReturn(CouponType.ORDER_DISCOUNT);when(coupon.getDiscountType()).thenReturn(DiscountType.PERCENTAGE);
-        when(coupon.getDiscountPercentage()).thenReturn(20);
-        var result=service.preview(1L,new CheckoutRequest(2L,"SAVE20",null));
+        Coupon coupon=mock(Coupon.class); when(coupon.getCode()).thenReturn("SAVE20");
+        when(couponEngine.preview(eq(1L), anyList(), eq(new BigDecimal("400000.00")), eq(new BigDecimal("30000.00")), eq("SAVE20"), isNull()))
+            .thenReturn(new CouponEngineService.Quote(coupon, null, new BigDecimal("80000.00"), BigDecimal.ZERO, "Giảm 20%", null));
+        var result=service.preview(1L,new CheckoutRequest(2L,"SAVE20",null,null,null));
         assertThat(result.discountAmount()).isEqualByComparingTo("80000");
         assertThat(result.total()).isEqualByComparingTo("350000");
     }
 
     @Test void createOrderSnapshotsValuesDecrementsStockAndClearsCart(){
-        when(users.findByIdForCommerceUpdate(1L)).thenReturn(Optional.of(new User()));
         when(products.findAllByIdForUpdate(List.of(10L))).thenReturn(List.of(product));
         when(orders.save(any(Order.class))).thenAnswer(call->call.getArgument(0));
-        var result=service.create(1L,new CheckoutRequest(2L,null,"cod"),"127.0.0.1");
+        var result=service.create(1L,new CheckoutRequest(2L,null,null,"cod",null),"127.0.0.1");
         assertThat(result.status()).isEqualTo("pending");
         assertThat(result.items()).hasSize(1);
         assertThat(result.items().getFirst().productName()).isEqualTo("Rau sạch");
@@ -88,21 +91,48 @@ class OrderServiceTest {
         verify(orders).save(any(Order.class));
     }
 
+    @Test void vnpayReceivesServerCalculatedTotalAfterCouponPointsAndShipping() {
+        Coupon coupon = mock(Coupon.class);
+        Coupon shippingCoupon = mock(Coupon.class);
+        when(coupon.getCode()).thenReturn("SAVE20");
+        when(shippingCoupon.getCode()).thenReturn("SHIP15");
+        when(products.findAllByIdForUpdate(List.of(10L))).thenReturn(List.of(product));
+        when(orders.save(any(Order.class))).thenAnswer(call -> call.getArgument(0));
+        when(couponEngine.quoteForReservation(eq(1L), anyList(), eq(new BigDecimal("400000.00")), eq(new BigDecimal("30000.00")), eq("SAVE20"), eq("SHIP15")))
+            .thenReturn(new CouponEngineService.Quote(coupon, shippingCoupon, new BigDecimal("80000.00"), new BigDecimal("15000.00"), "Giảm 20%", "Giảm phí vận chuyển 15000đ"));
+        when(loyalty.quote(any(), eq(100), eq(new BigDecimal("320000.00"))))
+            .thenReturn(new LoyaltyService.Quote(100, new BigDecimal("10000.00")));
+        var capturedOrder = org.mockito.ArgumentCaptor.forClass(Order.class);
+
+        service.create(1L, new CheckoutRequest(2L, "SAVE20", "SHIP15", "vnpay", 100), "127.0.0.1");
+
+        verify(paymentService).createForOrder(capturedOrder.capture(), eq(PaymentMethod.VNPAY), eq("127.0.0.1"));
+        assertThat(capturedOrder.getValue().getSubtotal()).isEqualByComparingTo("400000.00");
+        assertThat(capturedOrder.getValue().getDiscountAmount()).isEqualByComparingTo("80000.00");
+        assertThat(capturedOrder.getValue().getShippingFee()).isEqualByComparingTo("30000.00");
+        assertThat(capturedOrder.getValue().getLoyaltyDiscountAmount()).isEqualByComparingTo("10000.00");
+        assertThat(capturedOrder.getValue().getShippingDiscountAmount()).isEqualByComparingTo("15000.00");
+        assertThat(capturedOrder.getValue().getTotalPrice()).isEqualByComparingTo("325000.00");
+        verify(couponEngine).reserve(any(User.class), same(capturedOrder.getValue()), any(CouponEngineService.Quote.class));
+    }
+
     @Test void stockFailureDoesNotCreateOrderOrClearCart(){
-        when(users.findByIdForCommerceUpdate(1L)).thenReturn(Optional.of(new User()));
         when(products.findAllByIdForUpdate(List.of(10L))).thenReturn(List.of(product));
         when(product.getStock()).thenReturn(1);
-        assertThatThrownBy(()->service.create(1L,new CheckoutRequest(2L,null,"cod"),"127.0.0.1"))
+        assertThatThrownBy(()->service.create(1L,new CheckoutRequest(2L,null,null,"cod",null),"127.0.0.1"))
             .extracting("code").isEqualTo("INSUFFICIENT_STOCK");
         verify(orders,never()).save(any());
         verify(carts,never()).deleteAllByUser_Id(any());
     }
 
     @Test void expiredCouponIsRejected(){
-        Coupon coupon=mock(Coupon.class);
-        when(coupons.findByCodeIgnoreCase("OLD")).thenReturn(Optional.of(coupon));
-        when(coupon.isActive()).thenReturn(false);
-        assertThatThrownBy(()->service.preview(1L,new CheckoutRequest(2L,"OLD",null)))
-            .extracting("code").isEqualTo("INVALID_COUPON");
+        when(couponEngine.preview(eq(1L), anyList(), any(), any(), eq("OLD"), isNull()))
+            .thenThrow(new com.agri.ecommerce.common.exception.ApplicationException(org.springframework.http.HttpStatus.CONFLICT, "COUPON_EXPIRED", "Mã đã hết hạn"));
+        assertThatThrownBy(()->service.preview(1L,new CheckoutRequest(2L,"OLD",null,null,null)))
+            .extracting("code").isEqualTo("COUPON_EXPIRED");
+    }
+
+    private CouponEngineService.Quote emptyCouponQuote() {
+        return new CouponEngineService.Quote(null, null, BigDecimal.ZERO, BigDecimal.ZERO, null, null);
     }
 }
