@@ -20,7 +20,7 @@ class ReviewServiceTest {
     @BeforeEach void setUp(){service=new ReviewService(reviews,products,users,orders,loyalty);}
 
     @Test void rejectsReviewWhenProductWasNotDelivered(){
-        when(orders.hasPurchasedProduct(eq(1L),eq(2L),anyList())).thenReturn(false);
+        when(orders.hasReviewablePurchasedProduct(eq(1L),eq(2L),anyList())).thenReturn(false);
         assertThatThrownBy(()->service.create(1L,new ReviewRequest(2L,5,"Tươi ngon")))
             .extracting("code").isEqualTo("REVIEW_PURCHASE_REQUIRED");
         verify(reviews,never()).save(any());
@@ -29,7 +29,7 @@ class ReviewServiceTest {
     @Test void createsOneReviewForDeliveredProduct(){
         User user=mock(User.class); when(user.getId()).thenReturn(1L); when(user.getName()).thenReturn("Khách hàng");
         Product product=mock(Product.class); when(product.getId()).thenReturn(2L);
-        when(orders.hasPurchasedProduct(eq(1L),eq(2L),anyList())).thenReturn(true);
+        when(orders.hasReviewablePurchasedProduct(eq(1L),eq(2L),anyList())).thenReturn(true);
         when(reviews.findByUser_IdAndProduct_Id(1L,2L)).thenReturn(Optional.empty());
         when(users.getReferenceById(1L)).thenReturn(user); when(products.findById(2L)).thenReturn(Optional.of(product));
         when(reviews.save(any(Review.class))).thenAnswer(call->call.getArgument(0));

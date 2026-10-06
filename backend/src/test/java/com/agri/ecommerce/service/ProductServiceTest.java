@@ -15,6 +15,7 @@ import com.agri.ecommerce.entity.ProductStatus;
 import com.agri.ecommerce.repository.ProductImageRepository;
 import com.agri.ecommerce.repository.ProductRepository;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -75,6 +76,26 @@ class ProductServiceTest {
 
         assertThat(response.slug()).isEqualTo("ca-chua");
         assertThat(response.status()).isEqualTo("out_of_stock");
+    }
+
+    @Test
+    void stockCannotBeSetThroughProductEditor() {
+        ProductRequest request = new ProductRequest("Ca chua", null, null, 1L, null, null,
+            new BigDecimal("25000"), 12, null, "kg", null);
+        assertThatThrownBy(() -> productService.create(request))
+            .extracting("code").isEqualTo("INVENTORY_IMPORT_REQUIRED");
+        verify(productRepository, never()).save(any());
+    }
+
+    @Test
+    void stockCannotBeChangedThroughProductUpdate() {
+        Product product = new Product(); product.setStock(5);
+        when(productRepository.findAllByIdForUpdate(List.of(1L))).thenReturn(List.of(product));
+        ProductRequest request = new ProductRequest("Ca chua", null, null, 1L, null, null,
+            new BigDecimal("25000"), 6, null, "kg", null);
+        assertThatThrownBy(() -> productService.update(1L, request))
+            .extracting("code").isEqualTo("INVENTORY_ADJUSTMENT_REQUIRED");
+        verify(productRepository, never()).save(any());
     }
 
     @Test

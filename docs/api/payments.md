@@ -50,7 +50,10 @@ MAIL_SMTP_AUTH=true
 MAIL_SMTP_STARTTLS_ENABLE=true
 ```
 
-Lỗi SMTP được ghi log và không làm đơn hàng hoặc thanh toán đã xác nhận bị rollback.
+Lỗi SMTP không làm đơn hàng hoặc thanh toán đã xác nhận bị rollback. Payment lưu số
+lần thử, lỗi gần nhất và thời điểm thử lại; scheduler retry theo exponential backoff
+tối đa 5 lần (cấu hình qua `INVOICE_EMAIL_MAX_ATTEMPTS`,
+`INVOICE_EMAIL_BASE_RETRY_MINUTES`, `INVOICE_EMAIL_RETRY_SCAN_MS`).
 
 ## VNPAY callbacks
 
@@ -67,6 +70,26 @@ payment as failed, cancels its order, restores stock and returns the coupon usag
 atomically. The same cancellation path handles a failed gateway response. For an
 amount mismatch, IPN returns `RspCode=04`; it never acknowledges the payment as
 successful.
+
+## VNPAY refund
+
+`PATCH /api/admin/orders/{id}/refund-confirmation` calls the configured VNPAY Refund
+API for completed VNPAY payments. It uses the existing `VNPAY_TMN_CODE` and
+`VNPAY_HASH_SECRET`; no credential is hard-coded and the Sandbox endpoint is the
+default `VNPAY_REFUND_URL`.
+
+```json
+{ "note": "Khách trả hàng", "amount": 50000 }
+```
+
+Omit `amount` for a full refund. Supplying an amount lower than the remaining paid
+amount submits a partial refund (`vnp_TransactionType=03`); a full refund uses type
+`02` and only then cancels the order. Each request is saved in `vnpay_refunds` with
+its unique request ID, amount, VNPAY transaction/status/response codes and raw
+payload. A pending request blocks another refund for the same payment. The response
+HMAC-SHA512 is verified before any payment or order state is changed. If VNPAY
+returns a processing status, the order remains unchanged instead of being cancelled.
+COD refunds remain an internal confirmed refund because there is no remote gateway.
 
 ## Order and coupon operations
 

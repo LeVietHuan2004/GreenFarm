@@ -26,4 +26,12 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select payment from Payment payment where payment.id = :id")
     Optional<Payment> findByIdForUpdate(@Param("id") Long id);
+
+    @Query("select payment.id from Payment payment where payment.invoiceEmailSentAt is null and payment.invoiceEmailAttempts < :maxAttempts and payment.invoiceEmailNextRetryAt is not null and payment.invoiceEmailNextRetryAt <= :now and (payment.paymentMethod = :cod or payment.status = :completed) order by payment.invoiceEmailNextRetryAt")
+    List<Long> findInvoiceRetryIds(
+        @Param("maxAttempts") int maxAttempts,
+        @Param("now") LocalDateTime now,
+        @Param("cod") PaymentMethod cod,
+        @Param("completed") PaymentStatus completed
+    );
 }

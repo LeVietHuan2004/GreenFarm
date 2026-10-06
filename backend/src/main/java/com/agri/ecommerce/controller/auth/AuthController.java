@@ -3,6 +3,7 @@ package com.agri.ecommerce.controller.auth;
 import com.agri.ecommerce.common.base.ApiResponse;
 import com.agri.ecommerce.dto.request.LoginRequest;
 import com.agri.ecommerce.dto.request.RegisterRequest;
+import com.agri.ecommerce.dto.request.RefreshTokenRequest;
 import com.agri.ecommerce.dto.response.AuthResponse;
 import com.agri.ecommerce.service.AuthService;
 import jakarta.validation.Valid;
@@ -34,5 +35,16 @@ public class AuthController {
     @PostMapping("/login")
     public ApiResponse<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return ApiResponse.success("Dang nhap thanh cong", authService.login(request));
+    }
+
+    @PostMapping("/refresh")
+    public ApiResponse<AuthResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
+        return ApiResponse.success("Làm mới phiên đăng nhập thành công", authService.refresh(request.refreshToken()));
+    }
+
+    @PostMapping("/logout")
+    public ApiResponse<Void> logout(@Valid @RequestBody RefreshTokenRequest request) {
+        authService.logout(request.refreshToken());
+        return ApiResponse.success("Đăng xuất thành công", null);
     }
 }

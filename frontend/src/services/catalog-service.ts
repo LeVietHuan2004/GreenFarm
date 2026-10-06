@@ -103,6 +103,24 @@ export async function addProductImage(productId: number, image: string) {
   return response.data.data;
 }
 
+export async function uploadProductImage(productId: number, file: File) {
+  const body = new FormData();
+  body.append("file", file);
+  const response = await apiClient.post<CatalogApiResponse<ProductImage>>(
+    `/admin/products/${productId}/images/upload`, body, { headers: { "Content-Type": "multipart/form-data" } }
+  );
+  return response.data.data;
+}
+
+export async function uploadCatalogImage(file: File) {
+  const body = new FormData();
+  body.append("file", file);
+  const response = await apiClient.post<CatalogApiResponse<{ path:string }>>(
+    "/admin/uploads/images", body, { headers: { "Content-Type": "multipart/form-data" } }
+  );
+  return response.data.data.path;
+}
+
 export async function deleteProductImage(productId: number, imageId: number) {
   await apiClient.delete(`/admin/products/${productId}/images/${imageId}`);
 }

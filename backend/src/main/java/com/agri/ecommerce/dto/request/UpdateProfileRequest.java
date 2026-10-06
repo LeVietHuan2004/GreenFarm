@@ -16,7 +16,7 @@ public record UpdateProfileRequest(
     @Size(max = 500, message = "Dia chi khong duoc vuot qua 500 ky tu")
     String address,
 
-    @Size(max = 255, message = "Duong dan anh dai dien qua dai")
+    @Size(max = 1024, message = "Duong dan anh dai dien qua dai")
     String avatar
 ) {
 }

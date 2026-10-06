@@ -33,6 +33,7 @@ public class Category {
     @Column(name = "description_en", columnDefinition = "text")
     private String descriptionEn;
 
+    @Column(length = 1024)
     private String image;
 
     @Column(name = "created_at")

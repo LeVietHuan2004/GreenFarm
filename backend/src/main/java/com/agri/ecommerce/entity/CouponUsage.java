@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 public class CouponUsage {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "coupon_id", nullable = false) private Coupon coupon;
-    @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "user_id", nullable = false) private User user;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "user_id") private User user;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "guest_session_id") private GuestSession guestSession;
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "order_id", nullable = false) private Order order;
     @Column(name = "discount_amount", nullable = false) private BigDecimal discountAmount = BigDecimal.ZERO;
     @Enumerated(EnumType.STRING) @Column(nullable = false, length = 20) private CouponUsageStatus status;
@@ -20,6 +21,7 @@ public class CouponUsage {
     public Long getId(){return id;}
     public Coupon getCoupon(){return coupon;} public void setCoupon(Coupon value){coupon=value;}
     public User getUser(){return user;} public void setUser(User value){user=value;}
+    public GuestSession getGuestSession(){return guestSession;} public void setGuestSession(GuestSession value){guestSession=value;}
     public Order getOrder(){return order;} public void setOrder(Order value){order=value;}
     public BigDecimal getDiscountAmount(){return discountAmount;} public void setDiscountAmount(BigDecimal value){discountAmount=value;}
     public CouponUsageStatus getStatus(){return status;} public void setStatus(CouponUsageStatus value){status=value;}

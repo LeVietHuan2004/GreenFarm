@@ -7,6 +7,8 @@ import { useForm } from "react-hook-form";
 
 import { getApiErrorMessage } from "@/lib/api-error";
 import { authService } from "@/services/auth-service";
+import { guestCommerceService } from "@/services/guest-commerce-service";
+import { clearGuestSession, getGuestSession } from "@/lib/guest-session";
 import { useAuthStore } from "@/stores/auth-store";
 
 type RegisterValues = {
@@ -39,6 +41,10 @@ export function RegisterForm() {
         password: values.password
       });
       setSession(session);
+      if (getGuestSession()) {
+        try { await guestCommerceService.merge(); clearGuestSession(); }
+        catch (error) { setServerError(`Đăng ký thành công nhưng chưa thể hợp nhất giỏ hàng: ${getApiErrorMessage(error)}`); return; }
+      }
       router.replace("/");
     } catch (error) {
       setServerError(getApiErrorMessage(error));

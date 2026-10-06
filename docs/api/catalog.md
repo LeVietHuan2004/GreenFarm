@@ -85,7 +85,8 @@ Payload sản phẩm chính:
 
 Khi tồn kho bằng 0, trạng thái `in_stock` được tự chuẩn hóa thành
 `out_of_stock`. Ảnh được quản lý bằng payload `{ "image": "https://..." }` để
-tương thích dữ liệu Cloudinary và đường dẫn ảnh cũ.
+tương thích URL Cloudinary và đường dẫn ảnh cũ. Upload mới dùng Cloudinary khi
+cấu hình đủ credentials; xem [lưu trữ ảnh](image-storage.md).
 
 ## UI
 

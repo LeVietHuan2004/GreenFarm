@@ -38,6 +38,7 @@ public class User {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Column(length = 1024)
     private String avatar;
 
     @Column(columnDefinition = "text")

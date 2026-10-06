@@ -34,6 +34,7 @@ public class OrderLifecycleService {
     private final UserRepository users;
     private final NotificationService notifications;
     private final LoyaltyService loyalty;
+    private final InventoryService inventory;
 
     public OrderLifecycleService(
         OrderRepository orders,
@@ -43,7 +44,8 @@ public class OrderLifecycleService {
         CouponEngineService couponEngine,
         UserRepository users,
         NotificationService notifications,
-        LoyaltyService loyalty
+        LoyaltyService loyalty,
+        InventoryService inventory
     ) {
         this.orders = orders;
         this.histories = histories;
@@ -53,6 +55,7 @@ public class OrderLifecycleService {
         this.users = users;
         this.notifications = notifications;
         this.loyalty = loyalty;
+        this.inventory = inventory;
     }
 
     @Transactional
@@ -90,6 +93,7 @@ public class OrderLifecycleService {
             }
         }
 
+        if (target == OrderStatus.PROCESSING) inventory.exportOrder(order);
         order.setStatus(target);
         if (target == OrderStatus.READY_FOR_DELIVERY && previousStatus == OrderStatus.DELIVERY_FAILED) {
             order.setDeliveryStaff(null);
@@ -254,25 +258,7 @@ public class OrderLifecycleService {
             return;
         }
 
-        var productIds = order.getItems().stream()
-            .map(item -> item.getProduct().getId())
-            .distinct()
-            .sorted()
-            .toList();
-        var lockedProducts = products.findAllByIdForUpdate(productIds).stream()
-            .collect(Collectors.toMap(Product::getId, Function.identity()));
-        for (OrderItem item : order.getItems()) {
-            Product product = lockedProducts.get(item.getProduct().getId());
-            if (product == null) {
-                throw conflict("PRODUCT_NOT_FOUND", "Không thể hoàn tồn kho cho sản phẩm đã bị xóa");
-            }
-            product.setStock(product.getStock() + item.getQuantity());
-            if (product.getStatus() == ProductStatus.OUT_OF_STOCK) {
-                product.setStatus(ProductStatus.IN_STOCK);
-            }
-        }
-        products.saveAll(lockedProducts.values());
-
+        inventory.restoreOrder(order);
         order.setInventoryReleasedAt(LocalDateTime.now());
     }
 

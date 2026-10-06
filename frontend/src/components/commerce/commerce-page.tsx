@@ -62,7 +62,7 @@ export function CommercePage({ kind }: { kind: "cart" | "wishlist" }) {
     <main className="catalog-main commerce-main">
       <Link className="commerce-back" href="/products"><ArrowLeft size={16} /> Tiếp tục mua sắm</Link>
       <header className="commerce-heading"><span className="eyebrow">Cửa hàng GreenFarm</span><h1><Icon size={30} />{title}</h1>
-        {commerce.enabled && <p>{count} sản phẩm · Được lưu trong tài khoản của bạn</p>}
+        {commerce.enabled && <p>{count} sản phẩm · {user ? "Được lưu trong tài khoản của bạn" : "Giỏ hàng khách được lưu trên thiết bị này"}</p>}
       </header>
       {!hasHydrated || commerce.loading ? <p className="commerce-state" role="status">Đang tải {isCart ? "giỏ hàng" : "danh sách yêu thích"}...</p>
         : !commerce.enabled ? <div className="catalog-empty"><Icon size={42} /><h2>{user ? "Dành cho tài khoản khách hàng" : "Đăng nhập để lưu sản phẩm"}</h2><p>Giỏ hàng và danh sách yêu thích sẽ được lưu để bạn tiếp tục mua sắm lần sau.</p><Link href="/login" className="primary-button">Đăng nhập khách hàng</Link></div>

@@ -7,6 +7,7 @@ import com.agri.ecommerce.dto.request.UpdateCartItemRequest;
 import com.agri.ecommerce.dto.response.CartResponse;
 import com.agri.ecommerce.security.GreenFarmUserDetails;
 import com.agri.ecommerce.service.CartService;
+import com.agri.ecommerce.service.GuestCommerceService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -25,9 +27,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class CartController {
 
     private final CartService cartService;
+    private final GuestCommerceService guestCommerceService;
 
-    public CartController(CartService cartService) {
+    public CartController(CartService cartService, GuestCommerceService guestCommerceService) {
         this.cartService = cartService;
+        this.guestCommerceService = guestCommerceService;
+    }
+
+    @PostMapping("/merge-guest")
+    public ApiResponse<CartResponse> mergeGuest(@AuthenticationPrincipal GreenFarmUserDetails principal,@RequestHeader("X-Guest-Token") String guestToken) {
+        return ApiResponse.success("Đã hợp nhất giỏ hàng",guestCommerceService.mergeIntoCustomer(guestToken,principal.userId()));
     }
 
     @GetMapping

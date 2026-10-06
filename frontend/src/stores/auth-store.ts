@@ -7,6 +7,7 @@ import type { AuthSession, User } from "@/types/auth";
 
 type AuthState = {
   token: string | null;
+  refreshToken: string | null;
   user: User | null;
   hasHydrated: boolean;
   setSession: (session: AuthSession) => void;
@@ -19,18 +20,19 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       token: null,
+      refreshToken: null,
       user: null,
       hasHydrated: false,
       setSession: (session) =>
-        set({ token: session.accessToken, user: session.user }),
+        set({ token: session.accessToken, refreshToken: session.refreshToken, user: session.user }),
       setUser: (user) => set({ user }),
-      clearSession: () => set({ token: null, user: null }),
+      clearSession: () => set({ token: null, refreshToken: null, user: null }),
       markHydrated: () => set({ hasHydrated: true })
     }),
     {
       name: "greenfarm-auth",
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ token: state.token, user: state.user }),
+      partialize: (state) => ({ token: state.token, refreshToken: state.refreshToken, user: state.user }),
       onRehydrateStorage: () => (state) => state?.markHydrated()
     }
   )

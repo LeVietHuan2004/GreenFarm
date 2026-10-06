@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { getApiErrorMessage } from "@/lib/api-error";
 import { formatDateTime } from "@/lib/order-format";
-import { getNotifications, getUnreadCount, markAllNotificationsRead, markNotificationRead } from "@/services/notification-service";
+import { getNotifications, getUnreadCount, markAllNotificationsRead, markNotificationRead, subscribeToNotifications } from "@/services/notification-service";
 import { useAuthStore } from "@/stores/auth-store";
 import type { Notification } from "@/types/engagement";
 
@@ -17,7 +17,7 @@ function NotificationIcon({ type }: { type: string }) {
 }
 
 export function NotificationMenu({ admin = false }: { admin?: boolean }) {
-  const { user, hasHydrated } = useAuthStore();
+  const { token, user, hasHydrated } = useAuthStore();
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<Notification[]>([]);
   const [unread, setUnread] = useState(0);
@@ -39,6 +39,14 @@ export function NotificationMenu({ admin = false }: { admin?: boolean }) {
     const timer = window.setTimeout(() => { void load(); }, 0);
     return () => window.clearTimeout(timer);
   }, [hasHydrated, user, load]);
+
+  useEffect(() => {
+    if (!hasHydrated || !user || !token) return;
+    return subscribeToNotifications(token, (notification) => {
+      setItems((current) => [notification, ...current.filter((item) => item.id !== notification.id)].slice(0, 20));
+      setUnread((current) => current + (notification.read ? 0 : 1));
+    });
+  }, [hasHydrated, token, user]);
 
   const read = async (id: number) => {
     setItems((current) => current.map((item) => item.id === id ? { ...item, read: true } : item));

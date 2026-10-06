@@ -43,12 +43,13 @@ Giỏ hàng trả `items`, `totalItems` (tổng số lượng), `subtotal`. Mỗ
 - `/wishlist`: các sản phẩm đã lưu, bỏ yêu thích và thêm vào giỏ.
 - Nút trái tim và thêm giỏ trên thẻ sản phẩm; chi tiết có thêm ô chọn số lượng.
 - Header hiển thị số lượng giỏ/yêu thích và liên kết đến hai trang.
-- Phiên bản này dùng giỏ theo tài khoản, chưa có giỏ khách vãng lai. Người chưa
-  đăng nhập được dẫn tới đăng nhập. Đăng nhập/đăng ký vẫn mở thẳng cửa hàng `/`.
+- Khách chưa đăng nhập dùng giỏ guest lưu trên backend. Khi đăng nhập/đăng ký,
+  giỏ guest được gộp một lần vào giỏ tài khoản; xem `guest-commerce.md`.
 - Provider tự lấy giỏ/yêu thích sau đăng nhập, tải lại khi quay lại cửa sổ.
   Khi đổi tài khoản hoặc đăng xuất, dữ liệu hiển thị được reset; response từ
   phiên cũ không ghi đè tài khoản mới. Không lưu bản sao giỏ vào localStorage.
-- API merge sẵn sàng nếu bổ sung giỏ khách vãng lai trong giai đoạn tiếp theo.
+- `/api/cart/merge` vẫn dành cho danh sách item cũ; `/api/cart/merge-guest`
+  gộp phiên guest hiện tại và chống cộng trùng khi gọi lại.
 
 ## Kiểm thử
 

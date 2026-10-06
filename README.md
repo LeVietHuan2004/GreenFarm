@@ -78,6 +78,14 @@ Giai đoạn 8 bổ sung đánh giá theo đơn hàng và GreenFarm Rewards:
 - Checkout cho phép dùng điểm để giảm giá, tối đa 50% giá trị thanh toán; một điểm đổi
   100đ, và mỗi 10.000đ giá trị hợp lệ nhận một điểm.
 
+Các hạng mục vận hành bổ sung đã sẵn sàng:
+
+- Refresh token xoay vòng, logout thu hồi phiên và đổi mật khẩu thu hồi toàn bộ phiên.
+- Retry email hóa đơn theo trạng thái payment; notification realtime qua SSE.
+- Admin có báo cáo doanh thu 30 ngày, sản phẩm bán chạy và xuất CSV.
+- Ảnh avatar, danh mục và sản phẩm tải lên file JPG/PNG/WEBP (tối đa 5 MB). Khi cấu hình đủ ba biến Cloudinary, ảnh mới được lưu trên Cloudinary; nếu chưa cấu hình, ảnh mới được lưu trong Docker volume local. Ảnh local cũ tiếp tục được phục vụ. Xem `docs/api/image-storage.md`.
+- Hoàn tiền VNPAY gọi refund gateway, lưu request ID để chống gửi trùng; cấu hình xem trong `.env.example`.
+
 ## Cấu trúc
 
 - `frontend/`: Next.js 16, React 19 và TypeScript.
@@ -128,6 +136,7 @@ Image backend chỉ được tạo khi toàn bộ unit test Maven vượt qua.
 - [Module xác thực và tài khoản](docs/api/authentication.md)
 - [Module catalog sản phẩm](docs/api/catalog.md)
 - [Module giỏ hàng và yêu thích](docs/api/cart-wishlist.md)
+- [Mua hàng không cần tài khoản](docs/api/guest-commerce.md)
 - [Module checkout và đơn hàng](docs/api/orders.md)
 - [Module thanh toán](docs/api/payments.md)
 - [Quy trình vận hành đơn](docs/api/order-operations.md)

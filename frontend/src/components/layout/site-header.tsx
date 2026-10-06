@@ -9,16 +9,18 @@ import { RoleLoginMenu } from "@/components/auth/role-login-menu";
 import { useCommerce } from "@/components/commerce/commerce-provider";
 import { NotificationMenu } from "@/components/notifications/notification-menu";
 import { getRoleHome, getRoleLogin } from "@/config/login-portals";
+import { authService } from "@/services/auth-service";
 import { useAuthStore } from "@/stores/auth-store";
 
 export function SiteHeader() {
   const router = useRouter();
   const { cart, wishlist, lastAction } = useCommerce();
-  const { user, hasHydrated, clearSession } = useAuthStore();
+  const { user, refreshToken, hasHydrated, clearSession } = useAuthStore();
   const [search, setSearch] = useState("");
 
   const logout = () => {
     const loginHref = getRoleLogin(user?.role);
+    if (refreshToken) void authService.logout(refreshToken).catch(() => undefined);
     clearSession();
     router.push(loginHref);
   };

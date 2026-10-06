@@ -27,19 +27,22 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final LoginAttemptService loginAttemptService;
+    private final RefreshTokenService refreshTokens;
 
     public AuthService(
         UserRepository userRepository,
         RoleRepository roleRepository,
         PasswordEncoder passwordEncoder,
         JwtService jwtService,
-        LoginAttemptService loginAttemptService
+        LoginAttemptService loginAttemptService,
+        RefreshTokenService refreshTokens
     ) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.loginAttemptService = loginAttemptService;
+        this.refreshTokens = refreshTokens;
     }
 
     @Transactional
@@ -146,11 +149,23 @@ public class AuthService {
         String token = jwtService.generateToken(GreenFarmUserDetails.from(user));
         return new AuthResponse(
             token,
+            refreshTokens.issue(user),
             "Bearer",
             jwtService.getExpirationSeconds(),
             UserMapper.toResponse(user)
         );
     }
+
+    @Transactional
+    public AuthResponse refresh(String refreshToken) {
+        RefreshTokenService.Rotation rotation = refreshTokens.rotate(refreshToken);
+        User user = rotation.user();
+        String accessToken = jwtService.generateToken(GreenFarmUserDetails.from(user));
+        return new AuthResponse(accessToken, rotation.refreshToken(), "Bearer", jwtService.getExpirationSeconds(), UserMapper.toResponse(user));
+    }
+
+    @Transactional
+    public void logout(String refreshToken) { refreshTokens.revoke(refreshToken); }
 
     private ApplicationException invalidCredentials() {
         return new ApplicationException(

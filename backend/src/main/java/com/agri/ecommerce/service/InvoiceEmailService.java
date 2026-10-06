@@ -7,6 +7,7 @@ import com.agri.ecommerce.entity.PaymentMethod;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,24 +28,30 @@ public class InvoiceEmailService {
     private final boolean enabled;
     private final String from;
     private final String storefrontUrl;
+    private final int maxAttempts;
+    private final long baseRetryMinutes;
 
     public InvoiceEmailService(
         @Nullable JavaMailSender mailSender,
         @Value("${app.invoice.email-enabled:false}") boolean enabled,
         @Value("${app.invoice.from:}") String from,
-        @Value("${app.storefront-url:http://localhost:3000}") String storefrontUrl
+        @Value("${app.storefront-url:http://localhost:3000}") String storefrontUrl,
+        @Value("${app.invoice.max-attempts:5}") int maxAttempts,
+        @Value("${app.invoice.base-retry-minutes:2}") long baseRetryMinutes
     ) {
         this.mailSender = mailSender;
         this.enabled = enabled;
         this.from = from;
         this.storefrontUrl = storefrontUrl.replaceAll("/+$", "");
+        this.maxAttempts = maxAttempts;
+        this.baseRetryMinutes = baseRetryMinutes;
     }
 
     /** Sends once after a successfully-created COD order or a completed VNPAY payment. */
     public void sendInvoiceIfEnabled(Payment payment) {
-        if (!enabled || mailSender == null || payment.getInvoiceEmailSentAt() != null) return;
+        if (!enabled || mailSender == null || payment.getInvoiceEmailSentAt() != null || payment.getInvoiceEmailAttempts() >= maxAttempts) return;
         Order order = payment.getOrder();
-        String recipient = order == null || order.getUser() == null ? null : order.getUser().getEmail();
+        String recipient = order == null ? null : order.getUser() == null ? order.getGuestEmail() : order.getUser().getEmail();
         if (!StringUtils.hasText(recipient)) {
             log.warn("Cannot send invoice for order {} because the customer has no email", order == null ? null : order.getId());
             return;
@@ -57,10 +64,20 @@ public class InvoiceEmailService {
             helper.setSubject("GreenFarm | Hóa đơn đơn hàng #" + order.getId());
             helper.setText(render(order, payment), true);
             mailSender.send(message);
-            payment.setInvoiceEmailSentAt(java.time.LocalDateTime.now());
+            payment.setInvoiceEmailSentAt(LocalDateTime.now());
+            payment.setInvoiceEmailNextRetryAt(null);
+            payment.setInvoiceEmailLastError(null);
             log.info("Invoice email sent for order {} to {}", order.getId(), recipient);
         } catch (Exception exception) {
-            // Email delivery must not roll back a paid/created order. A later VNPAY callback can retry.
+            int attempts = payment.getInvoiceEmailAttempts() + 1;
+            payment.setInvoiceEmailAttempts(attempts);
+            payment.setInvoiceEmailLastError(limit(exception.getMessage(), 500));
+            if (attempts < maxAttempts) {
+                long delay = Math.min(baseRetryMinutes * (1L << Math.min(attempts - 1, 10)), 24L * 60L);
+                payment.setInvoiceEmailNextRetryAt(LocalDateTime.now().plusMinutes(delay));
+            } else {
+                payment.setInvoiceEmailNextRetryAt(null);
+            }
             log.warn("Unable to send invoice email for order {}", order.getId(), exception);
         }
     }
@@ -86,7 +103,7 @@ public class InvoiceEmailService {
         return "<!doctype html><html><body style=\"margin:0;background:#f4f7f4;font-family:Arial,sans-serif;color:#20372a\">"
             + "<main style=\"max-width:680px;margin:24px auto;background:#fff;border:1px solid #dfe8e1;border-radius:12px;overflow:hidden\">"
             + "<header style=\"padding:26px 30px;background:#176b3a;color:#fff\"><strong style=\"font-size:22px\">GreenFarm</strong><p style=\"margin:8px 0 0\">Hóa đơn đơn hàng #" + order.getId() + "</p></header>"
-            + "<section style=\"padding:26px 30px\"><p>Xin chào " + escape(order.getUser().getName()) + ",</p>"
+            + "<section style=\"padding:26px 30px\"><p>Xin chào " + escape(order.getUser()==null?order.getRecipientName():order.getUser().getName()) + ",</p>"
             + "<p>Cảm ơn bạn đã mua sắm. Đây là hóa đơn cho đơn hàng được tạo lúc " + order.getCreatedAt().format(DATE_TIME) + ".</p>"
             + "<table style=\"width:100%;border-collapse:collapse;margin:22px 0;font-size:14px\"><thead><tr style=\"background:#f3f7f4\"><th style=\"text-align:left;padding:10px\">Sản phẩm</th><th>SL</th><th style=\"text-align:right\">Đơn giá</th><th style=\"text-align:right\">Thành tiền</th></tr></thead><tbody>"
             + items + "</tbody></table>"
@@ -99,7 +116,7 @@ public class InvoiceEmailService {
             + "<p style=\"margin-top:22px\"><strong>Thanh toán:</strong> " + paymentStatus + "</p>"
             + "<p><strong>Giao đến:</strong> " + escape(order.getRecipientName()) + " · " + escape(order.getRecipientPhone()) + "<br>"
             + escape(order.getShippingAddressLine()) + ", " + escape(order.getShippingCity()) + "</p>"
-            + "<p style=\"margin-top:25px\"><a href=\"" + storefrontUrl + "/orders/" + order.getId() + "/invoice\" style=\"display:inline-block;padding:11px 16px;background:#176b3a;color:#fff;text-decoration:none;border-radius:6px\">Xem hóa đơn trên GreenFarm</a></p>"
+            + "<p style=\"margin-top:25px\"><a href=\"" + storefrontUrl + (order.getUser()==null?"/guest-orders":"/orders/"+order.getId()+"/invoice") + "\" style=\"display:inline-block;padding:11px 16px;background:#176b3a;color:#fff;text-decoration:none;border-radius:6px\">Xem hóa đơn trên GreenFarm</a></p>"
             + "</section></main></body></html>";
     }
 
@@ -108,4 +125,5 @@ public class InvoiceEmailService {
     private BigDecimal amountOrZero(BigDecimal amount) { return amount == null ? BigDecimal.ZERO : amount; }
     private String money(BigDecimal amount) { return NumberFormat.getNumberInstance(VIETNAMESE).format(amount) + " ₫"; }
     private String escape(String value) { return value == null ? "" : value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;"); }
+    private String limit(String value, int max) { String safe = value == null ? "Unknown mail delivery error" : value; return safe.length() <= max ? safe : safe.substring(0, max); }
 }

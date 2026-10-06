@@ -65,6 +65,7 @@ public class LoyaltyService {
 
     @Transactional
     public void restoreRedemption(Order order) {
+        if (order.getUser() == null) return;
         if (!transactions.existsByTypeAndOrder_Id(REDEMPTION, order.getId()) || transactions.existsByTypeAndOrder_Id(REDEMPTION_RESTORE, order.getId())) return;
         LoyaltyPointTransaction redemption = transactions.findByTypeAndOrder_Id(REDEMPTION, order.getId()).orElse(null);
         if (redemption == null) return;
@@ -77,6 +78,7 @@ public class LoyaltyService {
 
     @Transactional
     public void rewardOrder(Order order) {
+        if (order.getUser() == null) return;
         if (transactions.existsByTypeAndOrder_Id(ORDER_EARN, order.getId())) return;
         int points = pointsForAmount(order.getTotalPrice());
         if (points == 0) return;

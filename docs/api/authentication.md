@@ -2,8 +2,10 @@
 
 ## Phạm vi giai đoạn 1
 
-Module dùng access token JWT có thời hạn mặc định 24 giờ. Chưa có refresh token,
-xác minh email, quên mật khẩu hoặc đăng nhập Google trong giai đoạn này.
+Module dùng access token JWT có thời hạn mặc định 24 giờ và refresh token xoay vòng
+mặc định 30 ngày. Refresh token chỉ được lưu dưới dạng SHA-256 trong database; khi
+một token đã xoay vòng bị dùng lại, toàn bộ phiên của tài khoản sẽ bị thu hồi.
+Xác minh email, quên mật khẩu và đăng nhập Google chưa thuộc phạm vi hiện tại.
 
 Tài khoản đăng ký mới nhận role `customer` và trạng thái `active`. Mật khẩu được
 băm bằng BCrypt trước khi lưu.
@@ -14,6 +16,8 @@ băm bằng BCrypt trước khi lưu.
 | --- | --- | --- |
 | `POST` | `/api/auth/register` | Đăng ký và nhận JWT |
 | `POST` | `/api/auth/login` | Đăng nhập và nhận JWT |
+| `POST` | `/api/auth/refresh` | Đổi refresh token lấy cặp access/refresh token mới |
+| `POST` | `/api/auth/logout` | Thu hồi refresh token của phiên hiện tại |
 | `GET` | `/api/health` | Kiểm tra backend |
 
 Request đăng nhập có thể gửi thêm `role` để khóa phiên đăng nhập vào đúng cổng:
@@ -44,6 +48,7 @@ Authorization: Bearer <access-token>
 | `GET` | `/api/users/me` | Lấy hồ sơ hiện tại |
 | `PATCH` | `/api/users/me` | Cập nhật hồ sơ |
 | `PUT` | `/api/users/me/password` | Đổi mật khẩu |
+| `POST` | `/api/users/me/avatar` | Tải ảnh đại diện JPG/PNG/WEBP, tối đa 5 MB |
 
 ## Endpoint quản trị
 
@@ -76,3 +81,6 @@ Mỗi lần nhập sai mật khẩu làm tăng bộ đếm thất bại. Lần s
 API trả lỗi theo một định dạng chung gồm `status`, `code`, `message`, `path` và
 `fieldErrors`. Các mã chính gồm `INVALID_CREDENTIALS`, `ACCOUNT_LOCKED`,
 `ROLE_MISMATCH`, `ACCESS_DENIED`, `EMAIL_EXISTS` và `VALIDATION_ERROR`.
+
+Mỗi lần đổi mật khẩu sẽ thu hồi toàn bộ refresh token của tài khoản, vì vậy người
+dùng cần đăng nhập lại trên các thiết bị.

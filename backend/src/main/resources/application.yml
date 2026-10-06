@@ -50,6 +50,10 @@ spring:
     web:
       pageable:
         max-page-size: 50
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
 
 springdoc:
   api-docs:
@@ -61,6 +65,7 @@ app:
   jwt:
     secret: ${JWT_SECRET:GreenFarmLocalDevelopmentSecretMustBeAtLeast32Chars}
     expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+    refresh-expiration-days: ${JWT_REFRESH_EXPIRATION_DAYS:30}
   cors:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001}
   security:
@@ -74,11 +79,31 @@ app:
       tmn-code: ${VNPAY_TMN_CODE:}
       hash-secret: ${VNPAY_HASH_SECRET:}
       payment-url: ${VNPAY_PAYMENT_URL:https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}
+      refund-url: ${VNPAY_REFUND_URL:https://sandbox.vnpayment.vn/merchant_webapi/api/transaction}
       return-url: ${VNPAY_RETURN_URL:}
   storefront-url: ${STOREFRONT_URL:http://localhost:3000}
   invoice:
     email-enabled: ${INVOICE_EMAIL_ENABLED:false}
     from: ${INVOICE_EMAIL_FROM:}
+    max-attempts: ${INVOICE_EMAIL_MAX_ATTEMPTS:5}
+    base-retry-minutes: ${INVOICE_EMAIL_BASE_RETRY_MINUTES:2}
+    retry-scan-ms: ${INVOICE_EMAIL_RETRY_SCAN_MS:60000}
+  upload:
+    directory: ${UPLOAD_DIRECTORY:uploads}
+    max-image-bytes: ${UPLOAD_MAX_IMAGE_BYTES:5242880}
+    cloudinary:
+      cloud-name: ${CLOUDINARY_CLOUD_NAME:}
+      api-key: ${CLOUDINARY_API_KEY:}
+      api-secret: ${CLOUDINARY_API_SECRET:}
+  chat:
+    gemini:
+      api-key: ${GEMINI_API_KEY:}
+      model: ${GEMINI_CHAT_MODEL:gemini-3.5-flash}
+  guest:
+    session-days: ${GUEST_SESSION_DAYS:30}
+  inventory:
+    expiry-warning-days: ${INVENTORY_EXPIRY_WARNING_DAYS:3}
+    expiry-scan-ms: ${INVENTORY_EXPIRY_SCAN_MS:60000}
 
 logging:
   level:

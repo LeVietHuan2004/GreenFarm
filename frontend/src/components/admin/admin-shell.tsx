@@ -10,6 +10,7 @@ import {
   LogOut,
   MessageCircleMore,
   Menu,
+  PackagePlus,
   Search,
   Settings,
   ShoppingCart,
@@ -27,9 +28,10 @@ import { FormEvent, ReactNode, useState } from "react";
 
 import { RoleGuard } from "@/components/auth/role-guard";
 import { NotificationMenu } from "@/components/notifications/notification-menu";
+import { authService } from "@/services/auth-service";
 import { useAuthStore } from "@/stores/auth-store";
 
-export type AdminSection = "dashboard" | "users" | "categories" | "products" | "orders" | "coupons" | "contacts" | "profile";
+export type AdminSection = "dashboard" | "users" | "categories" | "products" | "inventory" | "orders" | "coupons" | "contacts" | "profile";
 
 type AdminShellProps = {
   active: AdminSection;
@@ -43,6 +45,7 @@ const sectionTitles: Record<AdminSection, { title: string; description: string }
   users: { title: "Người dùng", description: "Tài khoản, vai trò và trạng thái" },
   categories: { title: "Danh mục", description: "Cấu trúc catalog cửa hàng" },
   products: { title: "Sản phẩm", description: "Nội dung, tồn kho và hình ảnh" },
+  inventory: { title: "Quản lý kho", description: "Lô hàng, hạn dùng và lịch sử tồn kho" },
   orders: { title: "Đơn hàng", description: "Xử lý đơn và trạng thái thanh toán" },
   coupons: { title: "Mã giảm giá", description: "Ưu đãi, thời hạn và lượt sử dụng" },
   contacts: { title: "Liên hệ", description: "Yêu cầu hỗ trợ của khách hàng" },
@@ -54,6 +57,7 @@ const primaryItems = [
   { key: "users" as const, label: "Người dùng", detail: "Khách hàng, nhân viên", href: "/admin/users", icon: UsersRound },
   { key: "categories" as const, label: "Danh mục", detail: "Nhóm sản phẩm", href: "/admin/categories", icon: Tags },
   { key: "products" as const, label: "Sản phẩm", detail: "Giá, kho và hình ảnh", href: "/admin/products", icon: Boxes },
+  { key: "inventory" as const, label: "Quản lý kho", detail: "Nhập, xuất và kiểm kê", href: "/admin/inventory", icon: PackagePlus },
   { key: "orders" as const, label: "Đơn hàng", detail: "Xử lý và giao nhận", href: "/admin/orders", icon: ShoppingCart },
   { key: "coupons" as const, label: "Mã giảm giá", detail: "Ưu đãi cửa hàng", href: "/admin/coupons", icon: TicketPercent },
   { key: "contacts" as const, label: "Liên hệ", detail: "Hỗ trợ khách hàng", href: "/admin/contacts", icon: MessageCircleMore }
@@ -67,10 +71,11 @@ export function AdminShell({ active, children }: AdminShellProps) {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [quickSearch, setQuickSearch] = useState("");
-  const { user, clearSession } = useAuthStore();
+  const { user, refreshToken, clearSession } = useAuthStore();
   const section = sectionTitles[active];
 
   const logout = () => {
+    if (refreshToken) void authService.logout(refreshToken).catch(() => undefined);
     clearSession();
     router.push("/admin/login");
   };

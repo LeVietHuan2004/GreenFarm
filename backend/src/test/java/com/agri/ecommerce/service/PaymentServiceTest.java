@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -62,6 +63,17 @@ class PaymentServiceTest {
         assertThat(response.referenceCode()).isEqualTo("VNP-42");
         assertThat(response.paymentUrl()).startsWith("https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?");
         assertThat(response.paymentUrl()).contains("vnp_Amount=5000000", "vnp_SecureHash=");
+    }
+
+    @Test void replayCanRecoverPendingVnpayUrlButNotExpiredPayment() {
+        Payment payment = pendingPayment();
+        payment.setExpiresAt(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).plusMinutes(10));
+        when(payments.findByOrder_Id(42L)).thenReturn(Optional.of(payment));
+        String url = service.pendingVnpayUrl(42L, "127.0.0.1");
+        assertThat(url).contains("vnp_TxnRef=VNP-42", "vnp_SecureHash=");
+        assertThat(service.pendingVnpayUrl(42L, "127.0.0.1")).isEqualTo(url);
+        payment.setExpiresAt(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).minusMinutes(1));
+        assertThat(service.pendingVnpayUrl(42L, "127.0.0.1")).isNull();
     }
 
     @Test void successfulCallbackCompletesPayment() {

@@ -15,15 +15,28 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
+import com.agri.ecommerce.service.ImageStorageService;
 
 @RestController
 @RequestMapping("/api/users/me")
 public class UserController {
 
     private final UserService userService;
+    private final ImageStorageService images;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, ImageStorageService images) {
         this.userService = userService;
+        this.images = images;
+    }
+
+    @PostMapping(value = "/avatar", consumes = "multipart/form-data")
+    public ApiResponse<UserResponse> uploadAvatar(@AuthenticationPrincipal GreenFarmUserDetails principal,
+                                                   @RequestPart("file") MultipartFile file) {
+        String path = images.store(file, "avatars");
+        return ApiResponse.success("Tải ảnh đại diện thành công", userService.updateAvatar(principal.getUsername(), path));
     }
 
     @GetMapping

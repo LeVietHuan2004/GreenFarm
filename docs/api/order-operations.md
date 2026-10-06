@@ -27,6 +27,13 @@ pending -> processing -> ready_for_delivery -> out_for_delivery -> delivered -> 
 | PATCH | `/api/admin/orders/{id}/status` | Chuyển trạng thái hợp lệ |
 | PATCH | `/api/admin/orders/{id}/delivery-staff` | Phân công delivery staff đang hoạt động |
 
+`GET /api/admin/orders` hỗ trợ `view=active|history|all`, `status`, `page` và `size`.
+`active` gồm các đơn chưa kết thúc (`pending`, `processing`, `ready_for_delivery`,
+`out_for_delivery`, `delivered`, `delivery_failed`); `history` gồm `completed` và
+`canceled`. Nếu không truyền `view`, API giữ mặc định `all` để tương thích với các
+client cũ. Bộ lọc `status` được áp dụng trong nhóm đã chọn. Trang quản trị mở
+mặc định nhóm `active`, nhưng các đơn trong lịch sử vẫn được lưu và tra cứu.
+
 Body phân công:
 
 ```json

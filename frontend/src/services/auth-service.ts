@@ -36,7 +36,20 @@ export const authService = {
     return response.data.data;
   },
 
+  async uploadAvatar(file: File): Promise<User> {
+    const body = new FormData();
+    body.append("file", file);
+    const response = await apiClient.post<ApiResponse<User>>("/users/me/avatar", body, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+    return response.data.data;
+  },
+
   async changePassword(input: ChangePasswordInput): Promise<void> {
     await apiClient.put("/users/me/password", input);
+  },
+
+  async logout(refreshToken: string): Promise<void> {
+    await apiClient.post("/auth/logout", { refreshToken });
   }
 };

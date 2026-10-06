@@ -33,14 +33,14 @@ public class ReviewService {
 
     @Transactional(readOnly = true)
     public ReviewEligibilityResponse eligibility(Long userId, Long productId) {
-        boolean purchased = orders.hasPurchasedProduct(userId, productId, PURCHASED_STATUSES);
+        boolean purchased = orders.hasReviewablePurchasedProduct(userId, productId, PURCHASED_STATUSES);
         ReviewResponse existing = reviews.findByUser_IdAndProduct_Id(userId, productId).map(this::toResponse).orElse(null);
         return new ReviewEligibilityResponse(purchased, purchased && existing == null, existing);
     }
 
     @Transactional
     public ReviewResponse create(Long userId, ReviewRequest request) {
-        if (!orders.hasPurchasedProduct(userId, request.productId(), PURCHASED_STATUSES)) {
+        if (!orders.hasReviewablePurchasedProduct(userId, request.productId(), PURCHASED_STATUSES)) {
             throw new ApplicationException(HttpStatus.FORBIDDEN, "REVIEW_PURCHASE_REQUIRED", "Bạn chỉ có thể đánh giá sản phẩm đã nhận hàng");
         }
         if (reviews.findByUser_IdAndProduct_Id(userId, request.productId()).isPresent()) {
@@ -60,6 +60,9 @@ public class ReviewService {
         Review review = reviews.findByIdAndUser_Id(id, userId).orElseThrow(() -> notFound("REVIEW_NOT_FOUND", "Không tìm thấy đánh giá"));
         if (!review.getProduct().getId().equals(request.productId())) {
             throw new ApplicationException(HttpStatus.BAD_REQUEST, "REVIEW_PRODUCT_MISMATCH", "Không thể đổi sản phẩm của đánh giá");
+        }
+        if (!orders.hasReviewablePurchasedProduct(userId, request.productId(), PURCHASED_STATUSES)) {
+            throw new ApplicationException(HttpStatus.FORBIDDEN, "REVIEW_REFUND_IN_PROGRESS", "Khong the chinh sua danh gia khi don hang dang hoan tien");
         }
         apply(review, request);
         return toResponse(reviews.save(review));

@@ -36,6 +36,7 @@ export type User = {
 
 export type AuthSession = {
   accessToken: string;
+  refreshToken: string;
   tokenType: "Bearer";
   expiresIn: number;
   user: User;

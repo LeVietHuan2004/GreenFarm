@@ -10,7 +10,8 @@ import java.util.List;
 @Table(name = "orders")
 public class Order {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
-    @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "user_id", nullable = false) private User user;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "user_id") private User user;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "guest_session_id") private GuestSession guestSession;
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "delivery_staff_id") private User deliveryStaff;
     @Column(nullable = false) private BigDecimal subtotal;
     @Column(name = "discount_amount", nullable = false) private BigDecimal discountAmount;
@@ -29,11 +30,15 @@ public class Order {
     @Column(name = "delivered_at") private LocalDateTime deliveredAt;
     @Column(name = "inventory_released_at") private LocalDateTime inventoryReleasedAt;
     @Column(name = "delivery_failure_reason") private String deliveryFailureReason;
-    @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "shipping_address_id", nullable = false) private ShippingAddress shippingAddress;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "shipping_address_id") private ShippingAddress shippingAddress;
     @Column(name = "recipient_name", nullable = false) private String recipientName;
     @Column(name = "recipient_phone", nullable = false) private String recipientPhone;
+    @Column(name = "guest_email") private String guestEmail;
+    @Column(name = "guest_lookup_token_hash", length = 64) private String guestLookupTokenHash;
+    @Column(name = "guest_checkout_key", length = 64) private String guestCheckoutKey;
     @Column(name = "shipping_address_line", nullable = false) private String shippingAddressLine;
     @Column(name = "shipping_city", nullable = false) private String shippingCity;
+    @Column(name = "shipping_method", nullable = false, length = 32) private String shippingMethod = "standard";
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true) @OrderBy("id ASC") private List<OrderItem> items = new ArrayList<>();
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true) @OrderBy("changedAt ASC, id ASC") private List<OrderStatusHistory> statusHistory = new ArrayList<>();
     @Column(name = "created_at") private LocalDateTime createdAt;
@@ -42,6 +47,7 @@ public class Order {
     @PreUpdate void preUpdate(){updatedAt=LocalDateTime.now();}
     public void addItem(OrderItem item){items.add(item);item.setOrder(this);} public void addHistory(OrderStatusHistory history){statusHistory.add(history);history.setOrder(this);}
     public Long getId(){return id;} public User getUser(){return user;} public void setUser(User v){user=v;}
+    public GuestSession getGuestSession(){return guestSession;} public void setGuestSession(GuestSession v){guestSession=v;}
     public User getDeliveryStaff(){return deliveryStaff;} public void setDeliveryStaff(User v){deliveryStaff=v;}
     public BigDecimal getSubtotal(){return subtotal;} public void setSubtotal(BigDecimal v){subtotal=v;}
     public BigDecimal getDiscountAmount(){return discountAmount;} public void setDiscountAmount(BigDecimal v){discountAmount=v;}
@@ -62,8 +68,12 @@ public class Order {
     public ShippingAddress getShippingAddress(){return shippingAddress;} public void setShippingAddress(ShippingAddress v){shippingAddress=v;}
     public String getRecipientName(){return recipientName;} public void setRecipientName(String v){recipientName=v;}
     public String getRecipientPhone(){return recipientPhone;} public void setRecipientPhone(String v){recipientPhone=v;}
+    public String getGuestEmail(){return guestEmail;} public void setGuestEmail(String v){guestEmail=v;}
+    public String getGuestLookupTokenHash(){return guestLookupTokenHash;} public void setGuestLookupTokenHash(String v){guestLookupTokenHash=v;}
+    public String getGuestCheckoutKey(){return guestCheckoutKey;} public void setGuestCheckoutKey(String v){guestCheckoutKey=v;}
     public String getShippingAddressLine(){return shippingAddressLine;} public void setShippingAddressLine(String v){shippingAddressLine=v;}
     public String getShippingCity(){return shippingCity;} public void setShippingCity(String v){shippingCity=v;}
+    public String getShippingMethod(){return shippingMethod;} public void setShippingMethod(String v){shippingMethod=v;}
     public List<OrderItem> getItems(){return items;} public List<OrderStatusHistory> getStatusHistory(){return statusHistory;}
     public LocalDateTime getCreatedAt(){return createdAt;} public LocalDateTime getUpdatedAt(){return updatedAt;}
 }

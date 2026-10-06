@@ -13,10 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class NotificationService {
     private final NotificationRepository notifications;
     private final UserRepository users;
+    private final NotificationStreamService streams;
 
-    public NotificationService(NotificationRepository notifications, UserRepository users) {
+    public NotificationService(NotificationRepository notifications, UserRepository users, NotificationStreamService streams) {
         this.notifications = notifications;
         this.users = users;
+        this.streams = streams;
     }
 
     @Transactional
@@ -24,7 +26,8 @@ public class NotificationService {
         if (user == null || user.getId() == null) return;
         Notification notification = new Notification();
         notification.setUser(user); notification.setType(type); notification.setMessage(message); notification.setLink(link);
-        notifications.save(notification);
+        Notification saved = notifications.save(notification);
+        streams.publish(user.getId(), toResponse(saved));
     }
 
     @Transactional

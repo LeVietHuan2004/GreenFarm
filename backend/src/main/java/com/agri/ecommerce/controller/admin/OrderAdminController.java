@@ -14,6 +14,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletRequest;
+import com.agri.ecommerce.security.GreenFarmUserDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 @RestController
 @RequestMapping("/api/admin/orders")
@@ -28,9 +31,10 @@ public class OrderAdminController {
     @GetMapping
     public ApiResponse<PageResponse<OrderSummaryResponse>> findAll(
         @RequestParam(required = false) String status,
+        @RequestParam(required = false, defaultValue = "all") String view,
         @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        return ApiResponse.success("Lấy danh sách đơn hàng thành công", service.findAdminOrders(status, pageable));
+        return ApiResponse.success("Lấy danh sách đơn hàng thành công", service.findAdminOrders(status, view, pageable));
     }
 
     @GetMapping("/{id}")
@@ -44,8 +48,9 @@ public class OrderAdminController {
     }
 
     @PatchMapping("/{id}/refund-confirmation")
-    public ApiResponse<OrderResponse> confirmRefundAndCancel(@PathVariable Long id, @Valid @RequestBody RefundOrderRequest request) {
-        return ApiResponse.success("Đã ghi nhận hoàn tiền và hủy đơn hàng", service.confirmRefundAndCancel(id, request.note()));
+    public ApiResponse<OrderResponse> confirmRefundAndCancel(@PathVariable Long id, @Valid @RequestBody RefundOrderRequest request,
+                                                              HttpServletRequest servletRequest, @AuthenticationPrincipal GreenFarmUserDetails principal) {
+        return ApiResponse.success("Yêu cầu hoàn tiền đã được xử lý", service.confirmRefundAndCancel(id, request.note(), request.amount(), principal.getUsername(), servletRequest.getRemoteAddr()));
     }
     @PatchMapping("/{id}/delivery-staff")
     public ApiResponse<OrderResponse> assignDeliveryStaff(@PathVariable Long id, @Valid @RequestBody DeliveryAssignmentRequest request) {

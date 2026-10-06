@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface CouponUsageRepository extends JpaRepository<CouponUsage, Long> {
     long countByCoupon_IdAndUser_IdAndStatusIn(Long couponId, Long userId, Collection<CouponUsageStatus> statuses);
+    long countByCoupon_IdAndGuestSession_IdAndStatusIn(Long couponId, Long guestSessionId, Collection<CouponUsageStatus> statuses);
     boolean existsByCoupon_Id(Long couponId);
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select usage from CouponUsage usage where usage.order.id = :orderId order by usage.coupon.id")

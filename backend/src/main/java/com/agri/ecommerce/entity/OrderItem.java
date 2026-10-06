@@ -12,7 +12,7 @@ public class OrderItem {
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "product_id", nullable = false) private Product product;
     @Column(name = "product_name", nullable = false) private String productName;
     @Column(name = "product_unit") private String productUnit;
-    @Column(name = "product_image") private String productImage;
+    @Column(name = "product_image", length = 1024) private String productImage;
     @Column(nullable = false) private int quantity;
     @Column(nullable = false) private BigDecimal price;
     @Column(name = "created_at") private LocalDateTime createdAt;

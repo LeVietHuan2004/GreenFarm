@@ -106,6 +106,9 @@ public class ProductService {
 
     @Transactional
     public ProductResponse create(ProductRequest request) {
+        if (request.stock() != 0) {
+            throw new ApplicationException(HttpStatus.CONFLICT, "INVENTORY_IMPORT_REQUIRED", "Hãy nhập kho theo lô để tăng tồn kho");
+        }
         Product product = new Product();
         apply(product, request);
         product.setSlug(uniqueSlug(request.slug(), request.name(), null));
@@ -114,7 +117,10 @@ public class ProductService {
 
     @Transactional
     public ProductResponse update(Long productId, ProductRequest request) {
-        Product product = findEntity(productId);
+        Product product = lockEntity(productId);
+        if (request.stock() != product.getStock()) {
+            throw new ApplicationException(HttpStatus.CONFLICT, "INVENTORY_ADJUSTMENT_REQUIRED", "Hãy dùng nhập kho hoặc điều chỉnh kho để thay đổi tồn kho");
+        }
         apply(product, request);
         product.setSlug(uniqueSlug(request.slug(), request.name(), productId));
         return CatalogMapper.toProductResponse(productRepository.save(product));
@@ -122,7 +128,7 @@ public class ProductService {
 
     @Transactional
     public ProductResponse updateStatus(Long productId, String status) {
-        Product product = findEntity(productId);
+        Product product = lockEntity(productId);
         product.setStatus(requireStatus(status));
         return CatalogMapper.toProductResponse(productRepository.save(product));
     }
@@ -152,6 +158,11 @@ public class ProductService {
             .orElseThrow(() -> notFound("PRODUCT_NOT_FOUND", "Khong tim thay san pham"));
     }
 
+    private Product lockEntity(Long productId) {
+        return productRepository.findAllByIdForUpdate(List.of(productId)).stream().findFirst()
+            .orElseThrow(() -> notFound("PRODUCT_NOT_FOUND", "Khong tim thay san pham"));
+    }
+
     private void apply(Product product, ProductRequest request) {
         Category category = categoryService.findEntity(request.categoryId());
         product.setName(request.name().trim());
@@ -160,7 +171,7 @@ public class ProductService {
         product.setDescription(trimToNull(request.description()));
         product.setDescriptionEn(trimToNull(request.descriptionEn()));
         product.setPrice(request.price());
-        product.setStock(request.stock());
+        // Product.stock is a cache maintained by InventoryService.
         ProductStatus requestedStatus = StringUtils.hasText(request.status())
             ? requireStatus(request.status())
             : product.getStatus();

@@ -16,7 +16,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class NotificationServiceTest {
     @Mock NotificationRepository notifications; @Mock UserRepository users;
     NotificationService service;
-    @BeforeEach void setUp(){service=new NotificationService(notifications,users);}
+    @Mock NotificationStreamService streams;
+    @BeforeEach void setUp(){service=new NotificationService(notifications,users,streams);}
 
     @Test void userCanOnlyMarkOwnNotificationRead(){
         when(notifications.findByIdAndUser_Id(9L,1L)).thenReturn(Optional.empty());

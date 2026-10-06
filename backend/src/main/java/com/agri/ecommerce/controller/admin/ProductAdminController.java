@@ -8,6 +8,7 @@ import com.agri.ecommerce.dto.response.PageResponse;
 import com.agri.ecommerce.dto.response.ProductImageResponse;
 import com.agri.ecommerce.dto.response.ProductResponse;
 import com.agri.ecommerce.service.ProductService;
+import com.agri.ecommerce.service.ImageStorageService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -24,15 +25,27 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/admin/products")
 public class ProductAdminController {
 
     private final ProductService productService;
+    private final ImageStorageService images;
 
-    public ProductAdminController(ProductService productService) {
+    public ProductAdminController(ProductService productService, ImageStorageService images) {
         this.productService = productService;
+        this.images = images;
+    }
+
+    @PostMapping(value = "/{productId}/images/upload", consumes = "multipart/form-data")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<ProductImageResponse> uploadImage(@PathVariable Long productId,
+                                                          @RequestPart("file") MultipartFile file) {
+        String path = images.store(file, "products");
+        return ApiResponse.success("Tải ảnh sản phẩm thành công", productService.addImage(productId, new ProductImageRequest(path)));
     }
 
     @GetMapping

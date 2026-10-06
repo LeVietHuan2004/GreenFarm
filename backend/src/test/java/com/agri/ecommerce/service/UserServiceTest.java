@@ -33,11 +33,14 @@ class UserServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private RefreshTokenService refreshTokenService;
+
     private UserService userService;
 
     @BeforeEach
     void setUp() {
-        userService = new UserService(userRepository, roleRepository, passwordEncoder);
+        userService = new UserService(userRepository, roleRepository, passwordEncoder, refreshTokenService);
     }
 
     @Test

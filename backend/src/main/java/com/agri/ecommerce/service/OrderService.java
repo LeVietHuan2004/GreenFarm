@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,15 +32,19 @@ public class OrderService {
     private final OrderLifecycleService orderLifecycle;
     private final NotificationService notifications;
     private final LoyaltyService loyalty;
+    private final VnpayRefundService vnpayRefunds;
+    private final InventoryService inventory;
 
     public OrderService(OrderRepository orders, OrderStatusHistoryRepository histories, ShippingAddressService addressService,
                         CartItemRepository carts, ProductRepository products, CouponEngineService couponEngine, UserRepository users,
                         PaymentService paymentService, OrderLifecycleService orderLifecycle, NotificationService notifications,
-                        LoyaltyService loyalty) {
+                        LoyaltyService loyalty, VnpayRefundService vnpayRefunds, InventoryService inventory) {
         this.orders=orders; this.histories=histories; this.addressService=addressService; this.carts=carts;
         this.products=products; this.couponEngine=couponEngine; this.users=users; this.paymentService=paymentService; this.orderLifecycle=orderLifecycle;
         this.notifications=notifications;
         this.loyalty=loyalty;
+        this.vnpayRefunds=vnpayRefunds;
+        this.inventory=inventory;
     }
 
     @Transactional(readOnly = true)
@@ -84,15 +89,13 @@ public class OrderService {
             OrderItem item = new OrderItem(); item.setProduct(product); item.setProductName(product.getName());
             item.setProductUnit(product.getUnit()); item.setProductImage(product.getImages().isEmpty()?null:product.getImages().getFirst().getImage());
             item.setQuantity(cartItem.getQuantity()); item.setPrice(product.getPrice()); order.addItem(item);
-            product.setStock(product.getStock()-cartItem.getQuantity());
-            if (product.getStock()==0) product.setStatus(ProductStatus.OUT_OF_STOCK);
         }
         OrderStatusHistory initial = new OrderStatusHistory(); initial.setStatus(OrderStatus.PENDING); initial.setNote("Đơn hàng đã được tạo"); order.addHistory(initial);
         Order saved = orders.save(order);
+        inventory.reserveOrder(saved,lockedProducts);
         couponEngine.reserve(user, saved, couponQuote);
         loyalty.redeem(user, saved, totals.loyaltyPointsApplied());
         PaymentResponse payment = paymentService.createForOrder(saved, PaymentMethod.fromRequestValue(request.paymentMethod()), clientIp);
-        products.saveAll(lockedProducts.values());
         carts.deleteAllByUser_Id(userId);
         notifications.notifyUser(saved.getUser(), "order", "Đơn hàng #" + saved.getId() + " đã được tạo", "/orders/" + saved.getId());
         notifications.notifyRole("admin", "order", "Có đơn hàng mới #" + saved.getId(), "/admin/orders");
@@ -122,10 +125,26 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<OrderSummaryResponse> findAdminOrders(String status, Pageable pageable) {
-        var page = status == null || status.isBlank()
-            ? orders.findAllByOrderByCreatedAtDescIdDesc(pageable)
-            : orders.findAllByStatusOrderByCreatedAtDescIdDesc(parseStatus(status), pageable);
+    public PageResponse<OrderSummaryResponse> findAdminOrders(String status, String view, Pageable pageable) {
+        String selectedView = view == null || view.isBlank() ? "all" : view.trim().toLowerCase(Locale.ROOT);
+        List<OrderStatus> visibleStatuses = switch (selectedView) {
+            case "active" -> List.of(OrderStatus.PENDING, OrderStatus.PROCESSING, OrderStatus.READY_FOR_DELIVERY,
+                OrderStatus.OUT_FOR_DELIVERY, OrderStatus.DELIVERED, OrderStatus.DELIVERY_FAILED);
+            case "history" -> List.of(OrderStatus.COMPLETED, OrderStatus.CANCELED);
+            case "all" -> List.of(OrderStatus.values());
+            default -> throw new ApplicationException(HttpStatus.BAD_REQUEST, "INVALID_ORDER_VIEW", "Nhóm đơn hàng không hợp lệ");
+        };
+        Page<Order> page;
+        if (status != null && !status.isBlank()) {
+            OrderStatus requestedStatus = parseStatus(status);
+            page = visibleStatuses.contains(requestedStatus)
+                ? orders.findAllByStatusOrderByCreatedAtDescIdDesc(requestedStatus, pageable)
+                : Page.empty(pageable);
+        } else {
+            page = selectedView.equals("all")
+                ? orders.findAllByOrderByCreatedAtDescIdDesc(pageable)
+                : orders.findAllByStatusInOrderByCreatedAtDescIdDesc(visibleStatuses, pageable);
+        }
         return PageResponse.from(page, this::toSummary);
     }
 
@@ -143,8 +162,11 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderResponse confirmRefundAndCancel(Long orderId, String note) {
-        Order order = orderLifecycle.confirmRefundAndCancel(orderId, note);
+    public OrderResponse confirmRefundAndCancel(Long orderId, String note, BigDecimal amount, String actor, String clientIp) {
+        VnpayRefundService.RefundOutcome outcome = vnpayRefunds.refund(orderId, amount, actor, clientIp);
+        Order order = outcome.fullSuccess()
+            ? orderLifecycle.confirmRefundAndCancel(orderId, note)
+            : orders.findById(orderId).orElseThrow(() -> new ApplicationException(HttpStatus.NOT_FOUND, "ORDER_NOT_FOUND", "Khong tim thay don hang"));
         return toResponse(order, histories.findAllByOrder_IdOrderByChangedAtAscIdAsc(orderId), paymentService.findForOrder(orderId));
     }
 

@@ -16,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
@@ -30,13 +32,15 @@ class OrderServiceTest {
     @Mock OrderLifecycleService orderLifecycle;
     @Mock NotificationService notifications;
     @Mock LoyaltyService loyalty;
+    @Mock VnpayRefundService vnpayRefunds;
+    @Mock InventoryService inventory;
     OrderService service;
     Product product;
     CartItem cartItem;
     ShippingAddress address;
 
     @BeforeEach void setUp(){
-        service=new OrderService(orders,histories,addresses,carts,products,couponEngine,users,paymentService,orderLifecycle,notifications,loyalty);
+        service=new OrderService(orders,histories,addresses,carts,products,couponEngine,users,paymentService,orderLifecycle,notifications,loyalty,vnpayRefunds,inventory);
         product=mock(Product.class);
         lenient().when(product.getId()).thenReturn(10L);
         lenient().when(product.getName()).thenReturn("Rau sạch");
@@ -68,6 +72,26 @@ class OrderServiceTest {
         assertThat(free.total()).isEqualByComparingTo("600000");
     }
 
+    @Test void adminOrderViewsUsePagedStatusGroups(){
+        var pageable = PageRequest.of(2, 20);
+        var active = List.of(OrderStatus.PENDING, OrderStatus.PROCESSING, OrderStatus.READY_FOR_DELIVERY,
+            OrderStatus.OUT_FOR_DELIVERY, OrderStatus.DELIVERED, OrderStatus.DELIVERY_FAILED);
+        var history = List.of(OrderStatus.COMPLETED, OrderStatus.CANCELED);
+        when(orders.findAllByStatusInOrderByCreatedAtDescIdDesc(active, pageable)).thenReturn(Page.empty(pageable));
+        when(orders.findAllByStatusInOrderByCreatedAtDescIdDesc(history, pageable)).thenReturn(Page.empty(pageable));
+
+        assertThat(service.findAdminOrders(null, "active", pageable).page()).isEqualTo(2);
+        assertThat(service.findAdminOrders(null, "history", pageable).page()).isEqualTo(2);
+        verify(orders).findAllByStatusInOrderByCreatedAtDescIdDesc(active, pageable);
+        verify(orders).findAllByStatusInOrderByCreatedAtDescIdDesc(history, pageable);
+    }
+
+    @Test void adminOrderStatusCannotEscapeSelectedView(){
+        var pageable = PageRequest.of(0, 20);
+        assertThat(service.findAdminOrders("canceled", "active", pageable).totalElements()).isZero();
+        verifyNoInteractions(orders);
+    }
+
     @Test void previewAppliesPercentageCouponAndCapsDiscount(){
         Coupon coupon=mock(Coupon.class); when(coupon.getCode()).thenReturn("SAVE20");
         when(couponEngine.preview(eq(1L), anyList(), eq(new BigDecimal("400000.00")), eq(new BigDecimal("30000.00")), eq("SAVE20"), isNull()))
@@ -85,7 +109,7 @@ class OrderServiceTest {
         assertThat(result.items()).hasSize(1);
         assertThat(result.items().getFirst().productName()).isEqualTo("Rau sạch");
         assertThat(result.statusHistory()).singleElement().extracting("note").isEqualTo("Đơn hàng đã được tạo");
-        verify(product).setStock(3);
+        verify(inventory).reserveOrder(any(Order.class), anyMap());
         verify(paymentService).createForOrder(any(Order.class), eq(PaymentMethod.COD), eq("127.0.0.1"));
         verify(carts).deleteAllByUser_Id(1L);
         verify(orders).save(any(Order.class));

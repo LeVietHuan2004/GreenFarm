@@ -28,19 +28,37 @@ public class CouponEngineService {
     @Transactional(readOnly = true)
     public Quote preview(Long userId, List<CartItem> cart, BigDecimal subtotal, BigDecimal shippingFee,
                          String couponCode, String freeShippingCouponCode) {
-        return quote(userId, cart, subtotal, shippingFee, couponCode, freeShippingCouponCode, false);
+        return quote(userId, null, cart, subtotal, shippingFee, couponCode, freeShippingCouponCode, false);
     }
 
     @Transactional
     public Quote quoteForReservation(Long userId, List<CartItem> cart, BigDecimal subtotal, BigDecimal shippingFee,
                                      String couponCode, String freeShippingCouponCode) {
-        return quote(userId, cart, subtotal, shippingFee, couponCode, freeShippingCouponCode, true);
+        return quote(userId, null, cart, subtotal, shippingFee, couponCode, freeShippingCouponCode, true);
+    }
+
+    @Transactional(readOnly = true)
+    public Quote previewGuest(Long guestSessionId, List<CartItem> cart, BigDecimal subtotal, BigDecimal shippingFee,
+                              String couponCode, String freeShippingCouponCode) {
+        return quote(null, guestSessionId, cart, subtotal, shippingFee, couponCode, freeShippingCouponCode, false);
+    }
+
+    @Transactional
+    public Quote quoteGuestForReservation(Long guestSessionId, List<CartItem> cart, BigDecimal subtotal, BigDecimal shippingFee,
+                                           String couponCode, String freeShippingCouponCode) {
+        return quote(null, guestSessionId, cart, subtotal, shippingFee, couponCode, freeShippingCouponCode, true);
     }
 
     @Transactional
     public void reserve(User user, Order order, Quote quote) {
-        reserveOne(user, order, quote.productCoupon(), quote.productDiscount());
-        reserveOne(user, order, quote.shippingCoupon(), quote.shippingDiscount());
+        reserveOne(user, null, order, quote.productCoupon(), quote.productDiscount());
+        reserveOne(user, null, order, quote.shippingCoupon(), quote.shippingDiscount());
+    }
+
+    @Transactional
+    public void reserveGuest(GuestSession guestSession, Order order, Quote quote) {
+        reserveOne(null, guestSession, order, quote.productCoupon(), quote.productDiscount());
+        reserveOne(null, guestSession, order, quote.shippingCoupon(), quote.shippingDiscount());
     }
 
     @Transactional
@@ -76,12 +94,12 @@ public class CouponEngineService {
     @Transactional(readOnly = true)
     public List<CouponUsageResponse> history(Long couponId) {
         return usages.findAllByCoupon_IdOrderByCreatedAtDescIdDesc(couponId).stream().map(usage ->
-            new CouponUsageResponse(usage.getId(), usage.getUser().getId(), usage.getUser().getName(),
+            new CouponUsageResponse(usage.getId(), usage.getUser()==null?null:usage.getUser().getId(), usage.getUser()==null?"Khách vãng lai":usage.getUser().getName(),
                 usage.getOrder().getId(), usage.getDiscountAmount(), usage.getStatus().name(),
                 usage.getCreatedAt(), usage.getUsedAt(), usage.getReleasedAt())).toList();
     }
 
-    private Quote quote(Long userId, List<CartItem> cart, BigDecimal subtotal, BigDecimal shippingFee,
+    private Quote quote(Long userId, Long guestSessionId, List<CartItem> cart, BigDecimal subtotal, BigDecimal shippingFee,
                         String rawCouponCode, String rawFreeShippingCode, boolean lock) {
         String firstCode = normalizeNullable(rawCouponCode);
         String secondCode = normalizeNullable(rawFreeShippingCode);
@@ -107,8 +125,8 @@ public class CouponEngineService {
             shippingCoupon = coupon;
         }
 
-        BigDecimal eligibleProductSubtotal = validate(productCoupon, userId, cart, subtotal);
-        validate(shippingCoupon, userId, cart, subtotal);
+        BigDecimal eligibleProductSubtotal = validate(productCoupon, userId, guestSessionId, cart, subtotal);
+        validate(shippingCoupon, userId, guestSessionId, cart, subtotal);
         BigDecimal productDiscount = productCoupon == null ? BigDecimal.ZERO : productDiscount(productCoupon, eligibleProductSubtotal);
         BigDecimal shippingDiscount = shippingCoupon == null ? BigDecimal.ZERO : cap(shippingFee, shippingCoupon.getMaxDiscountAmount());
         return new Quote(productCoupon, shippingCoupon, productDiscount, shippingDiscount,
@@ -126,7 +144,7 @@ public class CouponEngineService {
         return result;
     }
 
-    private BigDecimal validate(Coupon coupon, Long userId, List<CartItem> cart, BigDecimal subtotal) {
+    private BigDecimal validate(Coupon coupon, Long userId, Long guestSessionId, List<CartItem> cart, BigDecimal subtotal) {
         if (coupon == null) return BigDecimal.ZERO;
         LocalDateTime now = LocalDateTime.now();
         if (!coupon.isActive()) throw invalid("COUPON_INACTIVE", "Mã giảm giá đang tạm ngừng");
@@ -138,7 +156,10 @@ public class CouponEngineService {
         if (coupon.getUsageLimit() != null && coupon.getTimesUsed() >= coupon.getUsageLimit()) {
             throw invalid("COUPON_USAGE_LIMIT_REACHED", "Mã giảm giá đã hết lượt sử dụng");
         }
-        if (coupon.getUsageLimitPerUser() != null && usages.countByCoupon_IdAndUser_IdAndStatusIn(coupon.getId(), userId, OCCUPYING_STATUSES) >= coupon.getUsageLimitPerUser()) {
+        long customerUsage = userId != null
+            ? usages.countByCoupon_IdAndUser_IdAndStatusIn(coupon.getId(), userId, OCCUPYING_STATUSES)
+            : usages.countByCoupon_IdAndGuestSession_IdAndStatusIn(coupon.getId(), guestSessionId, OCCUPYING_STATUSES);
+        if (coupon.getUsageLimitPerUser() != null && customerUsage >= coupon.getUsageLimitPerUser()) {
             throw invalid("COUPON_USER_LIMIT_REACHED", "Bạn đã sử dụng hết lượt của mã giảm giá này");
         }
         BigDecimal eligible = cart.stream().filter(item -> applies(coupon, item.getProduct()))
@@ -167,10 +188,10 @@ public class CouponEngineService {
         return (maximum == null ? amount : amount.min(maximum)).max(BigDecimal.ZERO).setScale(2, RoundingMode.HALF_UP);
     }
 
-    private void reserveOne(User user, Order order, Coupon coupon, BigDecimal discount) {
+    private void reserveOne(User user, GuestSession guestSession, Order order, Coupon coupon, BigDecimal discount) {
         if (coupon == null) return;
         CouponUsage usage = new CouponUsage();
-        usage.setCoupon(coupon); usage.setUser(user); usage.setOrder(order); usage.setDiscountAmount(discount);
+        usage.setCoupon(coupon); usage.setUser(user); usage.setGuestSession(guestSession); usage.setOrder(order); usage.setDiscountAmount(discount);
         usage.setStatus(CouponUsageStatus.RESERVED);
         usages.save(usage);
         coupon.setTimesUsed(coupon.getTimesUsed() + 1);

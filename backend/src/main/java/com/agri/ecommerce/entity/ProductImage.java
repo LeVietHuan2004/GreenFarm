@@ -25,6 +25,7 @@ public class ProductImage {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    @Column(length = 1024)
     private String image;
 
     @Column(name = "created_at")

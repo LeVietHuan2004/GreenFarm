@@ -109,6 +109,17 @@ public class PaymentService {
     }
 
     @Transactional
+    public String pendingVnpayUrl(Long orderId, String clientIp) {
+        return payments.findByOrder_Id(orderId)
+            .filter(payment -> payment.getPaymentMethod() == PaymentMethod.VNPAY
+                && payment.getStatus() == PaymentStatus.PENDING
+                && payment.getExpiresAt() != null
+                && payment.getExpiresAt().isAfter(LocalDateTime.now(VIETNAM_TIME_ZONE)))
+            .map(payment -> buildVnpayUrl(payment, clientIp))
+            .orElse(null);
+    }
+
+    @Transactional
     public CallbackOutcome handleVnpayCallback(Map<String, String> parameters) {
         if (!verifySignature(parameters)) {
             return CallbackOutcome.invalid("Chữ ký VNPAY không hợp lệ", null, null, IPN_INVALID_SIGNATURE);
@@ -222,7 +233,13 @@ public class PaymentService {
         parameters.put("vnp_Locale", "vn");
         parameters.put("vnp_ReturnUrl", returnUrl);
         parameters.put("vnp_IpAddr", clientIp == null || clientIp.isBlank() ? "127.0.0.1" : clientIp);
-        parameters.put("vnp_CreateDate", LocalDateTime.now(VIETNAM_TIME_ZONE).format(VNPAY_DATE));
+        LocalDateTime requestDate = payment.getVnpayPaymentRequestDate();
+        if (requestDate == null) {
+            requestDate = LocalDateTime.now(VIETNAM_TIME_ZONE);
+            payment.setVnpayPaymentRequestDate(requestDate);
+            payments.save(payment);
+        }
+        parameters.put("vnp_CreateDate", requestDate.format(VNPAY_DATE));
         parameters.put("vnp_ExpireDate", payment.getExpiresAt().atZone(VIETNAM_TIME_ZONE).format(VNPAY_DATE));
         String query = toQuery(parameters);
         return paymentUrl + "?" + query + "&vnp_SecureHash=" + hmacSha512(query);

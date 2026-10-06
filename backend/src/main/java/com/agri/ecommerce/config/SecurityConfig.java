@@ -43,10 +43,13 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
                 .requestMatchers(
                     "/api/health",
                     "/api/auth/register",
                     "/api/auth/login",
+                    "/api/auth/refresh",
+                    "/api/auth/logout",
                     "/api/public/**",
                     "/api/payments/vnpay/return",
                     "/api/payments/vnpay/ipn",
@@ -62,6 +65,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin/users/**", "/api/roles/**")
                     .hasAuthority("manage_users")
                 .requestMatchers("/api/admin/orders/**")
+                    .hasRole("ADMIN")
+                .requestMatchers("/api/admin/inventory/**", "/api/admin/suppliers/**")
                     .hasRole("ADMIN")
                 .requestMatchers("/api/admin/coupons/**")
                     .hasAuthority("manage_coupons")

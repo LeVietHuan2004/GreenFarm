@@ -22,7 +22,7 @@ class InvoiceEmailServiceTest {
     void sendsHtmlInvoiceOnceAndTracksDelivery() {
         JavaMailSender sender = mock(JavaMailSender.class);
         when(sender.createMimeMessage()).thenReturn(new MimeMessage(Session.getInstance(new Properties())));
-        InvoiceEmailService service = new InvoiceEmailService(sender, true, "", "https://greenfarm.example");
+        InvoiceEmailService service = new InvoiceEmailService(sender, true, "", "https://greenfarm.example", 5, 2);
         Payment payment = paymentWithOrder();
 
         service.sendInvoiceIfEnabled(payment);
@@ -35,7 +35,7 @@ class InvoiceEmailServiceTest {
     @Test
     void leavesPaymentUntouchedWhenEmailIsDisabled() {
         JavaMailSender sender = mock(JavaMailSender.class);
-        InvoiceEmailService service = new InvoiceEmailService(sender, false, "", "https://greenfarm.example");
+        InvoiceEmailService service = new InvoiceEmailService(sender, false, "", "https://greenfarm.example", 5, 2);
         Payment payment = paymentWithOrder();
 
         service.sendInvoiceIfEnabled(payment);

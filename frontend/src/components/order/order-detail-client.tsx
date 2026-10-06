@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Ban, CheckCircle2, CreditCard, MapPin, PackageSearch, Phone, ReceiptText, UserRound } from "lucide-react";
+import { ArrowLeft, Ban, CheckCircle2, CreditCard, MapPin, PackageSearch, Phone, ReceiptText, RotateCcw, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CatalogImage } from "@/components/catalog/catalog-image";
@@ -9,7 +9,7 @@ import { getApiErrorMessage } from "@/lib/api-error";
 import { formatPrice } from "@/lib/catalog-format";
 import { formatDateTime, orderStatusLabel } from "@/lib/order-format";
 import { orderService } from "@/services/order-service";
-import type { Order } from "@/types/order";
+import type { Order, RefundRequest } from "@/types/order";
 
 const paymentStatusLabel: Record<string, string> = {
   pending: "Chờ thanh toán", completed: "Đã thanh toán", failed: "Không thành công", refunded: "Đã hoàn tiền",
@@ -19,10 +19,15 @@ export function OrderDetailClient({ id }: { id: number }) {
   const [order, setOrder] = useState<Order | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [canceling, setCanceling] = useState(false);
+  const [refundRequest, setRefundRequest] = useState<RefundRequest | null>(null);
+  const [refundFormOpen, setRefundFormOpen] = useState(false);
+  const [refundReason, setRefundReason] = useState("Đổi ý không muốn tiếp tục mua hàng");
+  const [refundDetails, setRefundDetails] = useState("");
+  const [requestingRefund, setRequestingRefund] = useState(false);
 
   useEffect(() => {
     let active = true;
-    orderService.findOne(id).then((data) => active && setOrder(data)).catch((reason) => active && setError(getApiErrorMessage(reason)));
+    Promise.all([orderService.findOne(id), orderService.getRefundRequest(id)]).then(([data, refund]) => { if (active) { setOrder(data); setRefundRequest(refund); } }).catch((reason) => active && setError(getApiErrorMessage(reason)));
     return () => { active = false; };
   }, [id]);
 
@@ -36,16 +41,26 @@ export function OrderDetailClient({ id }: { id: number }) {
     catch (reason) { setError(getApiErrorMessage(reason)); }
     finally { setCanceling(false); }
   };
-  const canReview = order.status === "delivered" || order.status === "completed";
+  const canReview = (order.status === "delivered" || order.status === "completed") && (!refundRequest || refundRequest.status === "rejected");
+  const canRequestRefund = order.payment?.status === "completed" && order.status !== "canceled" && !refundRequest;
+  const refundStatusLabel: Record<string, string> = { pending: "Chờ duyệt", processing: "Đang hoàn tiền", approved: "Đã duyệt", rejected: "Từ chối" };
+  const submitRefundRequest = async (event: React.FormEvent) => {
+    event.preventDefault(); setRequestingRefund(true); setError(null);
+    try { const created = await orderService.requestRefund(order.id, { reason: refundReason, details: refundDetails || undefined }); setRefundRequest(created); setRefundFormOpen(false); setRefundDetails(""); }
+    catch (reason) { setError(getApiErrorMessage(reason)); }
+    finally { setRequestingRefund(false); }
+  };
 
   return <main className="catalog-main order-detail-main">
     <Link className="commerce-back" href="/orders"><ArrowLeft size={16}/>Tất cả đơn hàng</Link>
     {error && <p className="catalog-notice error">{error}</p>}
     <header className="order-detail-heading">
       <div><span className={`order-status ${order.status}`}>{orderStatusLabel[order.status] ?? order.status}</span><h1>Đơn hàng #{order.id}</h1><p>Đặt lúc {formatDateTime(order.createdAt)}</p></div>
-      <div className="order-heading-actions"><strong>{formatPrice(order.total)}</strong><Link className="secondary-button" href={`/orders/${order.id}/invoice`}><ReceiptText size={16}/>Hóa đơn</Link>{order.status === "pending" && order.payment?.status !== "completed" && <button type="button" className="secondary-button danger" disabled={canceling} onClick={() => void cancelOrder()}><Ban size={16}/>{canceling ? "Đang hủy..." : "Hủy đơn"}</button>}</div>
+      <div className="order-heading-actions"><strong>{formatPrice(order.total)}</strong><Link className="secondary-button" href={`/orders/${order.id}/invoice`}><ReceiptText size={16}/>Hóa đơn</Link>{order.status === "pending" && order.payment?.status !== "completed" && <button type="button" className="secondary-button danger" disabled={canceling} onClick={() => void cancelOrder()}><Ban size={16}/>{canceling ? "Đang hủy..." : "Hủy đơn"}</button>}{canRequestRefund && <button type="button" className="secondary-button danger" onClick={() => setRefundFormOpen((open) => !open)}><RotateCcw size={16}/>{order.status === "pending" ? "Hủy đơn & yêu cầu hoàn tiền" : "Yêu cầu hoàn tiền"}</button>}</div>
     </header>
     <div className="order-detail-layout"><div>
+      {refundFormOpen && <section className="order-detail-section refund-request-form"><h2>Yêu cầu hoàn tiền</h2><p>Yêu cầu sẽ được GreenFarm kiểm tra trước khi hoàn tiền qua VNPAY.</p><form onSubmit={submitRefundRequest}><label>Lý do<select value={refundReason} onChange={(event) => setRefundReason(event.target.value)}><option>Đổi ý không muốn tiếp tục mua hàng</option><option>Đặt nhầm sản phẩm hoặc số lượng</option><option>Thời gian giao hàng không phù hợp</option><option>Khác</option></select></label><label>Ghi chú thêm (không bắt buộc)<textarea value={refundDetails} maxLength={1000} onChange={(event) => setRefundDetails(event.target.value)} /></label><div><button className="primary-button" disabled={requestingRefund}>{requestingRefund ? "Đang gửi..." : "Gửi yêu cầu"}</button><button type="button" className="secondary-button" onClick={() => setRefundFormOpen(false)}>Đóng</button></div></form></section>}
+      {refundRequest && <section className={`refund-request-state ${refundRequest.status}`}><RotateCcw size={18}/><div><strong>Yêu cầu hoàn tiền: {refundStatusLabel[refundRequest.status]}</strong><p>Lý do: {refundRequest.reason}</p>{refundRequest.adminNote && <small>Phản hồi từ GreenFarm: {refundRequest.adminNote}</small>}</div></section>}
       <section className="order-detail-section"><h2>Sản phẩm</h2>{order.items.map((item) => <article className="order-product" key={item.id}>
         <Link href={`/products/${item.productSlug}`}><CatalogImage src={item.productImage} alt={item.productName}/></Link>
         <div><Link href={`/products/${item.productSlug}`}><strong>{item.productName}</strong></Link><p>{formatPrice(item.unitPrice)} / {item.productUnit ?? "sản phẩm"} · Số lượng {item.quantity}</p>{canReview && <OrderItemReview productId={item.productId} productName={item.productName}/>}</div>

@@ -2,19 +2,20 @@
 
 import { Eye, EyeOff, ImagePlus, PackagePlus, Pencil, RotateCcw, Save, Search, Trash2 } from "lucide-react";
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 
 import { AdminShell } from "@/components/admin/admin-shell";
 import { CatalogImage } from "@/components/catalog/catalog-image";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { formatPrice, primaryProductImage, productStatusLabel } from "@/lib/catalog-format";
 import {
-  addProductImage,
   createProduct,
   deleteProductImage,
   getAdminCategories,
   getAdminProducts,
   updateProduct,
-  updateProductStatus
+  updateProductStatus,
+  uploadProductImage
 } from "@/services/catalog-service";
 import { useAuthStore } from "@/stores/auth-store";
 import type { Category, Product, ProductInput, ProductStatus } from "@/types/catalog";
@@ -23,12 +24,12 @@ type ProductForm = Omit<ProductInput, "categoryId" | "price" | "stock"> & {
   categoryId: string;
   price: string;
   stock: string;
-  image: string;
+  image: File | null;
 };
 
 const emptyForm: ProductForm = {
   name: "", nameEn: "", slug: "", categoryId: "", description: "", descriptionEn: "",
-  price: "", stock: "0", status: "in_stock", unit: "kg", unitEn: "", image: ""
+  price: "", stock: "0", status: "in_stock", unit: "kg", unitEn: "", image: null
 };
 
 export function AdminProducts({ initialSearch = "" }: { initialSearch?: string }) {
@@ -101,7 +102,7 @@ export function AdminProducts({ initialSearch = "" }: { initialSearch?: string }
       status: product.status,
       unit: product.unit ?? "",
       unitEn: product.unitEn ?? "",
-      image: ""
+      image: null
     });
     setMessage(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -133,7 +134,7 @@ export function AdminProducts({ initialSearch = "" }: { initialSearch?: string }
       const saved = editing
         ? await updateProduct(editing.id, input)
         : await createProduct(input);
-      if (form.image.trim()) await addProductImage(saved.id, form.image.trim());
+      if (form.image) await uploadProductImage(saved.id, form.image);
       setMessage(editing ? "Đã cập nhật sản phẩm." : "Đã tạo sản phẩm mới.");
       reset();
       await loadProducts();
@@ -183,17 +184,17 @@ export function AdminProducts({ initialSearch = "" }: { initialSearch?: string }
           <section className="admin-editor-card">
             <div className="admin-editor-heading">
               <span><PackagePlus size={20} /></span>
-              <div><h2>{editing ? `Chỉnh sửa ${editing.name}` : "Thêm sản phẩm"}</h2><p>Slug để trống sẽ được tạo tự động; ảnh có thể bổ sung bằng URL.</p></div>
+              <div><h2>{editing ? `Chỉnh sửa ${editing.name}` : "Thêm sản phẩm"}</h2><p>Slug để trống sẽ được tạo tự động; ảnh tải lên hỗ trợ JPG, PNG hoặc WEBP.</p></div>
             </div>
             <form className="admin-form-grid product-admin-form" onSubmit={submit}>
               <label><span>Tên sản phẩm *</span><input required maxLength={255} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} /></label>
               <label><span>Danh mục *</span><select required value={form.categoryId} onChange={(event) => setForm({ ...form, categoryId: event.target.value })}><option value="">Chọn danh mục</option>{categories.map((category) => <option value={category.id} key={category.id}>{category.name}</option>)}</select></label>
               <label><span>Giá (VND) *</span><input required type="number" min="0" step="100" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} /></label>
-              <label><span>Tồn kho *</span><input required type="number" min="0" value={form.stock} onChange={(event) => setForm({ ...form, stock: event.target.value })} /></label>
+              <label><span>Tồn kho</span><input readOnly type="number" value={form.stock} /><small>Thay đổi số lượng tại <Link href="/admin/inventory">Quản lý kho</Link>.</small></label>
               <label><span>Đơn vị</span><input maxLength={255} value={form.unit} onChange={(event) => setForm({ ...form, unit: event.target.value })} placeholder="kg, túi, hộp..." /></label>
               <label><span>Trạng thái</span><select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value as ProductStatus })}><option value="in_stock">Còn hàng</option><option value="out_of_stock">Hết hàng</option><option value="hidden">Ẩn</option></select></label>
               <label><span>Slug</span><input maxLength={255} value={form.slug} onChange={(event) => setForm({ ...form, slug: event.target.value })} placeholder="tu-dong-tao" /></label>
-              <label><span>{editing ? "Thêm URL ảnh mới" : "URL ảnh đầu tiên"}</span><input maxLength={255} value={form.image} onChange={(event) => setForm({ ...form, image: event.target.value })} placeholder="https://..." /></label>
+              <label><span>{editing ? "Thêm ảnh mới" : "Ảnh đầu tiên"}</span><input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => setForm({ ...form, image: event.target.files?.[0] ?? null })} /></label>
               <label className="admin-form-wide"><span>Mô tả</span><textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} /></label>
               {editing && editing.images.length > 0 && (
                 <div className="admin-form-wide image-manager">

@@ -17,6 +17,8 @@ Mỗi đơn dùng tối đa một coupon `ORDER_DISCOUNT` và một coupon `FREE
 
 ## Checkout
 
+- `GET /api/public/coupons`: trả về các mã đang bật, đã bắt đầu, chưa hết hạn và còn lượt dùng chung để gợi ý tại ô nhập mã. Kết quả gồm loại `ORDER_DISCOUNT` hoặc `FREESHIP`, giá trị ưu đãi và điều kiện tối thiểu. Danh sách này không xác nhận giới hạn theo khách hoặc sản phẩm trong giỏ; bước preview và đặt hàng vẫn kiểm tra đầy đủ.
+
 - `POST /api/checkout/preview`: kiểm tra và trả về toàn bộ breakdown nhưng chưa giữ lượt coupon.
 - `POST /api/orders`: khóa coupon, kiểm tra lại điều kiện và tạo reservation trong cùng transaction với order.
 

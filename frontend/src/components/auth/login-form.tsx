@@ -8,6 +8,8 @@ import { useForm } from "react-hook-form";
 import { getApiErrorMessage } from "@/lib/api-error";
 import type { LoginPortal } from "@/config/login-portals";
 import { authService } from "@/services/auth-service";
+import { guestCommerceService } from "@/services/guest-commerce-service";
+import { clearGuestSession, getGuestSession } from "@/lib/guest-session";
 import { useAuthStore } from "@/stores/auth-store";
 
 type LoginValues = {
@@ -40,6 +42,10 @@ export function LoginForm({ portal }: { portal: LoginPortal }) {
         return;
       }
       setSession(session);
+      if (portal.role === "customer" && getGuestSession()) {
+        try { await guestCommerceService.merge(); clearGuestSession(); }
+        catch (error) { setServerError(`Đăng nhập thành công nhưng chưa thể hợp nhất giỏ hàng: ${getApiErrorMessage(error)}`); return; }
+      }
       router.replace(portal.destination);
     } catch (error) {
       setServerError(getApiErrorMessage(error));

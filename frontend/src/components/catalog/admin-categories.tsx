@@ -10,7 +10,8 @@ import {
   createCategory,
   deleteCategory,
   getAdminCategories,
-  updateCategory
+  updateCategory,
+  uploadCatalogImage
 } from "@/services/catalog-service";
 import { useAuthStore } from "@/stores/auth-store";
 import type { Category, CategoryInput } from "@/types/catalog";
@@ -28,6 +29,7 @@ export function AdminCategories() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -91,6 +93,14 @@ export function AdminCategories() {
     }
   };
 
+  const uploadImage = async(file?:File) => {
+    if (!file) return;
+    setUploading(true); setError(null);
+    try { const path=await uploadCatalogImage(file); setForm((current) => ({ ...current, image:path })); }
+    catch (requestError) { setError(getApiErrorMessage(requestError)); }
+    finally { setUploading(false); }
+  };
+
   const remove = async (category: Category) => {
     if (!window.confirm(`Xóa danh mục “${category.name}”?`)) return;
     try {
@@ -119,7 +129,7 @@ export function AdminCategories() {
               <label><span>Tên danh mục *</span><input required maxLength={255} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} /></label>
               <label><span>Tên tiếng Anh</span><input maxLength={255} value={form.nameEn} onChange={(event) => setForm({ ...form, nameEn: event.target.value })} /></label>
               <label><span>Slug</span><input maxLength={255} value={form.slug} onChange={(event) => setForm({ ...form, slug: event.target.value })} placeholder="tu-dong-tao" /></label>
-              <label><span>URL hình ảnh</span><input maxLength={255} value={form.image} onChange={(event) => setForm({ ...form, image: event.target.value })} placeholder="https://..." /></label>
+              <label><span>Hình ảnh</span><input type="file" accept="image/jpeg,image/png,image/webp" disabled={uploading} onChange={(event) => void uploadImage(event.target.files?.[0])} /><small>{uploading ? "Đang tải ảnh..." : form.image ? "Đã chọn ảnh" : "JPG, PNG hoặc WEBP, tối đa 5 MB"}</small></label>
               <label className="admin-form-wide"><span>Mô tả</span><textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} /></label>
               <div className="admin-form-actions">
                 <button className="primary-button" disabled={saving} type="submit"><Save size={17} /> {saving ? "Đang lưu..." : editingId ? "Lưu thay đổi" : "Tạo danh mục"}</button>

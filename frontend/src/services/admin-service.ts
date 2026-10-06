@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/axios-client";
-import type { AdminCoupon, AdminCouponFilters, AdminCouponInput, AdminOrder, AdminOrderFilters, AdminOrderSummary, AdminOrderStatus, AdminRole, AdminUserFilters, AdminUserUpdate, CouponUsage } from "@/types/admin";
+import type { AdminCoupon, AdminCouponFilters, AdminCouponInput, AdminOrder, AdminOrderFilters, AdminOrderSummary, AdminOrderStatus, AdminRefundRequest, AdminRefundRequestStatus, AdminRole, AdminUserFilters, AdminUserUpdate, CouponUsage } from "@/types/admin";
 import type { ApiResponse, User } from "@/types/auth";
 import type { PageData } from "@/types/catalog";
 
@@ -43,6 +43,16 @@ export async function updateAdminOrderStatus(orderId: number, status: AdminOrder
 
 export async function assignAdminOrderDelivery(orderId: number, deliveryStaffId: number) {
   const response = await apiClient.patch<ApiResponse<AdminOrder>>(`/admin/orders/${orderId}/delivery-staff`, { deliveryStaffId });
+  return response.data.data;
+}
+
+export async function getAdminRefundRequests(status?: AdminRefundRequestStatus) {
+  const response = await apiClient.get<ApiResponse<PageData<AdminRefundRequest>>>("/admin/refund-requests", { params: compactParams({ status, size: 50, sort: "createdAt,desc" }) });
+  return response.data.data;
+}
+
+export async function decideAdminRefundRequest(id: number, decision: "approve" | "reject", note?: string) {
+  const response = await apiClient.patch<ApiResponse<AdminRefundRequest>>(`/admin/refund-requests/${id}/${decision}`, { note });
   return response.data.data;
 }
 

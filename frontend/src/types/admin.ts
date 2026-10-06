@@ -1,5 +1,6 @@
 import type { User, UserRole } from "@/types/auth";
 import type { Order, OrderSummary } from "@/types/order";
+import type { RefundRequest, RefundRequestStatus } from "@/types/order";
 
 export type AdminUserStatus = User["status"];
 
@@ -26,7 +27,10 @@ export type AdminRole = {
 export type AdminOrderStatus = "pending" | "processing" | "ready_for_delivery" | "out_for_delivery" | "delivered" | "delivery_failed" | "completed" | "canceled";
 export type AdminOrder = Order;
 export type AdminOrderSummary = OrderSummary;
-export type AdminOrderFilters = { status?: AdminOrderStatus; page?: number; size?: number; sort?: string };
+export type AdminOrderView = "active" | "history" | "all";
+export type AdminOrderFilters = { view?: AdminOrderView; status?: AdminOrderStatus; page?: number; size?: number; sort?: string };
+export type AdminRefundRequest = RefundRequest;
+export type AdminRefundRequestStatus = RefundRequestStatus;
 
 export type CouponType = "ORDER_DISCOUNT" | "FREESHIP";
 export type DiscountType = "PERCENTAGE" | "FIXED_AMOUNT";

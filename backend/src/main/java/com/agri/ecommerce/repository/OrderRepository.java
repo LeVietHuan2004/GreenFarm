@@ -17,8 +17,13 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findAllByUser_IdOrderByCreatedAtDescIdDesc(Long userId);
     @EntityGraph(attributePaths = {"items", "items.product"})
     Optional<Order> findByIdAndUser_Id(Long id, Long userId);
+    @EntityGraph(attributePaths = {"items", "items.product"})
+    Optional<Order> findByGuestSession_IdAndGuestCheckoutKey(Long guestSessionId, String guestCheckoutKey);
+    @EntityGraph(attributePaths = {"items", "items.product"})
+    Optional<Order> findByIdAndGuestEmailIgnoreCase(Long id, String guestEmail);
     Page<Order> findAllByOrderByCreatedAtDescIdDesc(Pageable pageable);
     Page<Order> findAllByStatusOrderByCreatedAtDescIdDesc(com.agri.ecommerce.entity.OrderStatus status, Pageable pageable);
+    Page<Order> findAllByStatusInOrderByCreatedAtDescIdDesc(List<com.agri.ecommerce.entity.OrderStatus> statuses, Pageable pageable);
     List<Order> findAllByStatusInOrderByCreatedAtDescIdDesc(List<com.agri.ecommerce.entity.OrderStatus> statuses);
     List<Order> findAllByDeliveryStaff_IdOrderByCreatedAtDescIdDesc(Long deliveryStaffId);
     @Query("""
@@ -30,6 +35,20 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         """)
     boolean hasPurchasedProduct(@Param("userId") Long userId, @Param("productId") Long productId,
                                 @Param("statuses") List<com.agri.ecommerce.entity.OrderStatus> statuses);
+    @Query("""
+        select (count(purchaseOrder) > 0) from Order purchaseOrder
+        join purchaseOrder.items item
+        where purchaseOrder.user.id = :userId
+          and item.product.id = :productId
+          and purchaseOrder.status in :statuses
+          and not exists (
+              select refundRequest.id from RefundRequest refundRequest
+              where refundRequest.order = purchaseOrder
+                and refundRequest.status <> com.agri.ecommerce.entity.RefundRequestStatus.REJECTED
+          )
+        """)
+    boolean hasReviewablePurchasedProduct(@Param("userId") Long userId, @Param("productId") Long productId,
+                                          @Param("statuses") List<com.agri.ecommerce.entity.OrderStatus> statuses);
     @Query("""
         select item from Order purchaseOrder join purchaseOrder.items item
         where purchaseOrder.user.id = :userId and item.product.id = :productId

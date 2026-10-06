@@ -25,15 +25,18 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenService refreshTokens;
 
     public UserService(
         UserRepository userRepository,
         RoleRepository roleRepository,
-        PasswordEncoder passwordEncoder
+        PasswordEncoder passwordEncoder,
+        RefreshTokenService refreshTokens
     ) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.refreshTokens = refreshTokens;
     }
 
     @Transactional(readOnly = true)
@@ -60,6 +63,13 @@ public class UserService {
     }
 
     @Transactional
+    public UserResponse updateAvatar(String email, String path) {
+        User user = findByEmail(email);
+        user.setAvatar(path);
+        return UserMapper.toResponse(userRepository.save(user));
+    }
+
+    @Transactional
     public void changePassword(String email, ChangePasswordRequest request) {
         User user = findByEmail(email);
         if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
@@ -78,6 +88,7 @@ public class UserService {
         }
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
+        refreshTokens.revokeAll(user.getId());
     }
 
     @Transactional(readOnly = true)

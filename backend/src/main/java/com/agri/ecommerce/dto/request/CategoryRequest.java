@@ -20,7 +20,7 @@ public record CategoryRequest(
     @Size(max = 5000, message = "Mo ta tieng Anh qua dai")
     String descriptionEn,
 
-    @Size(max = 255, message = "Duong dan anh qua dai")
+    @Size(max = 1024, message = "Duong dan anh qua dai")
     String image
 ) {
 }

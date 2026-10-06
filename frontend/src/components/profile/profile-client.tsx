@@ -25,11 +25,12 @@ const roleLabels = { customer: "Khách hàng", staff: "Nhân viên", delivery_st
 
 export function ProfileClient() {
   const router = useRouter();
-  const { token, user, hasHydrated, setUser, clearSession } = useAuthStore();
+  const { token, refreshToken, user, hasHydrated, setUser, clearSession } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [loyalty, setLoyalty] = useState<LoyaltySummary | null>(null);
   const [profileFeedback, setProfileFeedback] = useState<Feedback>(null);
   const [passwordFeedback, setPasswordFeedback] = useState<Feedback>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [activeTab, setActiveTab] = useState<ProfileTab>("personal");
   const profileForm = useForm<ProfileValues>();
   const passwordForm = useForm<PasswordValues>();
@@ -67,11 +68,22 @@ export function ProfileClient() {
     setPasswordFeedback(null);
     try {
       await authService.changePassword({ currentPassword: values.currentPassword, newPassword: values.newPassword });
-      passwordForm.reset(); setPasswordFeedback({ type: "success", message: "Mật khẩu đã được thay đổi." });
+      passwordForm.reset(); clearSession(); router.replace(getRoleLogin(user?.role));
     } catch (error) { setPasswordFeedback({ type: "error", message: getApiErrorMessage(error) }); }
   });
 
-  const logout = () => { const href = getRoleLogin(user?.role); clearSession(); router.push(href); };
+  const uploadAvatar = async (file?: File) => {
+    if (!file) return;
+    setUploadingAvatar(true); setProfileFeedback(null);
+    try {
+      const updated = await authService.uploadAvatar(file);
+      setUser(updated); fillProfile(updated);
+      setProfileFeedback({ type: "success", message: "Ảnh đại diện đã được cập nhật." });
+    } catch (error) { setProfileFeedback({ type: "error", message: getApiErrorMessage(error) }); }
+    finally { setUploadingAvatar(false); }
+  };
+
+  const logout = () => { const href = getRoleLogin(user?.role); if (refreshToken) void authService.logout(refreshToken).catch(() => undefined); clearSession(); router.push(href); };
   if (!hasHydrated || loading || !user) return <main className="profile-page"><div className="profile-loading">Đang tải hồ sơ...</div></main>;
 
   return <main className="profile-page profile-page-redesign"><div className="profile-shell profile-shell-wide">
@@ -103,7 +115,7 @@ export function ProfileClient() {
               <div className="field-group"><label htmlFor="profile-phone">Số điện thoại</label><input id="profile-phone" type="tel" placeholder="0901234567" {...profileForm.register("phoneNumber", { pattern: { value: /^(?:\+84|0)[0-9]{9,10}$|^$/, message: "Số điện thoại chưa đúng định dạng." } })}/>{profileForm.formState.errors.phoneNumber && <p className="field-error">{profileForm.formState.errors.phoneNumber.message}</p>}</div>
               <div className="field-group"><label htmlFor="profile-address">Địa chỉ liên hệ</label><textarea id="profile-address" rows={3} placeholder="Địa chỉ liên hệ" {...profileForm.register("address", { maxLength: { value: 500, message: "Địa chỉ không vượt quá 500 ký tự." } })}/>{profileForm.formState.errors.address && <p className="field-error">{profileForm.formState.errors.address.message}</p>}</div>
             </div>
-            <aside className="profile-avatar-editor"><label>Ảnh đại diện</label><div className="profile-avatar-preview">{avatarValue ? <CatalogImage src={avatarValue} alt="Ảnh đại diện"/> : <UserRound size={38}/>}</div><div className="field-group"><input aria-label="Đường dẫn ảnh đại diện" placeholder="Dán URL hình ảnh" {...profileForm.register("avatar")}/></div>{avatarValue && <button type="button" onClick={() => profileForm.setValue("avatar", "", { shouldDirty: true })}>Xóa ảnh</button>}<small>Hỗ trợ URL ảnh JPG, PNG hoặc WEBP.</small></aside>
+            <aside className="profile-avatar-editor"><label>Ảnh đại diện</label><div className="profile-avatar-preview">{avatarValue ? <CatalogImage src={avatarValue} alt="Ảnh đại diện"/> : <UserRound size={38}/>}</div><label className="secondary-button compact-button">{uploadingAvatar ? "Đang tải..." : "Chọn ảnh"}<input type="file" accept="image/jpeg,image/png,image/webp" hidden disabled={uploadingAvatar} onChange={(event) => void uploadAvatar(event.target.files?.[0])}/></label>{avatarValue && <button type="button" onClick={() => profileForm.setValue("avatar", "", { shouldDirty: true })}>Xóa ảnh</button>}<small>JPG, PNG hoặc WEBP, tối đa 5 MB.</small></aside>
             <footer>{profileFeedback && <p className={`form-message ${profileFeedback.type}`}>{profileFeedback.message}</p>}<div><button className="primary-button" disabled={profileForm.formState.isSubmitting}><Save size={16}/>{profileForm.formState.isSubmitting ? "Đang lưu..." : "Lưu thay đổi"}</button><button type="button" className="secondary-button" onClick={() => fillProfile(user)}><RotateCcw size={15}/>Tải lại</button></div></footer>
           </form>
         </section>}

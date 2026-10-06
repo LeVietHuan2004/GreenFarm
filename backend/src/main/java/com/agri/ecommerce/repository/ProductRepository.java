@@ -33,4 +33,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     boolean existsBySlugIgnoreCase(String slug);
 
     boolean existsBySlugIgnoreCaseAndIdNot(String slug, Long id);
+
+    @EntityGraph(attributePaths = {"category", "images"})
+    List<Product> findTop50ByStatusNotOrderByUpdatedAtDesc(com.agri.ecommerce.entity.ProductStatus status);
 }

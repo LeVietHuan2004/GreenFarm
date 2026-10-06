@@ -5,6 +5,7 @@ import { Toaster, toast } from "sonner";
 
 import { getApiErrorMessage } from "@/lib/api-error";
 import { cartService } from "@/services/cart-service";
+import { guestCommerceService } from "@/services/guest-commerce-service";
 import { wishlistService } from "@/services/wishlist-service";
 import { useAuthStore } from "@/stores/auth-store";
 import type { Cart, Wishlist } from "@/types/commerce";
@@ -29,18 +30,19 @@ const CommerceContext = createContext<CommerceContextValue | null>(null);
 
 export function CommerceProvider({ children }: { children: ReactNode }) {
   const { token, user, hasHydrated } = useAuthStore();
-  const enabled = hasHydrated && Boolean(token) && user?.role === "customer";
+  const authenticated = Boolean(token) && user?.role === "customer";
+  const enabled = hasHydrated && (!user || authenticated);
 
   // Remount account state on session changes; a late response cannot populate another account.
   return (
-    <CommerceSession key={enabled ? `${user?.id}:${token}` : "guest"} enabled={enabled}>
+    <CommerceSession key={authenticated ? `${user?.id}:${token}` : "guest"} enabled={enabled} authenticated={authenticated}>
       {children}
       <Toaster richColors position="bottom-right" closeButton />
     </CommerceSession>
   );
 }
 
-function CommerceSession({ children, enabled }: { children: ReactNode; enabled: boolean }) {
+function CommerceSession({ children, enabled, authenticated }: { children: ReactNode; enabled: boolean; authenticated: boolean }) {
   const [cart, setCart] = useState<Cart>({ items: [], totalItems: 0, subtotal: 0 });
   const [wishlist, setWishlist] = useState<Wishlist>({ items: [], count: 0 });
   const [loading, setLoading] = useState(enabled);
@@ -57,7 +59,9 @@ function CommerceSession({ children, enabled }: { children: ReactNode; enabled: 
     if (loadPromise.current) return loadPromise.current;
 
     let request: Promise<void>;
-    request = Promise.all([cartService.getCart(), wishlistService.getWishlist()])
+    request = (authenticated
+      ? Promise.all([cartService.getCart(), wishlistService.getWishlist()])
+      : Promise.all([guestCommerceService.getCart(), Promise.resolve({ items: [], count: 0 } as Wishlist)]))
     .then(([nextCart, nextWishlist]) => {
       if (!active.current) return;
       setCart(nextCart);
@@ -71,7 +75,7 @@ function CommerceSession({ children, enabled }: { children: ReactNode; enabled: 
     });
     loadPromise.current = request;
     return request;
-  }, [enabled]);
+  }, [enabled, authenticated]);
 
   const refresh = useCallback(async () => {
     if (!enabled || mutationLocked.current) return;
@@ -121,22 +125,23 @@ function CommerceSession({ children, enabled }: { children: ReactNode; enabled: 
   const value: CommerceContextValue = {
     cart, wishlist, enabled, loading, busy, error, lastAction, refresh,
     addItem: (productId, quantity) => mutate(async () => {
-      const result = await cartService.addItem({ productId, quantity });
+      const result = await (authenticated ? cartService.addItem({ productId, quantity }) : guestCommerceService.addItem({ productId, quantity }));
       if (active.current) setCart(result);
     }, "Đã thêm vào giỏ hàng", "cart"),
     updateItem: (itemId, quantity) => mutate(async () => {
-      const result = await cartService.updateItem(itemId, { quantity });
+      const result = await (authenticated ? cartService.updateItem(itemId, { quantity }) : guestCommerceService.updateItem(itemId, { quantity }));
       if (active.current) setCart(result);
     }, "Đã cập nhật số lượng", "cart"),
     removeItem: (itemId) => mutate(async () => {
-      const result = await cartService.removeItem(itemId);
+      const result = await (authenticated ? cartService.removeItem(itemId) : guestCommerceService.removeItem(itemId));
       if (active.current) setCart(result);
     }, "Đã xóa khỏi giỏ hàng", "cart"),
     clearCart: () => mutate(async () => {
-      const result = await cartService.clear();
+      const result = await (authenticated ? cartService.clear() : guestCommerceService.clear());
       if (active.current) setCart(result);
     }, "Đã xóa giỏ hàng", "cart"),
     toggleWishlist: (productId) => {
+      if (!authenticated) { toast.info("Đăng nhập để lưu sản phẩm yêu thích"); return Promise.resolve(false); }
       const saved = wishlist.items.some((item) => item.product.id === productId);
       return mutate(async () => {
         const result = await (saved ? wishlistService.removeItem(productId) : wishlistService.addItem(productId));

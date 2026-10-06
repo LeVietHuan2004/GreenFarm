@@ -26,34 +26,31 @@ class OrderLifecycleServiceTest {
     @Mock UserRepository users;
     @Mock NotificationService notifications;
     @Mock LoyaltyService loyalty;
+    @Mock InventoryService inventory;
     OrderLifecycleService service;
 
     @BeforeEach void setUp() {
-        service = new OrderLifecycleService(orders, histories, payments, products, couponEngine, users, notifications, loyalty);
+        service = new OrderLifecycleService(orders, histories, payments, products, couponEngine, users, notifications, loyalty, inventory);
         lenient().when(orders.save(any(Order.class))).thenAnswer(call -> call.getArgument(0));
         lenient().when(payments.save(any(Payment.class))).thenAnswer(call -> call.getArgument(0));
     }
 
     @Test void failedPaymentCancellationRestoresStockAndCouponOnlyOnce() {
         Product product = mock(Product.class);
-        when(product.getId()).thenReturn(5L); when(product.getStock()).thenReturn(3);
-        when(product.getStatus()).thenReturn(ProductStatus.OUT_OF_STOCK);
         OrderItem item = new OrderItem(); item.setProduct(product); item.setQuantity(2); item.setPrice(BigDecimal.TEN);
         Order order = new Order(); order.setStatus(OrderStatus.PENDING); order.addItem(item);
         Payment payment = new Payment(); payment.setOrder(order); payment.setPaymentMethod(PaymentMethod.VNPAY); payment.setStatus(PaymentStatus.FAILED);
 
         when(orders.findByIdForUpdate(11L)).thenReturn(Optional.of(order));
         when(payments.findByOrder_Id(11L)).thenReturn(Optional.of(payment));
-        when(products.findAllByIdForUpdate(List.of(5L))).thenReturn(List.of(product));
 
         service.cancelForFailedPayment(11L, "Thanh toán thất bại");
         service.cancelForFailedPayment(11L, "Lặp callback");
 
         assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELED);
         assertThat(order.getInventoryReleasedAt()).isNotNull();
-        verify(product).setStock(5); verify(product).setStatus(ProductStatus.IN_STOCK);
+        verify(inventory).restoreOrder(order);
         verify(couponEngine, times(2)).releaseForCancellation(order, false);
-        verify(products, times(1)).findAllByIdForUpdate(List.of(5L));
         verify(histories, times(1)).save(any(OrderStatusHistory.class));
     }
 

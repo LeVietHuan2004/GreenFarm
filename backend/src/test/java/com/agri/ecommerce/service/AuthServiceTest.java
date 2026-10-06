@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -45,6 +46,7 @@ class AuthServiceTest {
 
     @Mock
     private LoginAttemptService loginAttemptService;
+    @Mock private RefreshTokenService refreshTokenService;
 
     @Mock
     private Role customerRole;
@@ -58,8 +60,10 @@ class AuthServiceTest {
             roleRepository,
             passwordEncoder,
             jwtService,
-            loginAttemptService
+            loginAttemptService,
+            refreshTokenService
         );
+        lenient().when(refreshTokenService.issue(any(User.class))).thenReturn("refresh-token");
     }
 
     @Test
