@@ -8,10 +8,12 @@ import { getApiErrorMessage } from "@/lib/api-error";
 import { formatPrice } from "@/lib/catalog-format";
 import { formatDateTime, orderStatusLabel } from "@/lib/order-format";
 import { assignAdminOrderDelivery, decideAdminRefundRequest, getAdminOrder, getAdminOrders, getAdminRefundRequests, getAdminUsers, updateAdminOrderStatus } from "@/services/admin-service";
+import { ghnService } from "@/services/ghn-service";
 import { useAuthStore } from "@/stores/auth-store";
 import type { AdminOrder, AdminOrderStatus, AdminOrderSummary, AdminOrderView, AdminRefundRequest } from "@/types/admin";
 import type { PageData } from "@/types/catalog";
 import type { User } from "@/types/auth";
+import type { ShipmentEvent } from "@/types/order";
 
 const emptyPage: PageData<AdminOrderSummary> = {
   content: [], page: 0, size: 20, totalElements: 0, totalPages: 0, first: true, last: true
@@ -158,7 +160,7 @@ export function AdminOrders() {
     <AdminShell active="orders">
       <main className="admin-catalog-main admin-operations-main">
         <header className="admin-page-heading">
-          <div><span className="eyebrow">Vận hành · Thanh toán</span><h1>Quản lý đơn hàng</h1><p>Cập nhật từng bước xử lý; COD được ghi nhận thanh toán khi giao thành công.</p></div>
+          <div><span className="eyebrow">Vận hành · Thanh toán</span><h1>Quản lý đơn hàng</h1><p>Cập nhật từng bước xử lý; COD qua GHN được đối soát riêng với trạng thái giao hàng.</p></div>
           <span className="admin-count"><ShoppingCart size={15} /> {orders.totalElements} {view === "active" ? "đơn cần xử lý" : view === "history" ? "đơn trong lịch sử" : "đơn hàng"}</span>
         </header>
 
@@ -188,7 +190,8 @@ export function AdminOrders() {
             {orders.content.map((order) => {
               const current = order.status as AdminOrderStatus;
               const closed = current === "completed" || current === "canceled";
-              const available: AdminOrderStatus[] = current === "ready_for_delivery" && !order.deliveryClaimedAt
+              const available: AdminOrderStatus[] = order.shippingProvider === "ghn" && (current === "out_for_delivery" || current === "delivery_failed")
+                ? [] : current === "ready_for_delivery" && !order.deliveryClaimedAt
                 ? ["canceled"]
                 : transitions[current] ?? [];
               return (
@@ -201,8 +204,8 @@ export function AdminOrders() {
                       <span className="admin-order-status-cell"><span className={`order-status ${order.status}`}>{orderStatusLabel[order.status] ?? order.status}</span><ChevronRight size={17} aria-hidden="true" /></span>
                     </button>
                     {!closed && <label className="admin-order-action"><span>Giao hàng</span>
-                      <select value={order.deliveryStaffId ?? ""} disabled={order.status !== "ready_for_delivery" || updatingId === order.id} onChange={(event) => { if (event.target.value) void assignDelivery(order, Number(event.target.value)); }}>
-                        <option value="">{order.deliveryStaffName ?? "Chưa phân công"}</option>
+                      <select value={order.deliveryStaffId ?? ""} disabled={order.shippingProvider === "ghn" || order.status !== "ready_for_delivery" || updatingId === order.id} onChange={(event) => { if (event.target.value) void assignDelivery(order, Number(event.target.value)); }}>
+                        <option value="">{order.shippingProvider === "ghn" ? "GHN giao hàng" : order.deliveryStaffName ?? "Chưa phân công"}</option>
                         {deliveryStaff.map((staff) => <option key={staff.id} value={staff.id}>{staff.name}</option>)}
                       </select>
                       {order.deliveryStaffId && <small>{order.deliveryClaimedAt ? "Đã nhận đơn" : "Chờ nhận đơn"}</small>}
@@ -217,7 +220,7 @@ export function AdminOrders() {
                   {expandedId === order.id && <div id={`admin-order-detail-${order.id}`} className="admin-order-detail" aria-live="polite">
                     {detailLoadingId === order.id && <p>Đang tải chi tiết đơn hàng...</p>}
                     {detailError?.id === order.id && <div className="catalog-notice error">{detailError.message}<button type="button" onClick={() => void fetchDetails(order.id)}>Thử lại</button></div>}
-                    {orderDetails[order.id] && <AdminOrderDetails order={orderDetails[order.id]} />}
+                    {orderDetails[order.id] && <AdminOrderDetails order={orderDetails[order.id]} onRefresh={()=>fetchDetails(order.id)} />}
                   </div>}
                 </article>
               );
@@ -237,7 +240,7 @@ export function AdminOrders() {
   );
 }
 
-function AdminOrderDetails({ order }: { order: AdminOrder }) {
+function AdminOrderDetails({ order, onRefresh }: { order: AdminOrder; onRefresh:()=>Promise<void> }) {
   const paymentStatus: Record<string, string> = { pending: "Chờ thanh toán", completed: "Đã thanh toán", failed: "Thất bại", refunded: "Đã hoàn tiền" };
   return (
     <div>
@@ -263,7 +266,41 @@ function AdminOrderDetails({ order }: { order: AdminOrder }) {
           <section className="admin-order-detail-card"><h4>Thanh toán</h4><p>{order.payment?.method === "vnpay" ? "VNPAY" : order.payment?.method === "cod" ? "COD" : "Chưa có phương thức"} · {order.payment ? paymentStatus[order.payment.status] ?? order.payment.status : "Chưa có giao dịch"}</p>{order.payment?.paidAt && <p>Đã thanh toán: {formatDateTime(order.payment.paidAt)}</p>}</section>
         </div>
       </div>
+      {order.shippingProvider === "ghn" && <GhnShipmentPanel order={order} onRefresh={onRefresh}/>}
       {order.statusHistory.length > 0 && <section className="admin-order-detail-card admin-order-detail-history"><h4>Lịch sử trạng thái</h4><ol>{order.statusHistory.map((entry) => <li key={entry.id}><strong>{orderStatusLabel[entry.status] ?? entry.status}</strong><span>{formatDateTime(entry.changedAt)}</span>{entry.note && <p>{entry.note}</p>}</li>)}</ol></section>}
     </div>
   );
+}
+
+function GhnShipmentPanel({order,onRefresh}:{order:AdminOrder;onRefresh:()=>Promise<void>}){
+  const [busy,setBusy]=useState(false); const [error,setError]=useState<string|null>(null);
+  const [history,setHistory]=useState<ShipmentEvent[]>([]);
+  const shipment=order.shipment;
+  useEffect(()=>{let active=true;void ghnService.events(order.id).then(items=>{if(active)setHistory(items);}).catch(()=>undefined);return()=>{active=false;};},[order.id,shipment?.providerOrderCode,shipment?.shippingStatus]);
+  const run=async(action:"create"|"sync"|"cancel"|"print")=>{
+    if(action==="cancel"&&!window.confirm("Hủy vận đơn GHN của đơn này?"))return;
+    setBusy(true);setError(null);
+    try{
+      if(action==="print"){window.location.assign(await ghnService.printUrl(order.id));return;}
+      if(action==="create")await ghnService.create(order.id);
+      if(action==="sync")await ghnService.sync(order.id);
+      if(action==="cancel")await ghnService.cancel(order.id);
+      await onRefresh();
+    }catch(requestError){setError(getApiErrorMessage(requestError));}
+    finally{setBusy(false);}
+  };
+  return <section className="admin-order-detail-card ghn-shipment-panel"><h4>Vận chuyển GHN</h4>
+    <p>Mã vận đơn: <strong>{shipment?.providerOrderCode??"Chưa tạo"}</strong> · Trạng thái: <strong>{shipment?.shippingStatus??"Chưa có"}</strong></p>
+    {shipment&&<><p>Phí GHN: {formatPrice(shipment.carrierShippingFee??0)} · Khách trả: {formatPrice(shipment.customerShippingFee)} · GHN thu hộ: {formatPrice(shipment.codAmount)}</p>
+      {shipment.createdAt&&<p>Tạo hồ sơ vận chuyển: {formatDateTime(shipment.createdAt)}</p>}
+      {shipment.estimatedDeliveryAt&&<p>Dự kiến giao: {formatDateTime(shipment.estimatedDeliveryAt)}</p>}
+      {shipment.codTransferredAt&&<p>GHN đã chuyển tiền COD: {formatDateTime(shipment.codTransferredAt)}</p>}
+      {shipment.lastError&&<p className="catalog-notice error">{shipment.lastError}</p>}</>}
+    {error&&<p className="catalog-notice error">{error}</p>}
+    <div className="ghn-shipment-actions">
+      {!shipment?.providerOrderCode&&<button type="button" className="primary-button" disabled={busy||order.status!=="ready_for_delivery"} onClick={()=>void run("create")}>Tạo vận đơn GHN</button>}
+      {shipment?.providerOrderCode&&<><button type="button" className="secondary-button" disabled={busy} onClick={()=>void run("sync")}>Đồng bộ</button><button type="button" className="secondary-button" disabled={busy} onClick={()=>void run("print")}>In phiếu gửi</button>{shipment.shippingStatus!=="cancel"&&(order.status==="ready_for_delivery"||order.status==="delivery_failed")&&<button type="button" className="secondary-button" disabled={busy} onClick={()=>void run("cancel")}>Hủy vận đơn</button>}</>}
+    </div>
+    {history.length>0&&<div className="ghn-shipment-history"><strong>Lịch sử vận chuyển</strong><ol>{history.map(item=><li key={item.id}><span>{item.description||item.shippingStatus||item.eventType}</span>{(item.eventAt||item.receivedAt)&&<small>{formatDateTime(item.eventAt||item.receivedAt!)}</small>}</li>)}</ol></div>}
+  </section>;
 }

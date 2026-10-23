@@ -17,6 +17,11 @@ public record ProductResponse(
     String status,
     String unit,
     String unitEn,
+    boolean ghnEligible,
+    Integer packageWeightG,
+    Integer packageLengthCm,
+    Integer packageWidthCm,
+    Integer packageHeightCm,
     List<ProductImageResponse> images,
     LocalDateTime createdAt,
     LocalDateTime updatedAt

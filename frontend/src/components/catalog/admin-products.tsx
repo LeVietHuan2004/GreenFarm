@@ -20,16 +20,21 @@ import {
 import { useAuthStore } from "@/stores/auth-store";
 import type { Category, Product, ProductInput, ProductStatus } from "@/types/catalog";
 
-type ProductForm = Omit<ProductInput, "categoryId" | "price" | "stock"> & {
+type ProductForm = Omit<ProductInput, "categoryId" | "price" | "stock" | "packageWeightG" | "packageLengthCm" | "packageWidthCm" | "packageHeightCm"> & {
   categoryId: string;
   price: string;
   stock: string;
+  packageWeightG: string;
+  packageLengthCm: string;
+  packageWidthCm: string;
+  packageHeightCm: string;
   image: File | null;
 };
 
 const emptyForm: ProductForm = {
   name: "", nameEn: "", slug: "", categoryId: "", description: "", descriptionEn: "",
-  price: "", stock: "0", status: "in_stock", unit: "kg", unitEn: "", image: null
+  price: "", stock: "0", status: "in_stock", unit: "kg", unitEn: "", image: null,
+  ghnEligible: false, packageWeightG: "", packageLengthCm: "", packageWidthCm: "", packageHeightCm: ""
 };
 
 export function AdminProducts({ initialSearch = "" }: { initialSearch?: string }) {
@@ -102,6 +107,11 @@ export function AdminProducts({ initialSearch = "" }: { initialSearch?: string }
       status: product.status,
       unit: product.unit ?? "",
       unitEn: product.unitEn ?? "",
+      ghnEligible: product.ghnEligible,
+      packageWeightG: product.packageWeightG?.toString() ?? "",
+      packageLengthCm: product.packageLengthCm?.toString() ?? "",
+      packageWidthCm: product.packageWidthCm?.toString() ?? "",
+      packageHeightCm: product.packageHeightCm?.toString() ?? "",
       image: null
     });
     setMessage(null);
@@ -128,7 +138,12 @@ export function AdminProducts({ initialSearch = "" }: { initialSearch?: string }
       stock: Number(form.stock),
       status: form.status,
       unit: form.unit,
-      unitEn: form.unitEn
+      unitEn: form.unitEn,
+      ghnEligible: form.ghnEligible,
+      packageWeightG: form.packageWeightG ? Number(form.packageWeightG) : null,
+      packageLengthCm: form.packageLengthCm ? Number(form.packageLengthCm) : null,
+      packageWidthCm: form.packageWidthCm ? Number(form.packageWidthCm) : null,
+      packageHeightCm: form.packageHeightCm ? Number(form.packageHeightCm) : null
     };
     try {
       const saved = editing
@@ -193,6 +208,11 @@ export function AdminProducts({ initialSearch = "" }: { initialSearch?: string }
               <label><span>Tồn kho</span><input readOnly type="number" value={form.stock} /><small>Thay đổi số lượng tại <Link href="/admin/inventory">Quản lý kho</Link>.</small></label>
               <label><span>Đơn vị</span><input maxLength={255} value={form.unit} onChange={(event) => setForm({ ...form, unit: event.target.value })} placeholder="kg, túi, hộp..." /></label>
               <label><span>Trạng thái</span><select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value as ProductStatus })}><option value="in_stock">Còn hàng</option><option value="out_of_stock">Hết hàng</option><option value="hidden">Ẩn</option></select></label>
+              <label className="admin-form-wide"><span>GHN</span><span><input type="checkbox" checked={form.ghnEligible ?? false} onChange={event=>setForm({...form,ghnEligible:event.target.checked})}/> Đã xác minh sản phẩm được GHN chấp nhận</span><small>Không bật cho hàng tươi sống, đông lạnh hoặc hàng chưa được GHN xác nhận.</small></label>
+              {form.ghnEligible&&<><label><span>Khối lượng đóng gói (g) *</span><input required type="number" min="1" max="50000" value={form.packageWeightG} onChange={event=>setForm({...form,packageWeightG:event.target.value})}/></label>
+              <label><span>Dài (cm) *</span><input required type="number" min="1" max="200" value={form.packageLengthCm} onChange={event=>setForm({...form,packageLengthCm:event.target.value})}/></label>
+              <label><span>Rộng (cm) *</span><input required type="number" min="1" max="200" value={form.packageWidthCm} onChange={event=>setForm({...form,packageWidthCm:event.target.value})}/></label>
+              <label><span>Cao (cm) *</span><input required type="number" min="1" max="200" value={form.packageHeightCm} onChange={event=>setForm({...form,packageHeightCm:event.target.value})}/></label></>}
               <label><span>Slug</span><input maxLength={255} value={form.slug} onChange={(event) => setForm({ ...form, slug: event.target.value })} placeholder="tu-dong-tao" /></label>
               <label><span>{editing ? "Thêm ảnh mới" : "Ảnh đầu tiên"}</span><input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => setForm({ ...form, image: event.target.files?.[0] ?? null })} /></label>
               <label className="admin-form-wide"><span>Mô tả</span><textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} /></label>

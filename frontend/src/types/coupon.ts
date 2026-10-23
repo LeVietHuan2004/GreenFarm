@@ -9,5 +9,7 @@ export type AvailableCoupon = {
   maxDiscountAmount: number | null;
   minimumOrderAmount: number | null;
   scopeType: "ALL" | "CATEGORY" | "PRODUCT";
+  categoryIds?: number[];
+  productIds?: number[];
   expiresAt: string | null;
 };

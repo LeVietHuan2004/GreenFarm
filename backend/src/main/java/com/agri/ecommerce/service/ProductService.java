@@ -186,6 +186,17 @@ public class ProductService {
         product.setStatus(requestedStatus);
         product.setUnit(trimToNull(request.unit()));
         product.setUnitEn(trimToNull(request.unitEn()));
+        if (Boolean.TRUE.equals(request.ghnEligible())
+            && (request.packageWeightG() == null || request.packageLengthCm() == null
+                || request.packageWidthCm() == null || request.packageHeightCm() == null)) {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST, "GHN_PACKAGE_REQUIRED",
+                "Cần nhập đầy đủ cân nặng và kích thước đóng gói trước khi bật GHN");
+        }
+        product.setGhnEligible(Boolean.TRUE.equals(request.ghnEligible()));
+        product.setPackageWeightG(request.packageWeightG());
+        product.setPackageLengthCm(request.packageLengthCm());
+        product.setPackageWidthCm(request.packageWidthCm());
+        product.setPackageHeightCm(request.packageHeightCm());
     }
 
     private Specification<Product> filter(

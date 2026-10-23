@@ -1,6 +1,7 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Filter, Search, SlidersHorizontal, Sprout, X } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Filter, Search, SlidersHorizontal, Sprout, X } from "lucide-react";
+import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 
 import { ProductCard } from "@/components/catalog/product-card";
@@ -81,6 +82,7 @@ export function ProductBrowser({ initialSearch = "", initialCategory = "" }: Pro
 
   return (
     <main className="catalog-main product-browser-main">
+      <Link className="browser-home-link" href="/"><ArrowLeft size={16} aria-hidden="true" /> Về trang chủ</Link>
       <header className="browser-heading">
         <span className="eyebrow">Catalog GreenFarm</span>
         <h1>{activeCategory?.name ?? (initialCategory ? "Sản phẩm theo danh mục" : "Tất cả sản phẩm")}</h1>

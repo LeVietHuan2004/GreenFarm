@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -35,7 +36,9 @@ public class OrderLifecycleService {
     private final NotificationService notifications;
     private final LoyaltyService loyalty;
     private final InventoryService inventory;
+    private final ShipmentRepository shipments;
 
+    @Autowired
     public OrderLifecycleService(
         OrderRepository orders,
         OrderStatusHistoryRepository histories,
@@ -45,7 +48,8 @@ public class OrderLifecycleService {
         UserRepository users,
         NotificationService notifications,
         LoyaltyService loyalty,
-        InventoryService inventory
+        InventoryService inventory,
+        ShipmentRepository shipments
     ) {
         this.orders = orders;
         this.histories = histories;
@@ -56,6 +60,14 @@ public class OrderLifecycleService {
         this.notifications = notifications;
         this.loyalty = loyalty;
         this.inventory = inventory;
+        this.shipments = shipments;
+    }
+
+    public OrderLifecycleService(OrderRepository orders, OrderStatusHistoryRepository histories,
+            PaymentRepository payments, ProductRepository products, CouponEngineService couponEngine,
+            UserRepository users, NotificationService notifications, LoyaltyService loyalty,
+            InventoryService inventory) {
+        this(orders,histories,payments,products,couponEngine,users,notifications,loyalty,inventory,null);
     }
 
     @Transactional
@@ -85,6 +97,8 @@ public class OrderLifecycleService {
 
         LocalDateTime now = LocalDateTime.now();
         if (target == OrderStatus.OUT_FOR_DELIVERY) {
+            if ("ghn".equals(order.getShippingProvider()))
+                throw conflict("GHN_STATUS_SYNC_ONLY", "Trạng thái giao GHN được cập nhật từ vận đơn");
             if (order.getDeliveryStaff() == null) {
                 throw conflict("DELIVERY_STAFF_NOT_ASSIGNED", "Đơn hàng chưa được phân công nhân viên giao hàng");
             }
@@ -92,6 +106,14 @@ public class OrderLifecycleService {
                 throw conflict("DELIVERY_ORDER_NOT_CLAIMED", "Nhân viên giao hàng phải nhận đơn trước khi bắt đầu giao");
             }
         }
+        if ("ghn".equals(order.getShippingProvider()) && target == OrderStatus.DELIVERED)
+            throw conflict("GHN_STATUS_SYNC_ONLY", "Trạng thái giao GHN được cập nhật từ vận đơn");
+        if ("ghn".equals(order.getShippingProvider()) && previousStatus == OrderStatus.DELIVERY_FAILED
+            && target == OrderStatus.READY_FOR_DELIVERY)
+            throw conflict("GHN_RETRY_SYNC_ONLY", "Chờ GHN cập nhật việc giao lại vận đơn");
+        if ("ghn".equals(order.getShippingProvider()) && target == OrderStatus.COMPLETED
+            && (payment == null || payment.getStatus() != PaymentStatus.COMPLETED))
+            throw conflict("GHN_PAYMENT_PENDING", "Chỉ hoàn tất đơn GHN sau khi đã đối soát thanh toán");
 
         if (target == OrderStatus.PROCESSING) inventory.exportOrder(order);
         order.setStatus(target);
@@ -134,6 +156,8 @@ public class OrderLifecycleService {
     @Transactional
     public Order assignDeliveryStaff(Long orderId, Long deliveryStaffId) {
         Order order = lockOrder(orderId);
+        if ("ghn".equals(order.getShippingProvider()))
+            throw conflict("GHN_DELIVERY_SELECTED", "Đơn này đã chọn GHN, không phân công nhân viên giao nội bộ");
         if (order.getStatus() != OrderStatus.READY_FOR_DELIVERY) {
             throw conflict("ORDER_NOT_READY_FOR_DELIVERY", "Đơn hàng chưa sẵn sàng để phân công giao");
         }
@@ -153,6 +177,8 @@ public class OrderLifecycleService {
     @Transactional
     public Order claimForDelivery(Long orderId, Long deliveryStaffId) {
         Order order = lockOrder(orderId);
+        if ("ghn".equals(order.getShippingProvider()))
+            throw conflict("GHN_DELIVERY_SELECTED", "Đơn này do GHN giao");
         if (order.getStatus() != OrderStatus.READY_FOR_DELIVERY) {
             throw conflict("ORDER_NOT_READY_FOR_DELIVERY", "Đơn hàng chưa sẵn sàng để nhận giao");
         }
@@ -235,6 +261,12 @@ public class OrderLifecycleService {
     }
 
     private void cancel(Order order, Payment payment, String note) {
+        if (shipments != null && "ghn".equals(order.getShippingProvider())) {
+            Shipment shipment = shipments.findByOrder_Id(order.getId()).orElse(null);
+            if (shipment != null && shipment.getProviderOrderCode() != null
+                && !"cancel".equals(shipment.getShippingStatus()))
+                throw conflict("GHN_CANCEL_REQUIRED", "Hãy hủy vận đơn GHN thành công trước khi hủy đơn GreenFarm");
+        }
         boolean preserveUsedCouponHistory = order.getStatus() == OrderStatus.COMPLETED;
         boolean newlyCanceled = order.getStatus() != OrderStatus.CANCELED;
         if (newlyCanceled) {
@@ -251,6 +283,35 @@ public class OrderLifecycleService {
         loyalty.restoreRedemption(order);
         Order saved = orders.save(order);
         if (newlyCanceled) notifications.notifyUser(saved.getUser(), "order", "Đơn hàng #" + saved.getId() + " đã bị hủy", "/orders/" + saved.getId());
+    }
+
+    @Transactional
+    public void updateFromGhn(Long orderId, String ghnStatus) {
+        Order order = lockOrder(orderId);
+        if (!"ghn".equals(order.getShippingProvider())) return;
+        OrderStatus target = switch (ghnStatus) {
+            case "picked", "storing", "transporting", "sorting", "delivering" -> OrderStatus.OUT_FOR_DELIVERY;
+            case "delivered" -> OrderStatus.DELIVERED;
+            case "delivery_fail", "return", "returned", "lost", "damage" -> OrderStatus.DELIVERY_FAILED;
+            default -> null;
+        };
+        if (target == null || order.getStatus() == target) return;
+        if (target == OrderStatus.OUT_FOR_DELIVERY && order.getStatus() != OrderStatus.READY_FOR_DELIVERY
+            && order.getStatus() != OrderStatus.DELIVERY_FAILED) return;
+        if (target == OrderStatus.DELIVERED && order.getStatus() == OrderStatus.READY_FOR_DELIVERY)
+            updateFromGhn(orderId, "picked");
+        if (target == OrderStatus.DELIVERED && order.getStatus() == OrderStatus.DELIVERY_FAILED)
+            updateFromGhn(orderId, "picked");
+        if (target == OrderStatus.DELIVERED && order.getStatus() != OrderStatus.OUT_FOR_DELIVERY) return;
+        if (target == OrderStatus.DELIVERY_FAILED && order.getStatus() != OrderStatus.OUT_FOR_DELIVERY
+            && order.getStatus() != OrderStatus.READY_FOR_DELIVERY) return;
+        order.setStatus(target);
+        if (target == OrderStatus.OUT_FOR_DELIVERY) order.setDispatchedAt(LocalDateTime.now());
+        if (target == OrderStatus.DELIVERED) order.setDeliveredAt(LocalDateTime.now());
+        if (target == OrderStatus.DELIVERY_FAILED) order.setDeliveryFailureReason("GHN: " + ghnStatus);
+        addHistory(order, target, "GHN cập nhật: " + ghnStatus);
+        orders.save(order);
+        notifications.notifyUser(order.getUser(), "delivery", "Đơn hàng #" + orderId + ": GHN " + ghnStatus, "/orders/" + orderId);
     }
 
     private void releaseInventory(Order order) {

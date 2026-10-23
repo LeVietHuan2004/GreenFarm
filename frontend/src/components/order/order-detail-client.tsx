@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CatalogImage } from "@/components/catalog/catalog-image";
 import { OrderItemReview } from "@/components/order/order-item-review";
+import { GhnShipmentTracking } from "@/components/order/ghn-shipment-tracking";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { formatPrice } from "@/lib/catalog-format";
 import { formatDateTime, orderStatusLabel } from "@/lib/order-format";
@@ -68,6 +69,7 @@ export function OrderDetailClient({ id }: { id: number }) {
       </article>)}</section>
       <section className="order-detail-section"><h2>Lịch sử trạng thái</h2><ol className="order-timeline">{order.statusHistory.map((item) => <li key={item.id}><CheckCircle2 size={18}/><div><strong>{orderStatusLabel[item.status] ?? item.status}</strong><p>{item.note}</p><small>{formatDateTime(item.changedAt)}</small></div></li>)}</ol></section>
     </div><aside>
+      {order.shippingProvider === "ghn" && <GhnShipmentTracking shipment={order.shipment}/>}
       <section className="order-address"><h2>Địa chỉ nhận hàng</h2><p><UserRound size={16}/>{order.recipientName}</p><p><Phone size={16}/>{order.recipientPhone}</p><p><MapPin size={16}/>{order.shippingAddress}, {order.shippingCity}</p></section>
       {order.payment && <section className="order-totals"><h2><CreditCard size={17}/>Thanh toán</h2><div><span>Phương thức</span><strong>{order.payment.method === "cod" ? "COD" : order.payment.method.toUpperCase()}</strong></div><div><span>Trạng thái</span><strong>{paymentStatusLabel[order.payment.status] ?? order.payment.status}</strong></div>{order.payment.transactionId && <div><span>Mã giao dịch</span><strong>{order.payment.transactionId}</strong></div>}</section>}
       <section className="order-totals">

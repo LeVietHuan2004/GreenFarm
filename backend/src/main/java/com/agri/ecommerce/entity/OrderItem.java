@@ -15,6 +15,10 @@ public class OrderItem {
     @Column(name = "product_image", length = 1024) private String productImage;
     @Column(nullable = false) private int quantity;
     @Column(nullable = false) private BigDecimal price;
+    @Column(name = "package_weight_g") private Integer packageWeightG;
+    @Column(name = "package_length_cm") private Integer packageLengthCm;
+    @Column(name = "package_width_cm") private Integer packageWidthCm;
+    @Column(name = "package_height_cm") private Integer packageHeightCm;
     @Column(name = "created_at") private LocalDateTime createdAt;
     @Column(name = "updated_at") private LocalDateTime updatedAt;
     @PrePersist void prePersist(){var now=LocalDateTime.now();createdAt=createdAt==null?now:createdAt;updatedAt=now;}
@@ -24,4 +28,8 @@ public class OrderItem {
     public String getProductUnit(){return productUnit;} public void setProductUnit(String v){productUnit=v;}
     public String getProductImage(){return productImage;} public void setProductImage(String v){productImage=v;}
     public int getQuantity(){return quantity;} public void setQuantity(int v){quantity=v;} public BigDecimal getPrice(){return price;} public void setPrice(BigDecimal v){price=v;}
+    public Integer getPackageWeightG(){return packageWeightG;} public void setPackageWeightG(Integer v){packageWeightG=v;}
+    public Integer getPackageLengthCm(){return packageLengthCm;} public void setPackageLengthCm(Integer v){packageLengthCm=v;}
+    public Integer getPackageWidthCm(){return packageWidthCm;} public void setPackageWidthCm(Integer v){packageWidthCm=v;}
+    public Integer getPackageHeightCm(){return packageHeightCm;} public void setPackageHeightCm(Integer v){packageHeightCm=v;}
 }

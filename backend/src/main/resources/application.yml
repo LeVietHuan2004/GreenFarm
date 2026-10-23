@@ -104,6 +104,14 @@ app:
   inventory:
     expiry-warning-days: ${INVENTORY_EXPIRY_WARNING_DAYS:3}
     expiry-scan-ms: ${INVENTORY_EXPIRY_SCAN_MS:60000}
+  ghn:
+    enabled: ${GHN_ENABLED:false}
+    base-url: ${GHN_BASE_URL:https://dev-online-gateway.ghn.vn}
+    token: ${GHN_TOKEN:}
+    shop-id: ${GHN_SHOP_ID:0}
+    webhook-secret: ${GHN_WEBHOOK_SECRET:}
+    shipping-payment-type: ${GHN_SHIPPING_PAYMENT_TYPE:1}
+    required-note: ${GHN_REQUIRED_NOTE:CHOXEMHANGKHONGTHU}
 
 logging:
   level:

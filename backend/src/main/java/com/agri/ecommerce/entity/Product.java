@@ -62,6 +62,21 @@ public class Product {
     @Column(name = "unit_en")
     private String unitEn;
 
+    @Column(name = "ghn_eligible", nullable = false)
+    private boolean ghnEligible;
+
+    @Column(name = "package_weight_g")
+    private Integer packageWeightG;
+
+    @Column(name = "package_length_cm")
+    private Integer packageLengthCm;
+
+    @Column(name = "package_width_cm")
+    private Integer packageWidthCm;
+
+    @Column(name = "package_height_cm")
+    private Integer packageHeightCm;
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id DESC")
     private List<ProductImage> images = new ArrayList<>();
@@ -175,6 +190,17 @@ public class Product {
     public void setUnitEn(String unitEn) {
         this.unitEn = unitEn;
     }
+
+    public boolean isGhnEligible() { return ghnEligible; }
+    public void setGhnEligible(boolean value) { ghnEligible = value; }
+    public Integer getPackageWeightG() { return packageWeightG; }
+    public void setPackageWeightG(Integer value) { packageWeightG = value; }
+    public Integer getPackageLengthCm() { return packageLengthCm; }
+    public void setPackageLengthCm(Integer value) { packageLengthCm = value; }
+    public Integer getPackageWidthCm() { return packageWidthCm; }
+    public void setPackageWidthCm(Integer value) { packageWidthCm = value; }
+    public Integer getPackageHeightCm() { return packageHeightCm; }
+    public void setPackageHeightCm(Integer value) { packageHeightCm = value; }
 
     public List<ProductImage> getImages() {
         return images;

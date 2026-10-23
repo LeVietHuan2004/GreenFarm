@@ -35,6 +35,11 @@ export type Product = {
   status: ProductStatus;
   unit: string | null;
   unitEn: string | null;
+  ghnEligible: boolean;
+  packageWeightG: number | null;
+  packageLengthCm: number | null;
+  packageWidthCm: number | null;
+  packageHeightCm: number | null;
   images: ProductImage[];
   createdAt: string;
   updatedAt: string;
@@ -83,6 +88,11 @@ export type ProductInput = {
   status?: ProductStatus;
   unit?: string;
   unitEn?: string;
+  ghnEligible?: boolean;
+  packageWeightG?: number | null;
+  packageLengthCm?: number | null;
+  packageWidthCm?: number | null;
+  packageHeightCm?: number | null;
 };
 
 export type CatalogApiResponse<T> = ApiResponse<T>;

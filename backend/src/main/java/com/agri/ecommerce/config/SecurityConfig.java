@@ -44,6 +44,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/webhooks/ghn/orders").permitAll()
                 .requestMatchers(
                     "/api/health",
                     "/api/auth/register",

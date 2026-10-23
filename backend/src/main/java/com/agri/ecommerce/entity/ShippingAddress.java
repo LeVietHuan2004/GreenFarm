@@ -12,6 +12,10 @@ public class ShippingAddress {
     @Column(nullable = false) private String phone;
     @Column(nullable = false) private String address;
     @Column(nullable = false) private String city;
+    @Column(name = "ghn_province_id") private Integer ghnProvinceId;
+    @Column(name = "ghn_province_name", length = 100) private String ghnProvinceName;
+    @Column(name = "ghn_ward_id") private Integer ghnWardId;
+    @Column(name = "ghn_ward_name", length = 100) private String ghnWardName;
     @Column(name = "`default`", nullable = false) private boolean defaultAddress;
     @Column(name = "created_at") private LocalDateTime createdAt;
     @Column(name = "updated_at") private LocalDateTime updatedAt;
@@ -22,6 +26,10 @@ public class ShippingAddress {
     public String getPhone(){return phone;} public void setPhone(String v){phone=v;}
     public String getAddress(){return address;} public void setAddress(String v){address=v;}
     public String getCity(){return city;} public void setCity(String v){city=v;}
+    public Integer getGhnProvinceId(){return ghnProvinceId;} public void setGhnProvinceId(Integer v){ghnProvinceId=v;}
+    public String getGhnProvinceName(){return ghnProvinceName;} public void setGhnProvinceName(String v){ghnProvinceName=v;}
+    public Integer getGhnWardId(){return ghnWardId;} public void setGhnWardId(Integer v){ghnWardId=v;}
+    public String getGhnWardName(){return ghnWardName;} public void setGhnWardName(String v){ghnWardName=v;}
     public boolean isDefaultAddress(){return defaultAddress;} public void setDefaultAddress(boolean v){defaultAddress=v;}
     public LocalDateTime getCreatedAt(){return createdAt;} public LocalDateTime getUpdatedAt(){return updatedAt;}
 }

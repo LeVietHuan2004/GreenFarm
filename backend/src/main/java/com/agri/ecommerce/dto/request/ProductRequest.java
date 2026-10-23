@@ -3,6 +3,7 @@ package com.agri.ecommerce.dto.request;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -45,6 +46,17 @@ public record ProductRequest(
     String unit,
 
     @Size(max = 255, message = "Don vi tieng Anh qua dai")
-    String unitEn
+    String unitEn,
+    Boolean ghnEligible,
+    @Min(1) @Max(50000) Integer packageWeightG,
+    @Min(1) @Max(200) Integer packageLengthCm,
+    @Min(1) @Max(200) Integer packageWidthCm,
+    @Min(1) @Max(200) Integer packageHeightCm
 ) {
+    public ProductRequest(String name, String nameEn, String slug, Long categoryId,
+            String description, String descriptionEn, BigDecimal price, int stock,
+            String status, String unit, String unitEn) {
+        this(name, nameEn, slug, categoryId, description, descriptionEn, price, stock,
+            status, unit, unitEn, false, null, null, null, null);
+    }
 }

@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,16 +37,32 @@ public class GuestCommerceService {
     private final NotificationService notifications;
     private final OrderService orderService;
     private final InventoryService inventory;
+    private final GhnShippingService ghnShipping;
+    private final GhnLocationService ghnLocations;
+    private final ShipmentRepository shipments;
+    private final com.agri.ecommerce.config.GhnProperties ghnProperties;
     private final int sessionDays;
     private final SecureRandom random = new SecureRandom();
+
+    @Autowired
+    public GuestCommerceService(GuestSessionRepository sessions, GuestCartItemRepository guestCarts,
+            CartItemRepository carts, ProductRepository products, UserRepository users, OrderRepository orders,
+            CouponEngineService coupons, PaymentService payments, NotificationService notifications,
+            OrderService orderService, InventoryService inventory, @Value("${app.guest.session-days:30}") int sessionDays,
+            GhnShippingService ghnShipping, GhnLocationService ghnLocations, ShipmentRepository shipments,
+            com.agri.ecommerce.config.GhnProperties ghnProperties) {
+        this.sessions=sessions; this.guestCarts=guestCarts; this.carts=carts; this.products=products; this.users=users;
+        this.orders=orders; this.coupons=coupons; this.payments=payments; this.notifications=notifications;
+        this.orderService=orderService; this.inventory=inventory; this.sessionDays=Math.max(1,sessionDays);
+        this.ghnShipping=ghnShipping; this.ghnLocations=ghnLocations; this.shipments=shipments; this.ghnProperties=ghnProperties;
+    }
 
     public GuestCommerceService(GuestSessionRepository sessions, GuestCartItemRepository guestCarts,
             CartItemRepository carts, ProductRepository products, UserRepository users, OrderRepository orders,
             CouponEngineService coupons, PaymentService payments, NotificationService notifications,
-            OrderService orderService, InventoryService inventory, @Value("${app.guest.session-days:30}") int sessionDays) {
-        this.sessions=sessions; this.guestCarts=guestCarts; this.carts=carts; this.products=products; this.users=users;
-        this.orders=orders; this.coupons=coupons; this.payments=payments; this.notifications=notifications;
-        this.orderService=orderService; this.inventory=inventory; this.sessionDays=Math.max(1,sessionDays);
+            OrderService orderService, InventoryService inventory, int sessionDays) {
+        this(sessions,guestCarts,carts,products,users,orders,coupons,payments,notifications,orderService,inventory,
+            sessionDays,null,null,null,null);
     }
 
     @Transactional
@@ -97,7 +114,9 @@ public class GuestCommerceService {
     @Transactional(readOnly=true)
     public CheckoutPreviewResponse preview(String token,GuestCheckoutRequest request) {
         GuestSession session=requireActive(token,false); List<CartItem> cart=cartAdapters(session.getId()); validateCart(cart);
-        BigDecimal subtotal=subtotal(cart); BigDecimal shipping=shippingFee(subtotal,shippingMethod(request.shippingMethod()));
+        BigDecimal subtotal=subtotal(cart);
+        BigDecimal shipping=isGhn(request) ? quoteGhn(session.getId(),cart,subtotal,request).fee()
+            : shippingFee(subtotal,shippingMethod(request.shippingMethod()));
         CouponEngineService.Quote quote=coupons.previewGuest(session.getId(),cart,subtotal,shipping,request.couponCode(),request.freeShippingCouponCode());
         return totals(subtotal,shipping,quote);
     }
@@ -117,21 +136,30 @@ public class GuestCommerceService {
         for(GuestCartItem sourceItem:source){ Product product=locked.get(sourceItem.getProduct().getId()); CartItem item=new CartItem(); item.setProduct(product); item.setQuantity(sourceItem.getQuantity()); cart.add(item); }
         validateCart(cart);
         BigDecimal subtotal=subtotal(cart); String shippingMethod=shippingMethod(request.shippingMethod());
-        BigDecimal shipping=shippingFee(subtotal,shippingMethod);
+        GhnShippingService.Quote ghnQuote=isGhn(request) ? quoteGhn(session.getId(),cart,subtotal,request) : null;
+        BigDecimal shipping=ghnQuote==null?shippingFee(subtotal,shippingMethod):ghnQuote.fee();
         CouponEngineService.Quote quote=coupons.quoteGuestForReservation(session.getId(),cart,subtotal,shipping,request.couponCode(),request.freeShippingCouponCode());
         CheckoutPreviewResponse total=totals(subtotal,shipping,quote);
+        if(ghnQuote!=null && (request.expectedTotal()==null || request.expectedTotal().compareTo(total.total())!=0))
+            throw conflict("GHN_TOTAL_CHANGED","Tổng tiền GHN đã thay đổi, vui lòng xem lại trước khi đặt hàng");
 
         Order order=new Order(); order.setGuestSession(session); order.setGuestEmail(request.email().trim().toLowerCase(Locale.ROOT));
         order.setGuestCheckoutKey(request.idempotencyKey()); order.setRecipientName(request.name().trim()); order.setRecipientPhone(request.phone().trim());
         order.setShippingAddressLine(request.shippingAddress().trim()); order.setShippingCity(request.shippingCity().trim()); order.setShippingMethod(shippingMethod);
+        if(ghnQuote!=null){
+            var province=ghnLocations.province(request.ghnProvinceId()); var ward=ghnLocations.ward(request.ghnProvinceId(),request.ghnWardId());
+            order.setShippingProvider("ghn"); order.setShippingProvinceId(province.id()); order.setShippingProvinceName(province.name());
+            order.setShippingWardId(ward.id()); order.setShippingWardName(ward.name()); order.setShippingCity(province.name());
+        }
         order.setSubtotal(subtotal); order.setShippingFee(total.shippingFee()); order.setDiscountAmount(total.discountAmount());
         order.setLoyaltyPointsUsed(0); order.setLoyaltyDiscountAmount(BigDecimal.ZERO); order.setShippingDiscountAmount(total.shippingDiscountAmount());
         order.setTotalPrice(total.total()); order.setStatus(OrderStatus.PENDING);
         if(quote.productCoupon()!=null){order.setCoupon(quote.productCoupon());order.setCouponCode(quote.productCoupon().getCode());}
         if(quote.shippingCoupon()!=null){order.setShippingCoupon(quote.shippingCoupon());order.setShippingCouponCode(quote.shippingCoupon().getCode());}
-        for(CartItem cartItem:cart){Product product=cartItem.getProduct(); OrderItem item=new OrderItem();item.setProduct(product);item.setProductName(product.getName());item.setProductUnit(product.getUnit());item.setProductImage(product.getImages().isEmpty()?null:product.getImages().getFirst().getImage());item.setQuantity(cartItem.getQuantity());item.setPrice(product.getPrice());order.addItem(item);}
+        for(CartItem cartItem:cart){Product product=cartItem.getProduct(); OrderItem item=new OrderItem();item.setProduct(product);item.setProductName(product.getName());item.setProductUnit(product.getUnit());item.setProductImage(product.getImages().isEmpty()?null:product.getImages().getFirst().getImage());item.setQuantity(cartItem.getQuantity());item.setPrice(product.getPrice());item.setPackageWeightG(product.getPackageWeightG());item.setPackageLengthCm(product.getPackageLengthCm());item.setPackageWidthCm(product.getPackageWidthCm());item.setPackageHeightCm(product.getPackageHeightCm());order.addItem(item);}
         OrderStatusHistory history=new OrderStatusHistory();history.setStatus(OrderStatus.PENDING);history.setNote("Đơn hàng khách vãng lai đã được tạo");order.addHistory(history);
         Order saved=orders.save(order); inventory.reserveOrder(saved,locked); String lookupToken=lookupToken(rawToken,saved.getId(),request.idempotencyKey()); saved.setGuestLookupTokenHash(hash(lookupToken)); orders.save(saved);
+        if(ghnQuote!=null){Shipment shipment=new Shipment();shipment.setOrder(saved);shipment.setClientOrderCode("GF-"+saved.getId());shipment.setShopId(ghnProperties.shopId());shipment.setCarrierShippingFee(ghnQuote.fee());shipment.setCustomerShippingFee(total.shippingFee().subtract(total.shippingDiscountAmount()));shipment.setCodAmount(PaymentMethod.fromRequestValue(request.paymentMethod())==PaymentMethod.COD?total.total():BigDecimal.ZERO);shipment.setShippingServiceType(ghnQuote.serviceType());shipment.setEstimatedDeliveryAt(ghnQuote.estimatedDeliveryAt());shipments.save(shipment);}
         coupons.reserveGuest(session,saved,quote);
         PaymentResponse payment=payments.createForOrder(saved,PaymentMethod.fromRequestValue(request.paymentMethod()),clientIp);
         guestCarts.deleteAllByGuestSession_Id(session.getId()); session.setConsumedAt(LocalDateTime.now()); sessions.save(session);
@@ -190,6 +218,22 @@ public class GuestCommerceService {
     private BigDecimal subtotal(List<CartItem> cart){return cart.stream().map(i->i.getProduct().getPrice().multiply(BigDecimal.valueOf(i.getQuantity()))).reduce(BigDecimal.ZERO,BigDecimal::add).setScale(2,RoundingMode.HALF_UP);}
     private String shippingMethod(String value){return value==null||value.isBlank()?"standard":value.trim().toLowerCase(Locale.ROOT);}
     private BigDecimal shippingFee(BigDecimal subtotal,String method){if("standard".equals(method)&&subtotal.compareTo(FREE_SHIPPING_THRESHOLD)>=0)return BigDecimal.ZERO;return "express".equals(method)?EXPRESS_SHIPPING_FEE:STANDARD_SHIPPING_FEE;}
+    private boolean isGhn(GuestCheckoutRequest request){return "ghn".equalsIgnoreCase(request.shippingProvider());}
+    private GhnShippingService.Quote quoteGhn(Long sessionId,List<CartItem> cart,BigDecimal subtotal,GuestCheckoutRequest request){
+        if(request.ghnProvinceId()==null || request.ghnWardId()==null)throw conflict("GHN_ADDRESS_REQUIRED","Hãy chọn tỉnh và phường/xã GHN");
+        var province=ghnLocations.province(request.ghnProvinceId()); var ward=ghnLocations.ward(request.ghnProvinceId(),request.ghnWardId());
+        var recipient=new GhnShippingService.Recipient(request.name(),request.phone(),request.shippingAddress(),province.name(),ward.name());
+        boolean cod=PaymentMethod.fromRequestValue(request.paymentMethod())==PaymentMethod.COD;
+        BigDecimal codAmount=cod?subtotal:BigDecimal.ZERO;
+        for(int attempt=0;attempt<4;attempt++){
+            var quote=ghnShipping.previewCart(cart,recipient,subtotal,codAmount);
+            var coupon=coupons.previewGuest(sessionId,cart,subtotal,quote.fee(),request.couponCode(),request.freeShippingCouponCode());
+            BigDecimal finalTotal=totals(subtotal,quote.fee(),coupon).total();
+            if(!cod || finalTotal.compareTo(codAmount)==0)return quote;
+            codAmount=finalTotal;
+        }
+        throw conflict("GHN_FEE_UNSTABLE","Phí GHN thay đổi khi tính COD, vui lòng thử lại");
+    }
     private CheckoutPreviewResponse totals(BigDecimal subtotal,BigDecimal shipping,CouponEngineService.Quote quote){BigDecimal total=subtotal.subtract(quote.productDiscount()).add(shipping).subtract(quote.shippingDiscount()).max(BigDecimal.ZERO).setScale(2,RoundingMode.HALF_UP);return new CheckoutPreviewResponse(subtotal,shipping,quote.productDiscount(),BigDecimal.ZERO,0,quote.shippingDiscount(),total,quote.productCoupon()==null?null:quote.productCoupon().getCode(),quote.shippingCoupon()==null?null:quote.shippingCoupon().getCode(),quote.productDescription(),quote.shippingDescription());}
     private CartResponse cartResponse(Long id){return cartResponse(guestCarts.findAllByGuestSession_IdOrderByCreatedAtDescIdDesc(id));}
     private CartResponse cartResponse(List<GuestCartItem> entities){List<CartItemResponse> items=entities.stream().map(i->new CartItemResponse(i.getId(),i.getQuantity(),i.getProduct().getPrice().multiply(BigDecimal.valueOf(i.getQuantity())),CatalogMapper.toProductResponse(i.getProduct()),i.getCreatedAt(),i.getUpdatedAt())).toList();return new CartResponse(items,items.stream().mapToLong(CartItemResponse::quantity).sum(),items.stream().map(CartItemResponse::lineTotal).reduce(BigDecimal.ZERO,BigDecimal::add));}

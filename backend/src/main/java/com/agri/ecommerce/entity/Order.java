@@ -39,6 +39,11 @@ public class Order {
     @Column(name = "shipping_address_line", nullable = false) private String shippingAddressLine;
     @Column(name = "shipping_city", nullable = false) private String shippingCity;
     @Column(name = "shipping_method", nullable = false, length = 32) private String shippingMethod = "standard";
+    @Column(name = "shipping_provider", nullable = false, length = 20) private String shippingProvider = "internal";
+    @Column(name = "shipping_province_id") private Integer shippingProvinceId;
+    @Column(name = "shipping_province_name", length = 100) private String shippingProvinceName;
+    @Column(name = "shipping_ward_id") private Integer shippingWardId;
+    @Column(name = "shipping_ward_name", length = 100) private String shippingWardName;
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true) @OrderBy("id ASC") private List<OrderItem> items = new ArrayList<>();
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true) @OrderBy("changedAt ASC, id ASC") private List<OrderStatusHistory> statusHistory = new ArrayList<>();
     @Column(name = "created_at") private LocalDateTime createdAt;
@@ -74,6 +79,11 @@ public class Order {
     public String getShippingAddressLine(){return shippingAddressLine;} public void setShippingAddressLine(String v){shippingAddressLine=v;}
     public String getShippingCity(){return shippingCity;} public void setShippingCity(String v){shippingCity=v;}
     public String getShippingMethod(){return shippingMethod;} public void setShippingMethod(String v){shippingMethod=v;}
+    public String getShippingProvider(){return shippingProvider;} public void setShippingProvider(String v){shippingProvider=v;}
+    public Integer getShippingProvinceId(){return shippingProvinceId;} public void setShippingProvinceId(Integer v){shippingProvinceId=v;}
+    public String getShippingProvinceName(){return shippingProvinceName;} public void setShippingProvinceName(String v){shippingProvinceName=v;}
+    public Integer getShippingWardId(){return shippingWardId;} public void setShippingWardId(Integer v){shippingWardId=v;}
+    public String getShippingWardName(){return shippingWardName;} public void setShippingWardName(String v){shippingWardName=v;}
     public List<OrderItem> getItems(){return items;} public List<OrderStatusHistory> getStatusHistory(){return statusHistory;}
     public LocalDateTime getCreatedAt(){return createdAt;} public LocalDateTime getUpdatedAt(){return updatedAt;}
 }

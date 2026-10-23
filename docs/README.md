@@ -13,6 +13,7 @@
 - `api/coupons.md`: quy tắc coupon/voucher, checkout, vòng đời lượt dùng và API quản trị.
 - `api/reports.md`: API và quy tắc tính báo cáo kinh doanh trên dashboard admin.
 - `api/inventory.md`: quản lý kho theo lô, FEFO, lịch sử và nhà cung cấp.
+- `api/ghn-shipping.md`: cấu hình và vận hành GHN staging, phí giao hàng, webhook và vận đơn.
 - `design/`: tài liệu thiết kế module và luồng nghiệp vụ ở các giai đoạn sau.
 ## AI Chatbot
 

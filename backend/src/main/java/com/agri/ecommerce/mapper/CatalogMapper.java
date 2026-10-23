@@ -42,6 +42,11 @@ public final class CatalogMapper {
             product.getStatus().getDatabaseValue(),
             product.getUnit(),
             product.getUnitEn(),
+            product.isGhnEligible(),
+            product.getPackageWeightG(),
+            product.getPackageLengthCm(),
+            product.getPackageWidthCm(),
+            product.getPackageHeightCm(),
             product.getImages().stream()
                 .filter(image -> image.getImage() != null && !image.getImage().isBlank())
                 .map(image -> new ProductImageResponse(image.getId(), image.getImage()))

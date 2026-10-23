@@ -2,6 +2,7 @@ package com.agri.ecommerce.dto.response;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record AvailableCouponResponse(
     String code,
@@ -14,5 +15,7 @@ public record AvailableCouponResponse(
     BigDecimal maxDiscountAmount,
     BigDecimal minimumOrderAmount,
     String scopeType,
+    List<Long> categoryIds,
+    List<Long> productIds,
     LocalDateTime expiresAt
 ) {}

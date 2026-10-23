@@ -2,6 +2,9 @@ package com.agri.ecommerce.controller.publicapi;
 
 import com.agri.ecommerce.common.base.ApiResponse;
 import com.agri.ecommerce.dto.response.AvailableCouponResponse;
+import com.agri.ecommerce.entity.Category;
+import com.agri.ecommerce.entity.CouponScopeType;
+import com.agri.ecommerce.entity.Product;
 import com.agri.ecommerce.repository.CouponRepository;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,6 +30,10 @@ public class CouponPublicController {
                 coupon.getCode(), coupon.getName(), coupon.getDescription(), coupon.getCouponType().name(),
                 coupon.getDiscountType().name(), coupon.getDiscountPercentage(), coupon.getDiscountAmount(),
                 coupon.getMaxDiscountAmount(), coupon.getMinimumOrderAmount(), coupon.getScopeType().name(),
+                coupon.getScopeType() == CouponScopeType.CATEGORY
+                    ? coupon.getCategories().stream().map(Category::getId).sorted().toList() : List.of(),
+                coupon.getScopeType() == CouponScopeType.PRODUCT
+                    ? coupon.getProducts().stream().map(Product::getId).sorted().toList() : List.of(),
                 coupon.getExpiresAt()
             ))
             .toList();
