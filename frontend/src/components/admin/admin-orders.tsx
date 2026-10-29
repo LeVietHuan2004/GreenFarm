@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, ChevronLeft, ChevronRight, MapPin, PackageCheck, ShoppingCart, X } from "lucide-react";
+import axios from "axios";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AdminShell } from "@/components/admin/admin-shell";
@@ -286,7 +287,13 @@ function GhnShipmentPanel({order,onRefresh}:{order:AdminOrder;onRefresh:()=>Prom
       if(action==="sync")await ghnService.sync(order.id);
       if(action==="cancel")await ghnService.cancel(order.id);
       await onRefresh();
-    }catch(requestError){setError(getApiErrorMessage(requestError));}
+    }catch(requestError){
+      if(action==="create" && axios.isAxiosError(requestError) && !requestError.response){
+        setError("Chưa nhận được kết quả tạo vận đơn. Hãy tải lại chi tiết đơn và kiểm tra mã vận đơn trước khi thử lại.");
+      }else{
+        setError(getApiErrorMessage(requestError));
+      }
+    }
     finally{setBusy(false);}
   };
   return <section className="admin-order-detail-card ghn-shipment-panel"><h4>Vận chuyển GHN</h4>

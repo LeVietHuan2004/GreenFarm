@@ -63,6 +63,23 @@ class GhnShipmentServiceTest {
         verifyNoInteractions(ghn);
     }
 
+    @Test void recoversExistingShipmentWithoutRequiringANewQuote() throws Exception {
+        Payment payment=new Payment();payment.setPaymentMethod(PaymentMethod.COD);payment.setStatus(PaymentStatus.PENDING);
+        when(payments.findByOrder_Id(31L)).thenReturn(Optional.of(payment));
+        when(ghn.detailByClientCode("GF-31")).thenReturn(json.readTree("{\"order_code\":\"LADFYR\"}"));
+        assertThat(service.create(31L).providerOrderCode()).isEqualTo("LADFYR");
+        verify(ghn,never()).previewOrder(any(),any());
+        verify(ghn,never()).create(any(),any(),any());
+    }
+
+    @Test void rejectedLookupDoesNotCreateShipment() {
+        Payment payment=new Payment();payment.setPaymentMethod(PaymentMethod.COD);payment.setStatus(PaymentStatus.PENDING);
+        when(payments.findByOrder_Id(31L)).thenReturn(Optional.of(payment));
+        when(ghn.detailByClientCode("GF-31")).thenThrow(new ApplicationException(HttpStatus.BAD_REQUEST,"GHN_REQUEST_REJECTED","GHN từ chối"));
+        assertThatThrownBy(()->service.create(31L)).hasMessageContaining("GHN");
+        verify(ghn,never()).create(any(),any(),any());
+    }
+
     @Test void onlinePaymentMustBeCompletedBeforeCreatingShipment() {
         Payment payment=new Payment();payment.setPaymentMethod(PaymentMethod.VNPAY);payment.setStatus(PaymentStatus.PENDING);
         when(payments.findByOrder_Id(31L)).thenReturn(Optional.of(payment));
@@ -76,6 +93,37 @@ class GhnShipmentServiceTest {
         service.sync(31L);
         assertThat(shipment.getShippingStatus()).isEqualTo("delivered");
         verify(lifecycle).updateFromGhn(31L,"delivered");
+        verifyNoInteractions(payments);
+    }
+
+    @Test void staleSyncDoesNotReplaceNewerWebhookStatus() throws Exception {
+        shipment.setProviderOrderCode("LADFYR");
+        shipment.setShippingStatus("delivered");
+        shipment.setLastEventAt(java.time.LocalDateTime.of(2026,10,20,10,0));
+        when(ghn.detail("LADFYR")).thenReturn(json.readTree("{\"status\":\"picking\",\"updated_date\":\"2026-10-20T02:00:00Z\"}"));
+        service.sync(31L);
+        assertThat(shipment.getShippingStatus()).isEqualTo("delivered");
+        verify(lifecycle,never()).updateFromGhn(any(),any());
+    }
+
+    @Test void syncReconcilesTransferredCodWhenWebhookWasMissed() throws Exception {
+        shipment.setProviderOrderCode("LADFYR");
+        order.setStatus(OrderStatus.DELIVERED);
+        Payment payment=new Payment(); payment.setPaymentMethod(PaymentMethod.COD); payment.setStatus(PaymentStatus.PENDING);
+        when(orders.findById(31L)).thenReturn(Optional.of(order));
+        when(payments.findByOrder_Id(31L)).thenReturn(Optional.of(payment));
+        when(ghn.detail("LADFYR")).thenReturn(json.readTree("{\"status\":\"delivered\",\"updated_date\":\"2026-10-20T03:00:00Z\",\"is_cod_transferred\":true,\"cod_amount\":120900,\"cod_transfer_date\":\"2026-10-20T02:30:00Z\"}"));
+        service.sync(31L);
+        assertThat(shipment.getCodTransferredAt()).isEqualTo(java.time.LocalDateTime.of(2026,10,20,9,30));
+        assertThat(payment.getStatus()).isEqualTo(PaymentStatus.COMPLETED);
+        verify(payments).save(payment);
+    }
+
+    @Test void syncDoesNotReconcileWrongCodAmount() throws Exception {
+        shipment.setProviderOrderCode("LADFYR");
+        when(ghn.detail("LADFYR")).thenReturn(json.readTree("{\"status\":\"delivered\",\"is_cod_transferred\":true,\"cod_amount\":120000,\"cod_transfer_date\":\"2026-10-20T02:30:00Z\"}"));
+        service.sync(31L);
+        assertThat(shipment.getCodTransferredAt()).isNull();
         verifyNoInteractions(payments);
     }
 

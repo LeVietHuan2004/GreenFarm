@@ -18,4 +18,10 @@ class GhnPropertiesTest {
         assertThat(settings.available()).isFalse();
         assertThatThrownBy(settings::requireEnabled).hasMessageContaining("staging");
     }
+
+    @Test void invalidDeliveryNoteDoesNotAdvertiseGhnAsAvailable() {
+        var settings=new GhnProperties(true,"https://dev-online-gateway.ghn.vn","token",123,"secret",1,"INVALID");
+        assertThat(settings.available()).isFalse();
+        assertThatThrownBy(settings::requireEnabled).hasMessageContaining("Ghi chú");
+    }
 }

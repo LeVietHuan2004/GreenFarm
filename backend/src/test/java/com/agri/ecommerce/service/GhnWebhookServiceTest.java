@@ -67,6 +67,13 @@ class GhnWebhookServiceTest {
         verify(events).save(any());
     }
 
+    @Test void delayedWebhookCannotUndoConfirmedCancellation() throws Exception {
+        shipment.setShippingStatus("cancel");
+        service.receive("test-secret",body("switch_status","picking","2026-10-20T02:00:00Z",null));
+        assertThat(shipment.getShippingStatus()).isEqualTo("cancel");
+        verify(lifecycle,never()).updateFromGhn(any(),any());
+    }
+
     @Test void codTransferBeforeDeliveryCompletesOnlyAfterDeliveryEvent() throws Exception {
         service.receive("test-secret",body("cod","delivering","2026-10-20T02:00:00Z","2026-10-20T02:01:00Z"));
         assertThat(shipment.getCodTransferredAt()).isNotNull();

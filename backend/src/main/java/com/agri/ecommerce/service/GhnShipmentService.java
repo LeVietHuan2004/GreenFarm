@@ -6,6 +6,9 @@ import com.agri.ecommerce.entity.*;
 import com.agri.ecommerce.repository.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,18 +41,18 @@ public class GhnShipmentService {
         BigDecimal cod=payment.getPaymentMethod()==PaymentMethod.COD?order.getTotalPrice():BigDecimal.ZERO;
         if(shipment.getCodAmount().compareTo(cod)!=0)
             throw conflict("GHN_COD_MISMATCH","Số tiền COD đã thay đổi, cần kiểm tra lại đơn");
-        GhnShippingService.Quote quote=ghn.previewOrder(order,cod);
-        if(quote.fee().compareTo(shipment.getCarrierShippingFee())!=0)
-            throw conflict("GHN_FEE_CHANGED","Phí GHN đã thay đổi sau khi khách đặt hàng; cần xử lý trước khi tạo vận đơn");
         JsonNode existing=null;
         try { existing=ghn.detailByClientCode(shipment.getClientOrderCode()); }
         catch(ApplicationException exception) {
-            if(!"GHN_REQUEST_REJECTED".equals(exception.getCode())) throw exception;
+            if(!"GHN_ORDER_NOT_FOUND".equals(exception.getCode())) throw exception;
         }
         if(existing!=null && !existing.path("order_code").asText().isBlank()) {
-            attach(shipment,existing.path("order_code").asText(),quote.fee(),"Đã khôi phục vận đơn GHN");
+            attach(shipment,existing.path("order_code").asText(),shipment.getCarrierShippingFee(),"Đã khôi phục vận đơn GHN");
             return response(shipment);
         }
+        GhnShippingService.Quote quote=ghn.previewOrder(order,cod);
+        if(quote.fee().compareTo(shipment.getCarrierShippingFee())!=0)
+            throw conflict("GHN_FEE_CHANGED","Phí GHN đã thay đổi sau khi khách đặt hàng; cần xử lý trước khi tạo vận đơn");
         try {
             GhnShippingService.Created created=ghn.create(order,shipment.getClientOrderCode(),cod);
             attach(shipment,created.orderCode(),created.fee(),"Đã tạo vận đơn GHN");
@@ -78,10 +81,21 @@ public class GhnShipmentService {
         if(shipment.getProviderOrderCode()==null) throw conflict("GHN_SHIPMENT_NOT_CREATED","Chưa tạo vận đơn GHN");
         JsonNode data=ghn.detail(shipment.getProviderOrderCode());
         String status=data.path("status").asText();
-        if(!status.isBlank() && !"cancel".equals(shipment.getShippingStatus())) {
+        LocalDateTime updatedAt=parseTime(data.path("updated_date"));
+        boolean fresh=shipment.getLastEventAt()==null
+            || (updatedAt!=null && !updatedAt.isBefore(shipment.getLastEventAt()));
+        if(fresh && !status.isBlank() && !"cancel".equals(shipment.getShippingStatus())) {
+            if(updatedAt!=null) shipment.setLastEventAt(updatedAt);
             shipment.setShippingStatus(status); shipments.save(shipment);
             addEvent(shipment,"sync:"+status+":"+data.path("updated_date").asText(),"sync",status,"Đồng bộ từ GHN");
             lifecycle.updateFromGhn(orderId,status);
+        }
+        LocalDateTime transferAt=parseTime(data.path("cod_transfer_date"));
+        if(data.path("is_cod_transferred").asBoolean(false) && transferAt!=null
+            && data.path("cod_amount").isNumber()
+            && data.path("cod_amount").decimalValue().compareTo(shipment.getCodAmount())==0) {
+            shipment.setCodTransferredAt(transferAt);
+            shipments.save(shipment);
         }
         reconcileCod(shipment,orderId);
         return response(shipment);
@@ -130,6 +144,12 @@ public class GhnShipmentService {
             payment.setGatewayResponseCode("GHN_COD_TRANSFERRED");
             payments.save(payment);
         }
+    }
+
+    private LocalDateTime parseTime(JsonNode node) {
+        if (!node.isTextual() || node.asText().isBlank()) return null;
+        try { return OffsetDateTime.parse(node.asText()).atZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh")).toLocalDateTime(); }
+        catch (RuntimeException ignored) { return null; }
     }
 
     private Shipment required(Long orderId) {

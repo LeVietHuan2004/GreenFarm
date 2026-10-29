@@ -39,13 +39,14 @@ public class GhnProperties {
             throw new ApplicationException(HttpStatus.SERVICE_UNAVAILABLE, "GHN_NOT_CONFIGURED", "Cấu hình GHN staging chưa đầy đủ");
         if (shippingPaymentType != 1)
             throw new ApplicationException(HttpStatus.SERVICE_UNAVAILABLE, "GHN_PAYMENT_TYPE_UNSUPPORTED", "GHN hiện chỉ hỗ trợ shop thanh toán phí vận chuyển");
-        if (!requiredNote.equals("KHONGCHOXEMHANG") && !requiredNote.equals("CHOXEMHANGKHONGTHU")
-                && !requiredNote.equals("CHOTHUHANG"))
+        if (!validRequiredNote())
             throw new ApplicationException(HttpStatus.SERVICE_UNAVAILABLE, "GHN_REQUIRED_NOTE_INVALID", "Ghi chú giao hàng GHN không hợp lệ");
     }
     public boolean enabled(){return enabled;}
     public boolean available(){return enabled && !token.isBlank() && shopId > 0 && !webhookSecret.isBlank()
-        && "https://dev-online-gateway.ghn.vn".equals(baseUrl) && shippingPaymentType == 1;}
+        && "https://dev-online-gateway.ghn.vn".equals(baseUrl) && shippingPaymentType == 1 && validRequiredNote();}
+    private boolean validRequiredNote(){return "KHONGCHOXEMHANG".equals(requiredNote)
+        || "CHOXEMHANGKHONGTHU".equals(requiredNote) || "CHOTHUHANG".equals(requiredNote);}
     public String baseUrl(){return baseUrl;}
     public String token(){return token;}
     public int shopId(){return shopId;}

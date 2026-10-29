@@ -62,9 +62,17 @@ public class GhnClient {
         }
     }
 
-    private ApplicationException gatewayError(RestClientResponseException exception) {
+    ApplicationException gatewayError(RestClientResponseException exception) {
         if (exception.getStatusCode().value() == 401)
             return new ApplicationException(HttpStatus.SERVICE_UNAVAILABLE, "GHN_AUTH_FAILED", "GHN từ chối token hoặc ShopId staging");
+        if (exception.getStatusCode().value() == 400) {
+            try {
+                JsonNode error = json.readTree(exception.getResponseBodyAsString());
+                if (error != null && ("ORDER_NOT_FOUND".equals(error.path("code_message").asText())
+                    || error.path("message").asText().contains("Đơn hàng không tồn tại")))
+                    return new ApplicationException(HttpStatus.NOT_FOUND, "GHN_ORDER_NOT_FOUND", "GHN không tìm thấy vận đơn");
+            } catch (JsonProcessingException ignored) { /* Preserve the generic gateway error. */ }
+        }
         if (exception.getStatusCode().is4xxClientError())
             return new ApplicationException(HttpStatus.BAD_REQUEST, "GHN_REQUEST_REJECTED", "GHN không hỗ trợ thông tin vận chuyển này");
         return new ApplicationException(HttpStatus.SERVICE_UNAVAILABLE, "GHN_UNAVAILABLE", "GHN đang tạm thời không phản hồi");

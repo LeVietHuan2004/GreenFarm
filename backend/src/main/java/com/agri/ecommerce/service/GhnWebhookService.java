@@ -74,6 +74,7 @@ public class GhnWebhookService {
             }
         }
         boolean fresh="switch_status".equals(type)
+            && (!"cancel".equals(shipment.getShippingStatus()) || "cancel".equals(status))
             && (shipment.getLastEventAt()==null || !eventAt.isBefore(shipment.getLastEventAt()));
         if(fresh) {
             shipment.setLastEventAt(eventAt);
