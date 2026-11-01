@@ -18,8 +18,13 @@ public record GreenFarmUserDetails(
     String password,
     Collection<? extends GrantedAuthority> authorities,
     boolean enabled,
-    boolean accountNonLocked
+    boolean accountNonLocked,
+    int credentialVersion
 ) implements UserDetails {
+
+    public GreenFarmUserDetails(Long userId, String username, String password, Collection<? extends GrantedAuthority> authorities, boolean enabled, boolean accountNonLocked) {
+        this(userId, username, password, authorities, enabled, accountNonLocked, 0);
+    }
 
     public static GreenFarmUserDetails from(User user) {
         List<GrantedAuthority> authorities = new ArrayList<>();
@@ -37,7 +42,8 @@ public record GreenFarmUserDetails(
             user.getPassword(),
             List.copyOf(authorities),
             user.getStatus() == UserStatus.ACTIVE,
-            !user.isTemporarilyLocked(LocalDateTime.now())
+            !user.isTemporarilyLocked(LocalDateTime.now()),
+            user.getCredentialVersion()
         );
     }
 

@@ -31,6 +31,7 @@ public class JwtService {
         return Jwts.builder()
             .subject(userDetails.getUsername())
             .claim("userId", userDetails.userId())
+            .claim("credentialVersion", userDetails.credentialVersion())
             .issuedAt(Date.from(now))
             .expiration(Date.from(now.plusMillis(expirationMs)))
             .signWith(signingKey)
@@ -44,7 +45,10 @@ public class JwtService {
     public boolean isValid(String token, UserDetails userDetails) {
         try {
             Claims claims = claims(token);
+            Integer version = claims.get("credentialVersion", Integer.class);
             return claims.getSubject().equals(userDetails.getUsername())
+                && userDetails instanceof GreenFarmUserDetails details
+                && (version == null ? 0 : version) == details.credentialVersion()
                 && claims.getExpiration().after(new Date());
         } catch (JwtException | IllegalArgumentException exception) {
             return false;

@@ -73,9 +73,14 @@ export function ProductDetail({ slug }: { slug: string }) {
             {productStatusLabel[product.status]} · {product.stock} {product.unit ?? "sản phẩm"}
           </span>
           <p className="detail-description">{product.description ?? "Sản phẩm tươi được GreenFarm chọn lọc kỹ cho bữa ăn hằng ngày."}</p>
+          {(product.origin || product.certification || product.storageInstructions) && <section className="product-provenance" aria-label="Thông tin sản phẩm">
+            {product.origin && <p><strong>Nguồn gốc:</strong> {product.origin}</p>}
+            {product.certification && <p><strong>Chứng nhận:</strong> {product.certification}</p>}
+            {product.storageInstructions && <p><strong>Bảo quản:</strong> {product.storageInstructions}</p>}
+          </section>}
           <div className="detail-facts">
             <div><Sprout size={20} /><span><strong>Chọn lọc</strong><small>Kiểm tra chất lượng mỗi ngày</small></span></div>
-            <div><ShieldCheck size={20} /><span><strong>An tâm</strong><small>Nguồn gốc minh bạch</small></span></div>
+            <div><ShieldCheck size={20} /><span><strong>Thông tin</strong><small>{product.origin ? "Có thông tin nguồn gốc" : "Nguồn gốc chưa cập nhật"}</small></span></div>
             <div><Truck size={20} /><span><strong>Giao tươi</strong><small>Đóng gói cẩn thận</small></span></div>
           </div>
           <AddToCart product={product} />

@@ -84,3 +84,9 @@ API trả lỗi theo một định dạng chung gồm `status`, `code`, `message
 
 Mỗi lần đổi mật khẩu sẽ thu hồi toàn bộ refresh token của tài khoản, vì vậy người
 dùng cần đăng nhập lại trên các thiết bị.
+# Khôi phục mật khẩu qua email
+
+- `POST /api/auth/forgot-password` nhận `{ "email": "..." }` và trả cùng thông báo cho email có hoặc không có tài khoản đang hoạt động. Mỗi tài khoản có thời gian chờ một phút giữa các yêu cầu.
+- Email chứa liên kết `/reset-password#token=...`. Token ngẫu nhiên chỉ được lưu dưới dạng hash, hết hạn sau 30 phút và chỉ dùng một lần. `POST /api/auth/reset-password` nhận `{ "token": "...", "newPassword": "..." }`.
+- Đổi hoặc đặt lại mật khẩu làm vô hiệu hóa refresh token và access token trước đó. Liên kết cũ cũng không còn hiệu lực khi mật khẩu đã đổi.
+- Cấu hình `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `INVOICE_EMAIL_FROM` và `STOREFRONT_URL` ở môi trường backend. Đặt `STOREFRONT_URL` là URL frontend công khai khi triển khai. Việc gửi email lỗi được ghi nhận trong log mà không tiết lộ tài khoản cho người yêu cầu; kiểm tra cấu hình SMTP khi email không đến.

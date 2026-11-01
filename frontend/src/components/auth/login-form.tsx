@@ -1,6 +1,7 @@
 "use client";
 
 import { Eye, EyeOff, LogIn } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -103,6 +104,8 @@ export function LoginForm({ portal }: { portal: LoginPortal }) {
       </div>
 
       {serverError && <p className="form-message error" role="alert">{serverError}</p>}
+
+      <Link href="/forgot-password">Quên mật khẩu?</Link>
 
       <button type="submit" className="primary-button" disabled={isSubmitting}>
         <LogIn size={18} aria-hidden="true" />

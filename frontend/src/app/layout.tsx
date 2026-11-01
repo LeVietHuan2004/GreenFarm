@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { CommerceProvider } from "@/components/commerce/commerce-provider";
 import { ChatWidget } from "@/components/chat/chat-widget";
+import { SiteFooter } from "@/components/layout/site-footer";
 
 import "./globals.css";
 
@@ -20,7 +21,7 @@ type RootLayoutProps = Readonly<{
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="vi">
-      <body><CommerceProvider>{children}<ChatWidget /></CommerceProvider></body>
+      <body><CommerceProvider>{children}<SiteFooter /><ChatWidget /></CommerceProvider></body>
     </html>
   );
 }

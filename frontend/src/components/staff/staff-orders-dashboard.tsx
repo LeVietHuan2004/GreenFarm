@@ -16,6 +16,7 @@ import type { Order } from "@/types/order";
 export function StaffOrdersDashboard() {
   const { token, hasHydrated } = useAuthStore();
   const [orders, setOrders] = useState<Order[]>([]);
+  const [drivers, setDrivers] = useState<{id:number;name:string}[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<number | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -24,7 +25,8 @@ export function StaffOrdersDashboard() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      setOrders(await staffOrderService.findAll());
+      const [orderList, driverList] = await Promise.all([staffOrderService.findAll(), staffOrderService.deliveryStaff()]);
+      setOrders(orderList); setDrivers(driverList);
       setError(null);
     } catch (cause) {
       setError(getApiErrorMessage(cause));
@@ -54,6 +56,13 @@ export function StaffOrdersDashboard() {
     }
   };
 
+  const assign = async (order: Order, driverId: number) => {
+    setBusy(order.id); setError(null); setMessage(null);
+    try { const updated = await staffOrderService.assign(order.id, driverId); setOrders(items => items.map(item => item.id === order.id ? updated : item)); setMessage(`Đã phân công giao đơn #${order.id}.`); }
+    catch (cause) { setError(getApiErrorMessage(cause)); }
+    finally { setBusy(null); }
+  };
+
   return (
     <RoleGuard allowedRoles={["staff"]} loginHref="/staff/login">
       <div className="portal-shell">
@@ -65,7 +74,7 @@ export function StaffOrdersDashboard() {
               <h1>Đơn chờ xử lý</h1>
               <p>Xác nhận đơn mới, chuẩn bị hàng và bàn giao cho bộ phận giao hàng.</p>
             </div>
-            <Link className="secondary-button" href="/staff/contacts">Hỗ trợ khách hàng</Link>
+            <div className="operation-actions"><Link className="secondary-button" href="/staff/inventory">Quản lý kho</Link><Link className="secondary-button" href="/staff/contacts">Hỗ trợ khách hàng</Link></div>
           </header>
 
           {error && <p className="catalog-notice error">{error}</p>}
@@ -98,6 +107,7 @@ export function StaffOrdersDashboard() {
                   </ol>
                 </details>
                 <div className="operation-actions">
+                  {order.status === "ready_for_delivery" && order.shippingProvider !== "ghn" && !order.deliveryClaimedAt && <label>Phân công giao hàng <select disabled={busy === order.id} value={order.deliveryStaffId ?? ""} onChange={event => { if (event.target.value) void assign(order, Number(event.target.value)); }}><option value="">Chọn nhân viên</option>{drivers.map(driver => <option key={driver.id} value={driver.id}>{driver.name}</option>)}</select></label>}
                   {order.status === "pending" && <>
                     <button type="button" className="primary-button" disabled={busy === order.id} onClick={() => void update(order, "processing")}><PackageCheck size={16} /> Xác nhận</button>
                     <button type="button" className="secondary-button" disabled={busy === order.id} onClick={() => void update(order, "canceled", "Nhân viên từ chối đơn")}><XCircle size={16} /> Từ chối</button>

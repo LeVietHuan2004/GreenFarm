@@ -87,6 +87,7 @@ public class UserService {
             );
         }
         user.setPassword(passwordEncoder.encode(request.newPassword()));
+        user.incrementCredentialVersion();
         userRepository.save(user);
         refreshTokens.revokeAll(user.getId());
     }

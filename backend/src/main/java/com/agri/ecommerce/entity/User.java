@@ -66,6 +66,9 @@ public class User {
     @Column(name = "loyalty_points_balance", nullable = false)
     private int loyaltyPointsBalance;
 
+    @Column(name = "credential_version", nullable = false)
+    private int credentialVersion;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -111,6 +114,9 @@ public class User {
     public String getPassword() {
         return password;
     }
+
+    public int getCredentialVersion() { return credentialVersion; }
+    public void incrementCredentialVersion() { credentialVersion++; }
 
     public void setPassword(String password) {
         this.password = password;

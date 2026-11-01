@@ -102,3 +102,6 @@ cấu hình đủ credentials; xem [lưu trữ ảnh](image-storage.md).
 Các trang quản trị dùng chung sidebar responsive; menu đơn hàng và giao hàng chỉ
 hiển thị trạng thái giai đoạn kế tiếp cho đến khi các module tương ứng được triển
 khai.
+# Thông tin nguồn gốc sản phẩm
+
+Sản phẩm có thêm `origin`, `certification`, `storageInstructions` tùy chọn. Admin cập nhật các trường trong phần sản phẩm; chi tiết sản phẩm chỉ hiển thị trường đã nhập. API công khai `GET /api/public/products` hỗ trợ tham số `origin` để tìm theo một phần nguồn gốc, kết hợp các bộ lọc và phân trang khác. Migration V25 bổ sung cột mà không tạo dữ liệu nguồn gốc giả cho sản phẩm cũ.

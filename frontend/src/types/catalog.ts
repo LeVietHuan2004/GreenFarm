@@ -35,6 +35,9 @@ export type Product = {
   status: ProductStatus;
   unit: string | null;
   unitEn: string | null;
+  origin: string | null;
+  certification: string | null;
+  storageInstructions: string | null;
   ghnEligible: boolean;
   packageWeightG: number | null;
   packageLengthCm: number | null;
@@ -58,6 +61,7 @@ export type PageData<T> = {
 export type ProductFilters = {
   search?: string;
   category?: string;
+  origin?: string;
   categoryId?: number;
   minPrice?: number;
   maxPrice?: number;
@@ -88,6 +92,9 @@ export type ProductInput = {
   status?: ProductStatus;
   unit?: string;
   unitEn?: string;
+  origin?: string;
+  certification?: string;
+  storageInstructions?: string;
   ghnEligible?: boolean;
   packageWeightG?: number | null;
   packageLengthCm?: number | null;

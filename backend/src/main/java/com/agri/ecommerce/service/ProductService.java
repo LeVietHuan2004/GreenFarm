@@ -51,6 +51,13 @@ public class ProductService {
         String status,
         Pageable pageable
     ) {
+        return findPublicProducts(search, categorySlug, minPrice, maxPrice, status, null, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<ProductResponse> findPublicProducts(
+        String search, String categorySlug, BigDecimal minPrice, BigDecimal maxPrice, String status, String origin, Pageable pageable
+    ) {
         validatePriceRange(minPrice, maxPrice);
         ProductStatus parsedStatus = parseStatus(status);
         if (parsedStatus == ProductStatus.HIDDEN) {
@@ -69,7 +76,8 @@ public class ProductService {
                 minPrice,
                 maxPrice,
                 parsedStatus,
-                false
+                false,
+                origin
             ), pageable),
             CatalogMapper::toProductResponse
         );
@@ -98,7 +106,8 @@ public class ProductService {
                 null,
                 null,
                 parseStatus(status),
-                true
+                true,
+                null
             ), pageable),
             CatalogMapper::toProductResponse
         );
@@ -186,6 +195,9 @@ public class ProductService {
         product.setStatus(requestedStatus);
         product.setUnit(trimToNull(request.unit()));
         product.setUnitEn(trimToNull(request.unitEn()));
+        product.setOrigin(trimToNull(request.origin()));
+        product.setCertification(trimToNull(request.certification()));
+        product.setStorageInstructions(trimToNull(request.storageInstructions()));
         if (Boolean.TRUE.equals(request.ghnEligible())
             && (request.packageWeightG() == null || request.packageLengthCm() == null
                 || request.packageWidthCm() == null || request.packageHeightCm() == null)) {
@@ -206,10 +218,15 @@ public class ProductService {
         BigDecimal minPrice,
         BigDecimal maxPrice,
         ProductStatus status,
-        boolean includeHidden
+        boolean includeHidden,
+        String origin
     ) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
+            if (StringUtils.hasText(origin)) {
+                String value = origin.trim().toLowerCase().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
+                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("origin")), "%" + value + "%", '\\'));
+            }
             if (StringUtils.hasText(search)) {
                 String pattern = "%" + search.trim().toLowerCase() + "%";
                 predicates.add(criteriaBuilder.or(

@@ -46,3 +46,6 @@ Ví dụ ghi nhận hỏng 4 đơn vị:
 5. Thử lô còn đúng 3 ngày: xuất hiện cảnh báo sắp hết hạn. Qua ngày hết hạn, lô bị loại khỏi số khả dụng.
 
 Backend dùng Flyway khi khởi động. Để áp dụng trên môi trường Docker Compose đang chạy, cần sao lưu database rồi build lại image backend và tạo lại container backend theo quy trình triển khai của dự án; chỉ sửa file nguồn không cập nhật container đang chạy.
+# Quyền nhân viên kho
+
+Nhân viên `staff` có thể dùng `/staff/inventory` để xem tồn và lô, ghi nhận kiểm kê, hư hỏng, hết hạn hoặc trả hàng. Backend bảo vệ các endpoint `/api/staff/inventory` bằng vai trò staff và ghi nhận tài khoản thực hiện qua nghiệp vụ kho hiện có. Nhân viên có thể phân công đơn giao nội bộ đang sẵn sàng qua `/api/staff/orders/{id}/delivery-staff`; đơn GHN và các điều kiện chuyển trạng thái vẫn được backend kiểm tra. Quản lý nhà cung cấp và nhập kho theo lô vẫn thuộc admin.

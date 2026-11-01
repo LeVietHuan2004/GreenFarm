@@ -62,6 +62,10 @@ public class Product {
     @Column(name = "unit_en")
     private String unitEn;
 
+    @Column(length = 255) private String origin;
+    @Column(length = 1000) private String certification;
+    @Column(name = "storage_instructions", columnDefinition = "text") private String storageInstructions;
+
     @Column(name = "ghn_eligible", nullable = false)
     private boolean ghnEligible;
 
@@ -192,6 +196,9 @@ public class Product {
     }
 
     public boolean isGhnEligible() { return ghnEligible; }
+    public String getOrigin() { return origin; } public void setOrigin(String value) { origin = value; }
+    public String getCertification() { return certification; } public void setCertification(String value) { certification = value; }
+    public String getStorageInstructions() { return storageInstructions; } public void setStorageInstructions(String value) { storageInstructions = value; }
     public void setGhnEligible(boolean value) { ghnEligible = value; }
     public Integer getPackageWeightG() { return packageWeightG; }
     public void setPackageWeightG(Integer value) { packageWeightG = value; }

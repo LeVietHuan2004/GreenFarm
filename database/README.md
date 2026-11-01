@@ -42,3 +42,14 @@ dụng. Không chỉnh trực tiếp một migration đã chạy; hãy tạo phi
 - Công cụ trên máy như MySQL Workbench dùng `localhost:3307`.
 - Database, user và password local mặc định là `veggie_main`, `root`,
   `greenfarm`.
+
+## Production m?i tr?n Railway
+
+T?o m?t MySQL database tr?ng v? c?u h?nh backend k?t n?i t?i database ??.
+Gi? `FLYWAY_ENABLED=true`; Flyway s? ch?y V1 r?i c?c migration ti?p theo.
+Kh?ng import dump local khi ch?n kh?i t?o production m?i. Kh?ng t? th?m b?n ghi
+v?o `flyway_schema_history` ho?c t?t Flyway ?? b? qua l?i migration.
+
+Sau khi backend ch?y th?nh c?ng, ??ng k? t?i kho?n ri?ng qua ?ng d?ng v? c?p
+role `admin` cho ??ng t?i kho?n ?? qua k?t n?i database qu?n tr?. Kh?ng c? t?i
+kho?n ho?c m?t kh?u admin m?c ??nh trong migration.

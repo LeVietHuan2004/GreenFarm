@@ -6,6 +6,9 @@ import com.agri.ecommerce.dto.request.RegisterRequest;
 import com.agri.ecommerce.dto.request.RefreshTokenRequest;
 import com.agri.ecommerce.dto.response.AuthResponse;
 import com.agri.ecommerce.service.AuthService;
+import com.agri.ecommerce.service.PasswordResetService;
+import com.agri.ecommerce.dto.request.ForgotPasswordRequest;
+import com.agri.ecommerce.dto.request.ResetPasswordRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +22,23 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final PasswordResetService passwordReset;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, PasswordResetService passwordReset) {
         this.authService = authService;
+        this.passwordReset = passwordReset;
+    }
+
+    @PostMapping("/forgot-password")
+    public ApiResponse<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        passwordReset.request(request.email());
+        return ApiResponse.success("Nếu email hợp lệ, hướng dẫn đặt lại mật khẩu sẽ được gửi.", null);
+    }
+
+    @PostMapping("/reset-password")
+    public ApiResponse<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        passwordReset.reset(request.token(), request.newPassword());
+        return ApiResponse.success("Đã đặt lại mật khẩu. Hãy đăng nhập lại.", null);
     }
 
     @PostMapping("/register")

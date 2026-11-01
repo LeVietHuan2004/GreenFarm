@@ -31,7 +31,7 @@ import { NotificationMenu } from "@/components/notifications/notification-menu";
 import { authService } from "@/services/auth-service";
 import { useAuthStore } from "@/stores/auth-store";
 
-export type AdminSection = "dashboard" | "users" | "categories" | "products" | "inventory" | "orders" | "coupons" | "contacts" | "profile";
+export type AdminSection = "dashboard" | "users" | "categories" | "products" | "inventory" | "orders" | "delivery" | "coupons" | "contacts" | "profile";
 
 type AdminShellProps = {
   active: AdminSection;
@@ -47,6 +47,7 @@ const sectionTitles: Record<AdminSection, { title: string; description: string }
   products: { title: "Sản phẩm", description: "Nội dung, tồn kho và hình ảnh" },
   inventory: { title: "Quản lý kho", description: "Lô hàng, hạn dùng và lịch sử tồn kho" },
   orders: { title: "Đơn hàng", description: "Xử lý đơn và trạng thái thanh toán" },
+  delivery: { title: "Giao hàng", description: "Theo dõi vận đơn GHN" },
   coupons: { title: "Mã giảm giá", description: "Ưu đãi, thời hạn và lượt sử dụng" },
   contacts: { title: "Liên hệ", description: "Yêu cầu hỗ trợ của khách hàng" },
   profile: { title: "Cài đặt tài khoản", description: "Hồ sơ và bảo mật quản trị viên" }
@@ -59,12 +60,9 @@ const primaryItems = [
   { key: "products" as const, label: "Sản phẩm", detail: "Giá, kho và hình ảnh", href: "/admin/products", icon: Boxes },
   { key: "inventory" as const, label: "Quản lý kho", detail: "Nhập, xuất và kiểm kê", href: "/admin/inventory", icon: PackagePlus },
   { key: "orders" as const, label: "Đơn hàng", detail: "Xử lý và giao nhận", href: "/admin/orders", icon: ShoppingCart },
+  { key: "delivery" as const, label: "Giao hàng", detail: "Theo dõi vận đơn GHN", href: "/admin/delivery", icon: Truck },
   { key: "coupons" as const, label: "Mã giảm giá", detail: "Ưu đãi cửa hàng", href: "/admin/coupons", icon: TicketPercent },
   { key: "contacts" as const, label: "Liên hệ", detail: "Hỗ trợ khách hàng", href: "/admin/contacts", icon: MessageCircleMore }
-];
-
-const futureItems = [
-  { label: "Giao hàng", detail: "Bảng điều phối", icon: Truck }
 ];
 
 export function AdminShell({ active, children }: AdminShellProps) {
@@ -119,13 +117,6 @@ export function AdminShell({ active, children }: AdminShellProps) {
               </Link>
             ))}
 
-            <span className="admin-nav-label secondary">Sắp triển khai</span>
-            {futureItems.map(({ label, detail, icon: Icon }) => (
-              <button type="button" disabled key={label}>
-                <span className="admin-nav-icon"><Icon size={18} /></span>
-                <span><strong>{label}</strong><small>{detail}</small></span>
-              </button>
-            ))}
           </nav>
 
           <div className="admin-sidebar-footer">

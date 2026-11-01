@@ -3,6 +3,18 @@ import type { AdminCoupon, AdminCouponFilters, AdminCouponInput, AdminOrder, Adm
 import type { ApiResponse, User } from "@/types/auth";
 import type { PageData } from "@/types/catalog";
 
+export type AdminShipment = {
+  orderId: number; orderStatus: string; recipientName: string; recipientPhone: string;
+  shippingAddress: string; shippingCity: string; providerOrderCode: string | null;
+  shippingStatus: string; carrierShippingFee: number | null; customerShippingFee: number;
+  codAmount: number; createdAt: string | null;
+};
+
+export async function getAdminShipments(filters: { search?: string; status?: string; page?: number; size?: number }) {
+  const response = await apiClient.get<ApiResponse<PageData<AdminShipment>>>("/admin/shipments", { params: compactParams(filters) });
+  return response.data.data;
+}
+
 function compactParams(filters: object) {
   return Object.fromEntries(
     Object.entries(filters).filter(([, value]) => value !== undefined && value !== "")

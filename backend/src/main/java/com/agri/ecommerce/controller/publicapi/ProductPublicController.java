@@ -31,6 +31,7 @@ public class ProductPublicController {
         @RequestParam(required = false) BigDecimal minPrice,
         @RequestParam(required = false) BigDecimal maxPrice,
         @RequestParam(required = false) String status,
+        @RequestParam(required = false) String origin,
         @PageableDefault(size = 12, sort = "createdAt", direction = Sort.Direction.DESC)
         Pageable pageable
     ) {
@@ -42,6 +43,7 @@ public class ProductPublicController {
                 minPrice,
                 maxPrice,
                 status,
+                origin,
                 pageable
             )
         );

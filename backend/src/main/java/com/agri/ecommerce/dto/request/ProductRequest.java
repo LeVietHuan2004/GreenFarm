@@ -51,12 +51,15 @@ public record ProductRequest(
     @Min(1) @Max(50000) Integer packageWeightG,
     @Min(1) @Max(200) Integer packageLengthCm,
     @Min(1) @Max(200) Integer packageWidthCm,
-    @Min(1) @Max(200) Integer packageHeightCm
+    @Min(1) @Max(200) Integer packageHeightCm,
+    @Size(max = 255) String origin,
+    @Size(max = 1000) String certification,
+    @Size(max = 5000) String storageInstructions
 ) {
     public ProductRequest(String name, String nameEn, String slug, Long categoryId,
             String description, String descriptionEn, BigDecimal price, int stock,
             String status, String unit, String unitEn) {
         this(name, nameEn, slug, categoryId, description, descriptionEn, price, stock,
-            status, unit, unitEn, false, null, null, null, null);
+            status, unit, unitEn, false, null, null, null, null, null, null, null);
     }
 }

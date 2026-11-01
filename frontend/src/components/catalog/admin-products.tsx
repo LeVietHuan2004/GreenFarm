@@ -33,6 +33,7 @@ type ProductForm = Omit<ProductInput, "categoryId" | "price" | "stock" | "packag
 
 const emptyForm: ProductForm = {
   name: "", nameEn: "", slug: "", categoryId: "", description: "", descriptionEn: "",
+  origin: "", certification: "", storageInstructions: "",
   price: "", stock: "0", status: "in_stock", unit: "kg", unitEn: "", image: null,
   ghnEligible: false, packageWeightG: "", packageLengthCm: "", packageWidthCm: "", packageHeightCm: ""
 };
@@ -102,6 +103,7 @@ export function AdminProducts({ initialSearch = "" }: { initialSearch?: string }
       categoryId: String(product.category.id),
       description: product.description ?? "",
       descriptionEn: product.descriptionEn ?? "",
+      origin: product.origin ?? "", certification: product.certification ?? "", storageInstructions: product.storageInstructions ?? "",
       price: String(product.price),
       stock: String(product.stock),
       status: product.status,
@@ -134,6 +136,7 @@ export function AdminProducts({ initialSearch = "" }: { initialSearch?: string }
       categoryId: Number(form.categoryId),
       description: form.description,
       descriptionEn: form.descriptionEn,
+      origin: form.origin, certification: form.certification, storageInstructions: form.storageInstructions,
       price: Number(form.price),
       stock: Number(form.stock),
       status: form.status,
@@ -207,6 +210,9 @@ export function AdminProducts({ initialSearch = "" }: { initialSearch?: string }
               <label><span>Giá (VND) *</span><input required type="number" min="0" step="100" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} /></label>
               <label><span>Tồn kho</span><input readOnly type="number" value={form.stock} /><small>Thay đổi số lượng tại <Link href="/admin/inventory">Quản lý kho</Link>.</small></label>
               <label><span>Đơn vị</span><input maxLength={255} value={form.unit} onChange={(event) => setForm({ ...form, unit: event.target.value })} placeholder="kg, túi, hộp..." /></label>
+              <label><span>Nguồn gốc</span><input maxLength={255} value={form.origin ?? ""} onChange={(event) => setForm({ ...form, origin: event.target.value })} placeholder="Ví dụ: Đà Lạt, Lâm Đồng" /></label>
+              <label><span>Chứng nhận</span><input maxLength={1000} value={form.certification ?? ""} onChange={(event) => setForm({ ...form, certification: event.target.value })} placeholder="Ví dụ: VietGAP" /></label>
+              <label className="admin-form-wide"><span>Hướng dẫn bảo quản</span><textarea maxLength={5000} value={form.storageInstructions ?? ""} onChange={(event) => setForm({ ...form, storageInstructions: event.target.value })} /></label>
               <label><span>Trạng thái</span><select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value as ProductStatus })}><option value="in_stock">Còn hàng</option><option value="out_of_stock">Hết hàng</option><option value="hidden">Ẩn</option></select></label>
               <label className="admin-form-wide"><span>GHN</span><span><input type="checkbox" checked={form.ghnEligible ?? false} onChange={event=>setForm({...form,ghnEligible:event.target.checked})}/> Đã xác minh sản phẩm được GHN chấp nhận</span><small>Không bật cho hàng tươi sống, đông lạnh hoặc hàng chưa được GHN xác nhận.</small></label>
               {form.ghnEligible&&<><label><span>Khối lượng đóng gói (g) *</span><input required type="number" min="1" max="50000" value={form.packageWeightG} onChange={event=>setForm({...form,packageWeightG:event.target.value})}/></label>

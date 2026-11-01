@@ -24,6 +24,7 @@ export function ProductBrowser({ initialSearch = "", initialCategory = "" }: Pro
   const [searchInput, setSearchInput] = useState(initialSearch);
   const [search, setSearch] = useState(initialSearch);
   const [category, setCategory] = useState(initialCategory);
+  const [origin, setOrigin] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [status, setStatus] = useState<"" | Exclude<ProductStatus, "hidden">>("");
@@ -41,6 +42,7 @@ export function ProductBrowser({ initialSearch = "", initialCategory = "" }: Pro
     const filters: ProductFilters = {
       search,
       category,
+      origin,
       minPrice: minPrice ? Number(minPrice) : undefined,
       maxPrice: maxPrice ? Number(maxPrice) : undefined,
       status: status || undefined,
@@ -55,7 +57,7 @@ export function ProductBrowser({ initialSearch = "", initialCategory = "" }: Pro
     } finally {
       setLoading(false);
     }
-  }, [category, maxPrice, minPrice, page, search, status]);
+  }, [category, origin, maxPrice, minPrice, page, search, status]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => { void loadProducts(); }, 0);
@@ -72,6 +74,7 @@ export function ProductBrowser({ initialSearch = "", initialCategory = "" }: Pro
     setSearchInput("");
     setSearch("");
     setCategory("");
+    setOrigin("");
     setMinPrice("");
     setMaxPrice("");
     setStatus("");
@@ -100,6 +103,7 @@ export function ProductBrowser({ initialSearch = "", initialCategory = "" }: Pro
                 {categories.map((item) => <option value={item.slug} key={item.id}>{item.name}</option>)}
               </select>
             </label>
+            <label><span>Nguồn gốc</span><input maxLength={255} value={origin} onChange={(event) => { setOrigin(event.target.value); setPage(0); }} placeholder="Ví dụ: Lâm Đồng" /></label>
             <div className="price-filter-row">
               <label><span>Giá từ</span><input type="number" min="0" value={minPrice} onChange={(event) => setMinPrice(event.target.value)} placeholder="0" /></label>
               <label><span>Đến</span><input type="number" min="0" value={maxPrice} onChange={(event) => setMaxPrice(event.target.value)} placeholder="500.000" /></label>

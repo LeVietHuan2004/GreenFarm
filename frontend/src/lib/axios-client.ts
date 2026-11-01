@@ -13,7 +13,8 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.request.use((config) => {
   const token = useAuthStore.getState().token;
-  if (token) {
+  const publicRecoveryRequest = config.url === "/auth/forgot-password" || config.url === "/auth/reset-password";
+  if (token && !publicRecoveryRequest) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;

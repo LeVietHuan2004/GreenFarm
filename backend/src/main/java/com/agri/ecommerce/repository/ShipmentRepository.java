@@ -3,12 +3,13 @@ package com.agri.ecommerce.repository;
 import com.agri.ecommerce.entity.Shipment;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import jakarta.persistence.LockModeType;
 
-public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
+public interface ShipmentRepository extends JpaRepository<Shipment, Long>, JpaSpecificationExecutor<Shipment> {
     Optional<Shipment> findByOrder_Id(Long orderId);
     Optional<Shipment> findByProviderOrderCode(String code);
     Optional<Shipment> findByClientOrderCode(String code);
