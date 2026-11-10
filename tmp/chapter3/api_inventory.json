@@ -1,0 +1,808 @@
+[
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\admin\\BusinessReportAdminController.java",
+    "security": [
+      "hasRole('ADMIN')"
+    ],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/admin/reports"
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/reports/export.csv"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\admin\\CategoryAdminController.java",
+    "security": [],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/admin/categories"
+      },
+      {
+        "method": "POST",
+        "path": "/api/admin/categories"
+      },
+      {
+        "method": "PUT",
+        "path": "/api/admin/categories/{categoryId}"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/admin/categories/{categoryId}"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\admin\\CouponAdminController.java",
+    "security": [
+      "hasAuthority('manage_coupons')"
+    ],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/admin/coupons"
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/coupons/{id}"
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/coupons/{id}/usages"
+      },
+      {
+        "method": "POST",
+        "path": "/api/admin/coupons"
+      },
+      {
+        "method": "PUT",
+        "path": "/api/admin/coupons/{id}"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/admin/coupons/{id}/active"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/admin/coupons/{id}"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\admin\\GhnShipmentAdminController.java",
+    "security": [
+      "hasRole('ADMIN')"
+    ],
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/admin/orders/{orderId}/ghn/create"
+      },
+      {
+        "method": "POST",
+        "path": "/api/admin/orders/{orderId}/ghn/sync"
+      },
+      {
+        "method": "POST",
+        "path": "/api/admin/orders/{orderId}/ghn/cancel"
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/orders/{orderId}/ghn/print"
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/orders/{orderId}/ghn/events"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\admin\\InventoryAdminController.java",
+    "security": [
+      "hasRole('ADMIN')"
+    ],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/admin/inventory/summary"
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/inventory"
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/inventory/batches"
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/inventory/transactions"
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/inventory/{productId}"
+      },
+      {
+        "method": "POST",
+        "path": "/api/admin/inventory/import"
+      },
+      {
+        "method": "POST",
+        "path": "/api/admin/inventory/adjust"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\admin\\OrderAdminController.java",
+    "security": [
+      "hasRole('ADMIN')"
+    ],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/admin/orders"
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/orders/{id}"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/admin/orders/{id}/status"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/admin/orders/{id}/refund-confirmation"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/admin/orders/{id}/delivery-staff"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\admin\\ProductAdminController.java",
+    "security": [],
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/admin/products/{productId}/images/upload"
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/products"
+      },
+      {
+        "method": "POST",
+        "path": "/api/admin/products"
+      },
+      {
+        "method": "PUT",
+        "path": "/api/admin/products/{productId}"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/admin/products/{productId}/status"
+      },
+      {
+        "method": "POST",
+        "path": "/api/admin/products/{productId}/images"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/admin/products/{productId}/images/{imageId}"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\admin\\RefundRequestAdminController.java",
+    "security": [
+      "hasRole('ADMIN')"
+    ],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/admin/refund-requests"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/admin/refund-requests/{id}/approve"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/admin/refund-requests/{id}/reject"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\admin\\RoleAdminController.java",
+    "security": [],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/roles"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\admin\\ShipmentAdminController.java",
+    "security": [
+      "hasRole('ADMIN')"
+    ],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/admin/shipments"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\admin\\SupplierAdminController.java",
+    "security": [
+      "hasRole('ADMIN')"
+    ],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/admin/suppliers"
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/suppliers/{id}"
+      },
+      {
+        "method": "POST",
+        "path": "/api/admin/suppliers"
+      },
+      {
+        "method": "PUT",
+        "path": "/api/admin/suppliers/{id}"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/admin/suppliers/{id}"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\admin\\UploadAdminController.java",
+    "security": [
+      "hasAnyAuthority('manage_categories','manage_products')"
+    ],
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/admin/uploads/images"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\admin\\UserAdminController.java",
+    "security": [],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/admin/users"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/admin/users/{userId}"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\auth\\AuthController.java",
+    "security": [],
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/auth/forgot-password"
+      },
+      {
+        "method": "POST",
+        "path": "/api/auth/reset-password"
+      },
+      {
+        "method": "POST",
+        "path": "/api/auth/register"
+      },
+      {
+        "method": "POST",
+        "path": "/api/auth/login"
+      },
+      {
+        "method": "POST",
+        "path": "/api/auth/refresh"
+      },
+      {
+        "method": "POST",
+        "path": "/api/auth/logout"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\customer\\CartController.java",
+    "security": [
+      "hasRole('CUSTOMER')"
+    ],
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/cart/merge-guest"
+      },
+      {
+        "method": "GET",
+        "path": "/api/cart"
+      },
+      {
+        "method": "POST",
+        "path": "/api/cart/items"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/cart/items/{itemId}"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/cart/items/{itemId}"
+      },
+      {
+        "method": "POST",
+        "path": "/api/cart/merge"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/cart"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\customer\\CheckoutController.java",
+    "security": [
+      "hasRole('CUSTOMER')"
+    ],
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/checkout/preview"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\customer\\ContactController.java",
+    "security": [],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/contacts/mine"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\customer\\LoyaltyController.java",
+    "security": [
+      "hasRole('CUSTOMER')"
+    ],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/loyalty"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\customer\\NotificationController.java",
+    "security": [],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/notifications/stream"
+      },
+      {
+        "method": "GET",
+        "path": "/api/notifications"
+      },
+      {
+        "method": "GET",
+        "path": "/api/notifications/unread-count"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/notifications/{id}/read"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/notifications/read-all"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\customer\\OrderController.java",
+    "security": [
+      "hasRole('CUSTOMER')"
+    ],
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/orders"
+      },
+      {
+        "method": "GET",
+        "path": "/api/orders"
+      },
+      {
+        "method": "GET",
+        "path": "/api/orders/{id}"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/orders/{id}/cancel"
+      },
+      {
+        "method": "POST",
+        "path": "/api/orders/{id}/refund-requests"
+      },
+      {
+        "method": "GET",
+        "path": "/api/orders/{id}/refund-request"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\customer\\PaymentController.java",
+    "security": [
+      "hasRole('CUSTOMER')"
+    ],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/payments/methods"
+      },
+      {
+        "method": "GET",
+        "path": "/api/payments/vnpay/return"
+      },
+      {
+        "method": "GET",
+        "path": "/api/payments/vnpay/ipn"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\customer\\ReviewController.java",
+    "security": [],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/reviews/eligibility/{productId}"
+      },
+      {
+        "method": "POST",
+        "path": "/api/reviews"
+      },
+      {
+        "method": "PUT",
+        "path": "/api/reviews/{id}"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\customer\\ShippingAddressController.java",
+    "security": [
+      "hasRole('CUSTOMER')"
+    ],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/shipping-addresses"
+      },
+      {
+        "method": "POST",
+        "path": "/api/shipping-addresses"
+      },
+      {
+        "method": "PUT",
+        "path": "/api/shipping-addresses/{id}"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/shipping-addresses/{id}/default"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/shipping-addresses/{id}"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\customer\\UserController.java",
+    "security": [],
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/users/me/avatar"
+      },
+      {
+        "method": "GET",
+        "path": "/api/users/me"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/users/me"
+      },
+      {
+        "method": "PUT",
+        "path": "/api/users/me/password"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\customer\\WishlistController.java",
+    "security": [
+      "hasRole('CUSTOMER')"
+    ],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/wishlist"
+      },
+      {
+        "method": "POST",
+        "path": "/api/wishlist/items"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/wishlist/items/{productId}"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\delivery\\DeliveryOrderController.java",
+    "security": [
+      "hasAuthority('manage_deliveries')"
+    ],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/delivery/orders"
+      },
+      {
+        "method": "POST",
+        "path": "/api/delivery/orders/{id}/claim"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/delivery/orders/{id}/status"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\publicapi\\CategoryPublicController.java",
+    "security": [],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/public/categories"
+      },
+      {
+        "method": "GET",
+        "path": "/api/public/categories/{slug}"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\publicapi\\ChatPublicController.java",
+    "security": [],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/public/chat/messages"
+      },
+      {
+        "method": "POST",
+        "path": "/api/public/chat/messages"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\publicapi\\ContactPublicController.java",
+    "security": [],
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/public/contacts"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\publicapi\\CouponPublicController.java",
+    "security": [],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/public/coupons"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\publicapi\\GhnPublicController.java",
+    "security": [],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/public/ghn/status"
+      },
+      {
+        "method": "GET",
+        "path": "/api/public/ghn/provinces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/public/ghn/wards"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\publicapi\\GhnWebhookController.java",
+    "security": [],
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/webhooks/ghn/orders"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\publicapi\\GuestCommercePublicController.java",
+    "security": [],
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/public/guest/sessions"
+      },
+      {
+        "method": "GET",
+        "path": "/api/public/guest/payment-methods"
+      },
+      {
+        "method": "GET",
+        "path": "/api/public/guest/cart"
+      },
+      {
+        "method": "POST",
+        "path": "/api/public/guest/cart/items"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/public/guest/cart/items/{id}"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/public/guest/cart/items/{id}"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/public/guest/cart"
+      },
+      {
+        "method": "POST",
+        "path": "/api/public/guest/checkout/preview"
+      },
+      {
+        "method": "POST",
+        "path": "/api/public/guest/orders"
+      },
+      {
+        "method": "GET",
+        "path": "/api/public/guest/orders/recovery"
+      },
+      {
+        "method": "POST",
+        "path": "/api/public/guest/orders/lookup"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\publicapi\\HealthController.java",
+    "security": [],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/health"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\publicapi\\ProductPublicController.java",
+    "security": [],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/public/products"
+      },
+      {
+        "method": "GET",
+        "path": "/api/public/products/{slug}"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\publicapi\\ReviewPublicController.java",
+    "security": [],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/public/products/{productId}/reviews"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\staff\\ContactOperationsController.java",
+    "security": [
+      "hasAuthority('manage_contacts')"
+    ],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/operations/contacts"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/operations/contacts/{id}/reply"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/operations/contacts/{id}/resolve"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\staff\\StaffInventoryController.java",
+    "security": [
+      "hasRole('STAFF')"
+    ],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/staff/inventory"
+      },
+      {
+        "method": "GET",
+        "path": "/api/staff/inventory/{productId}"
+      },
+      {
+        "method": "POST",
+        "path": "/api/staff/inventory/adjust"
+      }
+    ]
+  },
+  {
+    "file": "backend\\src\\main\\java\\com\\agri\\ecommerce\\controller\\staff\\StaffOrderController.java",
+    "security": [
+      "hasAuthority('manage_orders')"
+    ],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/staff/orders/delivery-staff"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/staff/orders/{id}/delivery-staff"
+      },
+      {
+        "method": "GET",
+        "path": "/api/staff/orders"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/staff/orders/{id}/status"
+      }
+    ]
+  }
+]

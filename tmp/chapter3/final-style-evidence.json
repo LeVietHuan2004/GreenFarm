@@ -1,0 +1,170 @@
+{
+  "input": "D:\\GreenFarm\\output\\report\\GreenFarm_Chuong_3.docx",
+  "fonts_by_char_count": {
+    "Times New Roman": 66643
+  },
+  "direct_run_formatting_runs": 1559,
+  "direct_paragraph_formatting_paragraphs": 1585,
+  "heading_like_paragraphs_not_heading_style": [
+    {
+      "para_index": 1,
+      "text": "CH\u01af\u01a0NG 3 PH\u00c2N T\u00cdCH THI\u1ebeT K\u1ebe H\u1ec6 TH\u1ed0NG",
+      "style": "Title"
+    },
+    {
+      "para_index": 38,
+      "text": "3.3.4.1 UC-01 \u0110\u0103ng k\u00fd t\u00e0i kho\u1ea3n",
+      "style": "List Paragraph"
+    },
+    {
+      "para_index": 40,
+      "text": "3.3.4.2 UC-02 \u0110\u0103ng nh\u1eadp \u0111\u0103ng xu\u1ea5t v\u00e0 l\u00e0m m\u1edbi phi\u00ean",
+      "style": "List Paragraph"
+    },
+    {
+      "para_index": 44,
+      "text": "3.3.4.3 UC-03 Qu\u1ea3n l\u00fd h\u1ed3 s\u01a1 v\u00e0 kh\u00f4i ph\u1ee5c m\u1eadt kh\u1ea9u",
+      "style": "List Paragraph"
+    },
+    {
+      "para_index": 46,
+      "text": "3.3.4.4 UC-04 Tra c\u1ee9u catalog v\u00e0 chi ti\u1ebft s\u1ea3n ph\u1ea9m",
+      "style": "List Paragraph"
+    },
+    {
+      "para_index": 48,
+      "text": "3.3.4.5 UC-05 Qu\u1ea3n l\u00fd gi\u1ecf h\u00e0ng v\u00e0 y\u00eau th\u00edch",
+      "style": "List Paragraph"
+    },
+    {
+      "para_index": 50,
+      "text": "3.3.4.6 UC-06 G\u1ed9p gi\u1ecf kh\u00e1ch v\u00e0o t\u00e0i kho\u1ea3n",
+      "style": "List Paragraph"
+    },
+    {
+      "para_index": 52,
+      "text": "3.3.4.7 UC-07 Qu\u1ea3n l\u00fd \u0111\u1ecba ch\u1ec9 v\u00e0 \u0111\u1eb7t h\u00e0ng t\u00e0i kho\u1ea3n",
+      "style": "List Paragraph"
+    },
+    {
+      "para_index": 56,
+      "text": "3.3.4.8 UC-08 \u0110\u1eb7t v\u00e0 tra c\u1ee9u \u0111\u01a1n kh\u00f4ng c\u1ea7n t\u00e0i kho\u1ea3n",
+      "style": "List Paragraph"
+    },
+    {
+      "para_index": 60,
+      "text": "3.3.4.9 UC-09 Thanh to\u00e1n v\u00e0 nh\u1eadn h\u00f3a \u0111\u01a1n",
+      "style": "List Paragraph"
+    },
+    {
+      "para_index": 64,
+      "text": "3.3.4.10 UC-10 H\u1ee7y \u0111\u01a1n v\u00e0 x\u1eed l\u00fd ho\u00e0n ti\u1ec1n",
+      "style": "List Paragraph"
+    },
+    {
+      "para_index": 68,
+      "text": "3.3.4.11 UC-11 Ti\u1ebfp nh\u1eadn v\u00e0 chu\u1ea9n b\u1ecb \u0111\u01a1n h\u00e0ng",
+      "style": "List Paragraph"
+    },
+    {
+      "para_index": 70,
+      "text": "3.3.4.12 UC-12 Ph\u00e2n c\u00f4ng nh\u1eadn v\u00e0 c\u1eadp nh\u1eadt giao n\u1ed9i b\u1ed9",
+      "style": "List Paragraph"
+    },
+    {
+      "para_index": 77,
+      "text": "3.3.4.13 UC-13 Qu\u1ea3n l\u00fd v\u1eadn \u0111\u01a1n v\u00e0 s\u1ef1 ki\u1ec7n GHN",
+      "style": "List Paragraph"
+    },
+    {
+      "para_index": 81,
+      "text": "3.3.4.14 UC-14 Qu\u1ea3n l\u00fd danh m\u1ee5c s\u1ea3n ph\u1ea9m v\u00e0 \u1ea3nh",
+      "style": "List Paragraph"
+    },
+    {
+      "para_index": 83,
+      "text": "3.3.4.15 UC-15 Qu\u1ea3n l\u00fd nh\u00e0 cung c\u1ea5p v\u00e0 nh\u1eadp l\u00f4",
+      "style": "List Paragraph"
+    },
+    {
+      "para_index": 85,
+      "text": "3.3.4.16 UC-16 Theo d\u00f5i \u0111i\u1ec1u ch\u1ec9nh v\u00e0 ph\u00e2n b\u1ed5 kho",
+      "style": "List Paragraph"
+    },
+    {
+      "para_index": 89,
+      "text": "3.3.4.17 UC-17 Qu\u1ea3n l\u00fd v\u00e0 s\u1eed d\u1ee5ng coupon",
+      "style": "List Paragraph"
+    },
+    {
+      "para_index": 91,
+      "text": "3.3.4.18 UC-18 \u0110\u00e1nh gi\u00e1 s\u1ea3n ph\u1ea9m v\u00e0 \u0111i\u1ec3m th\u01b0\u1edfng",
+      "style": "List Paragraph"
+    },
+    {
+      "para_index": 93,
+      "text": "3.3.4.19 UC-19 Li\u00ean h\u1ec7 h\u1ed7 tr\u1ee3 v\u00e0 nh\u1eadn th\u00f4ng b\u00e1o",
+      "style": "List Paragraph"
+    }
+  ],
+  "examples": {
+    "direct_paragraph_formatting": [
+      {
+        "para_index": 1,
+        "text": "CH\u01af\u01a0NG 3 PH\u00c2N T\u00cdCH THI\u1ebeT K\u1ebe H\u1ec6 TH\u1ed0NG",
+        "style": "Title"
+      },
+      {
+        "para_index": 2,
+        "text": "Ch\u01b0\u01a1ng n\u00e0y x\u00e1c \u0111\u1ecbnh y\u00eau c\u1ea7u v\u00e0 thi\u1ebft k\u1ebf h\u1ec7 th\u1ed1ng kinh doanh n\u00f4ng s\u1ea3n tr\u1ef1c tuy\u1ebfn GreenFarm. N\u1ed9i dung \u0111\u01b0\u1ee3c t\u1ed5 ch\u1ee9c t\u1eeb ph\u1ea1m",
+        "style": "Body Text"
+      },
+      {
+        "para_index": 3,
+        "text": "3.1 Ph\u1ea1m vi v\u00e0 t\u00e1c nh\u00e2n c\u1ee7a h\u1ec7 th\u1ed1ng",
+        "style": "Heading 2"
+      },
+      {
+        "para_index": 4,
+        "text": "3.1.1 Ph\u1ea1m vi h\u1ec7 th\u1ed1ng",
+        "style": "List Paragraph"
+      },
+      {
+        "para_index": 5,
+        "text": "GreenFarm ph\u1ee5c v\u1ee5 ho\u1ea1t \u0111\u1ed9ng b\u00e1n h\u00e0ng c\u1ee7a m\u1ed9t \u0111\u01a1n v\u1ecb kinh doanh n\u00f4ng s\u1ea3n. Kh\u00e1ch c\u00f3 th\u1ec3 t\u00ecm s\u1ea3n ph\u1ea9m, \u0111\u1eb7t h\u00e0ng v\u00e0 theo d\u00f5i",
+        "style": "Body Text"
+      }
+    ],
+    "direct_run_formatting": [
+      {
+        "para_index": 1,
+        "run_text": "CH\u01af\u01a0NG 3 PH\u00c2N T\u00cdCH THI\u1ebeT K\u1ebe H\u1ec6 TH\u1ed0NG",
+        "style": "Title"
+      },
+      {
+        "para_index": 2,
+        "run_text": "Ch\u01b0\u01a1ng n\u00e0y x\u00e1c \u0111\u1ecbnh y\u00eau c\u1ea7u v\u00e0 thi\u1ebft k\u1ebf h\u1ec7 th\u1ed1ng kinh doanh n\u00f4ng s\u1ea3n tr\u1ef1c tuy\u1ebfn ",
+        "style": "Body Text"
+      },
+      {
+        "para_index": 3,
+        "run_text": "3.1 Ph\u1ea1m vi v\u00e0 t\u00e1c nh\u00e2n c\u1ee7a h\u1ec7 th\u1ed1ng",
+        "style": "Heading 2"
+      },
+      {
+        "para_index": 4,
+        "run_text": "3.1.1 Ph\u1ea1m vi h\u1ec7 th\u1ed1ng",
+        "style": "List Paragraph"
+      },
+      {
+        "para_index": 5,
+        "run_text": "GreenFarm ph\u1ee5c v\u1ee5 ho\u1ea1t \u0111\u1ed9ng b\u00e1n h\u00e0ng c\u1ee7a m\u1ed9t \u0111\u01a1n v\u1ecb kinh doanh n\u00f4ng s\u1ea3n. Kh\u00e1ch c",
+        "style": "Body Text"
+      }
+    ]
+  },
+  "notes": [
+    "Direct formatting is not always wrong, but it often causes inconsistent output when templates change.",
+    "Heading-like paragraphs not using Heading styles can break TOC and accessibility."
+  ]
+}

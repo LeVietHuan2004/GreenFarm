@@ -1,0 +1,102 @@
+[
+  [
+    "context",
+    "Hình 3.1. Sơ đồ ngữ cảnh hệ thống GreenFarm"
+  ],
+  [
+    "use_overview",
+    "Hình 3.2. Sơ đồ use case tổng quát của GreenFarm"
+  ],
+  [
+    "use_shopping",
+    "Hình 3.3. Sơ đồ use case của khách vãng lai và khách hàng"
+  ],
+  [
+    "use_operations",
+    "Hình 3.4. Sơ đồ use case của quản trị và nhân viên vận hành"
+  ],
+  [
+    "seq_auth",
+    "Hình 3.5. Biểu đồ tuần tự xác thực và làm mới phiên"
+  ],
+  [
+    "seq_checkout",
+    "Hình 3.6. Biểu đồ tuần tự đặt hàng và giữ tồn kho"
+  ],
+  [
+    "seq_guest",
+    "Hình 3.7. Biểu đồ tuần tự đặt hàng khách và khôi phục kết quả"
+  ],
+  [
+    "seq_payment",
+    "Hình 3.8. Biểu đồ tuần tự xác minh thanh toán VNPAY"
+  ],
+  [
+    "seq_refund",
+    "Hình 3.9. Biểu đồ tuần tự yêu cầu và xác nhận hoàn tiền"
+  ],
+  [
+    "seq_delivery",
+    "Hình 3.10. Biểu đồ tuần tự vận hành và giao hàng nội bộ"
+  ],
+  [
+    "order_states",
+    "Hình 3.11. Sơ đồ trạng thái vòng đời đơn hàng"
+  ],
+  [
+    "seq_ghn",
+    "Hình 3.12. Biểu đồ tuần tự tạo vận đơn và nhận sự kiện GHN"
+  ],
+  [
+    "seq_inventory",
+    "Hình 3.13. Biểu đồ tuần tự giữ xuất và hoàn kho theo lô"
+  ],
+  [
+    "seq_chat",
+    "Hình 3.14. Biểu đồ tuần tự tư vấn bằng chatbot"
+  ],
+  [
+    "architecture",
+    "Hình 3.15. Kiến trúc tổng thể của hệ thống GreenFarm"
+  ],
+  [
+    "deployment",
+    "Hình 3.16. Sơ đồ triển khai GreenFarm trên Vercel và Railway"
+  ],
+  [
+    "ai",
+    "Hình 3.17. Luồng xử lý và kiểm soát dữ liệu của chatbot"
+  ],
+  [
+    "er_concept",
+    "Hình 3.18. Sơ đồ thực thể liên kết mức khái quát"
+  ],
+  [
+    "er_accounts",
+    "Hình 3.19. ERD nhóm tài khoản phiên và giỏ hàng"
+  ],
+  [
+    "er_commerce",
+    "Hình 3.20. ERD nhóm catalog đơn hàng và thanh toán"
+  ],
+  [
+    "er_inventory",
+    "Hình 3.21. ERD nhóm nhà cung cấp kho và phân bổ lô"
+  ],
+  [
+    "er_engagement",
+    "Hình 3.22. ERD nhóm ưu đãi điểm tương tác và giao nhận"
+  ],
+  [
+    "navigation",
+    "Hình 3.23. Sơ đồ điều hướng giao diện GreenFarm"
+  ],
+  [
+    "wire_store",
+    "Hình 3.24. Thiết kế bố cục trang mua sắm và checkout"
+  ],
+  [
+    "wire_admin",
+    "Hình 3.25. Thiết kế bố cục portal quản trị và màn kho"
+  ]
+]

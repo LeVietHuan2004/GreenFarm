@@ -1,6 +1,6 @@
 "use client";
 
-import { PackageOpen } from "lucide-react";
+import { MapPin, PackageOpen } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -35,7 +35,7 @@ export function ProductCard({ product }: { product: Product }) {
         <h3><Link href={`/products/${product.slug}`}>{product.name}</Link></h3>
         <p className="product-description">{product.description ?? "Nông sản được chọn lọc cho bữa ăn hằng ngày."}</p>
         <div className="product-meta-row">
-          <span>{product.category.name}</span>
+          <span className="product-origin"><MapPin size={12} aria-hidden="true" />{product.origin || product.category.name}</span>
           <span>{product.stock} còn lại</span>
         </div>
         <div className="product-card-footer">

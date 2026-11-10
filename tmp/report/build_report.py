@@ -72,7 +72,7 @@ story=[];tables=0
 for j,p in enumerate(parts):
  if p.startswith('# '):story.append(Paragraph(txt(p[2:]),styles['h1']))
  elif p.startswith('## '):
-  if 'Tài liệu tham khảo' in p:story.append(PageBreak())
+  if 'Tài liệu tham khảo' in p:story.append(Spacer(1,12))
   story.append(Paragraph(txt(p[3:]),styles['h2']))
  elif p.startswith('### '):story.append(Paragraph(txt(p[4:]),styles['h3']))
  elif p.startswith('[FIGURE:'):

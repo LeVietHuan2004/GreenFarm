@@ -1,0 +1,1233 @@
+558 CHƯƠNG 3: PHÂN TÍCH THIẾT KẾ HỆ THỐNG
+559 Phạm vi và tác nhân của hệ thống
+560 Phạm vi hệ thống
+561 Phạm vi TopikLearn được xác định theo Bảng 3.1.
+562 Bảng 3.1. Phạm vi triển khai của hệ thống
+563 
+
+TABLE 564
+Khía cạnh | Nội dung nằm trong phạm vi | Nội dung ngoài phạm vi hoặc chưa xác nhận
+Nghiệp vụ | Ôn luyện TOPIK; quản lý học liệu; lưu lịch sử và tiến độ | Tổ chức kỳ thi cấp chứng chỉ; xác nhận kết quả thay NIIED
+Người dùng | Khách, học viên và các vai trò quản trị được định nghĩa trong mã nguồn | Chưa có vai trò giảng viên độc lập ngoàiteacher_reviewer thuộc nhóm admin
+Đọc | Luyện theo dạng câu hỏi R01–R14; sinh đề đọc theo blueprint và snapshot; làm bài qua kho đề kỹ năng và phòng thi chung; chấm phía server | Chưa có bằng chứng về một bài thi TOPIK II đầy đủ đồng bộ cả ba kỹ năng trong một attempt
+Nghe | Danh mục bài nghe, audio, transcript, log nghe, lưu lượt luyện nghe đã chấm và thi thử nghe qua phòng thi chung | Chưa phân tích chi tiết ngữ điệu, trọng âm của người học
+Viết | Câu 51–54, nhập văn bản, upload ảnh, OCR, chấm AI, lịch sử và duyệt thủ công | Điểm AI không phải điểm thi chính thức; chưa có số liệu độ chính xác được kiểm chứng
+Củng cố kiến thức | Sổ tay, bộ thẻ, SM-2, phiên học, tài liệu, shadowing | Mục “Từ điển” trên sidebar đang ở trạng thái comingSoon, không phải chức năng hoàn chỉnh
+AI | Tra từ, phân tích câu, trợ lý, kế hoạch học, OCR/chấm viết, xử lý import, transcription và chấm phát âm tham khảo | Không có mô hình tự huấn luyện, RAG hoặc vector database
+Quản trị | Người dùng, audit, đề thi, bank đọc/nghe/viết, import, media, shadowing và cấu hình AI | Chưa có module thanh toán hoặc báo cáo tài chính dù map permission có tên tương ứng
+Dữ liệu | 52 khai báo bảng trong schema Data Connect cùng tệp media trên Storage | Kiểm kê database production, chính sách thời hạn lưu, sao lưu và khôi phục.
+Kỹ thuật | Web SPA, REST API, Firebase/GCP | Không có ứng dụng mobile native;
+565 
+566 
+
+TABLE 567
+Khía cạnh | Nội dung nằm trong phạm vi | Nội dung ngoài phạm vi hoặc chưa xác nhận
+ | và dịch vụ AI ngoài | chưa có message broker hoặc microservices
+Triển khai | Triển khai thực tế: frontend trên Vercel tại topiklearn.id.vn, backend đóng gói Docker chạy trên Render, Cloud SQL tại asia-southeast1 | Chưa có CI/CD tự động, giám sát tập trung, sao lưu định kỳ và kiểm thử tải
+568 Việc phân định trên ngăn các thành phần mới chỉ xuất hiện dưới dạng liên kết giao diện, permission dự phòng hoặc cấu hình model trở thành chức năng được mô tả sai trong báo cáo. Đặc biệt, các con số quảng bá tại trang chủ như số lượng câu hỏi và tỷ lệ chính xác chấm viết chưa có tập dữ liệu kiểm chứng nên không được sử dụng làm kết quả của đề tài.
+569 Các tác nhân của hệ thống
+570 Các tác nhân tham gia hệ thống được xác định dựa trên vai trò, phạm vi dữ liệu truy cập và các chức năng tương ứng, như trình bày trong Bảng 3.2.
+571 Bảng 3.2. Các tác nhân của hệ thống
+572 
+
+TABLE 573
+Mã | Tên | Vai trò | Quyền hạn/dữ liệu truy cập | Chức năng liên quan
+ACT-01 | Khách | Người chưa xác thực | Chỉ sử dụng nội dung công khai | Xem trang chủ, mở đăng ký/đăng nhập
+ACT-02 | Học viên | Người dùng đã có Firebase token và hồ sơ hoạt động; role hiện có thể là user hoặc premium_user | Dữ liệu học tập gắn với UID của chính mình | Luyện đọc, nghe, viết, sổ tay, AI, shadowing, kế hoạch và dashboard
+ACT-03 | Quản trị viên | Khái niệm tổng quát của sáu admin role | Tài nguyên quản trị theo permission phía backend | Quản lý người dùng, học liệu, import, cấu hình và audit
+ACT-04 | Firebase Authenticati on | Dịch vụ xác thực | Danh tính, provider đăng nhập và ID token | Đăng ký, đăng nhập, khôi phục phiên và xác minh token
+ACT-05 | Nền tảng dữ liệu | Firebase Data Connect và PostgreSQL | Dữ liệu nghiệp vụ có cấu trúc | Thực thi GraphQL/SQL và trả kết quả cho backend
+574 
+575 
+
+TABLE 576
+Mã | Tên | Vai trò | Quyền hạn/dữ liệu truy cập | Chức năng liên quan
+ACT-06 | Dịch vụ lưu trữ | Cloud Storage for Firebase | Tệp audio, ảnh và tài liệu | Upload, lưu và phân phối media qua URL
+ACT-07 | Dịch vụ AI | Gemini và Groq | Chỉ dữ liệu đầu vào cần cho từng tác vụ | OCR, structured output, phân tích, transcription và phản hồi
+ACT-08 | Dịch vụ giọng nói/nội dung | Lớp tích hợp Google Cloud Text-to-Speech và YouTube metadata | Script tiếng Hàn hoặc URL/video metadata | Sinh audio TTS khi cấu hình hoàn tất; lấy metadata video
+577 Sơ đồ ngữ cảnh hệ thống
+578 Dựa trên phạm vi và tác nhân đã xác định, sơ đồ ngữ cảnh của TopikLearn được trình bày tại Hình 3.1.
+579 
+IMAGE D:\GreenFarm\tmp\chapter3\image9.jpeg
+580 Hình 3.1. Sơ đồ ngữ cảnh của hệ thống
+581 Phân tích yêu cầu hệ thống
+582 Yêu cầu chức năng
+583 Các yêu cầu chức năng trong Bảng 3.3 được rút ra từ controller, service, route frontend và schema hiện có. Mức ưu tiên chỉ phục vụ phạm vi đồ án: “Cao” là điều kiện để hình thành luồng học hoặc quản trị cốt lõi; “Trung bình” là chức năng hỗ trợ.
+584 Bảng 3.3. Yêu cầu chức năng của TopikLearn
+585 
+586 
+
+TABLE 587
+Mã | Tên yêucầu | Tác nhân | Mô tả | Đầu vào | Đầu ra | Ưu tiên
+FR-01 | Đăng ký tài khoản | Khách | Tạo tài khoản email/mật khẩu bằng Firebase và đồng bộ hồ sơ | Họ tên, email, mật khẩu | Tài khoản và hồ sơ | Cao
+FR-02 | Đăng nhập | Khách | Đăng nhập bằng email hoặc Google | Thông tinxác thực | ID token, hồ sơ và role | Cao
+FR-03 | Quản lý hồ sơ | Học viên | Xem và cập nhật trường hồ sơ được phép | Họ tên, điện thoại, ngày sinh, địa chỉ | Hồ sơ cập nhật | Trung bình
+FR-04 | Kiểm soát quyền quản trị | Quản trịviên | Kiểm tra role và permission tại backend | Firebase principal, permission yêu cầu | Cho phép hoặc lỗi 403 | Cao
+FR-05 | Luyện đọc theo dạng | Học viên | Lấy bank/grou p đã sẵn sàng, giấu đáp án và chấm sau khi nộp | Bank code, group, đáp án | Điểm, đáp án và giải thích | Cao
+FR-06 | Sinh đề thi thử đọc | Học viên | Chọn nhóm câu theo blueprint và tạo bản chụp đề bất biến để nội dung không đổi sau khi bắt đầu làm bài | UID,blueprint | Attempt và đề không có đáp án | Cao
+FR-07 | Lưu/nộp | Học viên | Lưu lựa | Attempt | Trạng thái | Cao
+588 
+589 
+
+TABLE 590
+Mã | Tên yêucầu | Tác nhân | Mô tả | Đầu vào | Đầu ra | Ưu tiên
+ | bài đọc |  | chọn định kỳ và chấm trên bản chụp đề tại máy chủ | ID, đáp án | và kết quả | 
+FR-08 | Xem lịch sử đọc | Học viên | Lấy lịch sử luyện tập và lượt làm bài thuộc tài khoản đang đăng nhập | UID, phân trang | Danh sáchlịch sử | Trung bình
+FR-09 | Luyệnnghe | Học viên | Lấy group published và audio đã chọn mà không lộ answer key | Group ID | Nội dung, transcript và audio URL | Cao
+FR-10 | Lưu lognghe | Học viên | Ghi số lần nghe, tốc độ, vị trí và trạng thái transcript | Question ID, trạng thái player | Listening log | Trung bình
+FR-11 | Nộp bàinghe | Học viên | Chấm lựa chọn tại máy chủ, lưu lượt luyện nghe kèm bản chụp nhóm câu hỏi và trả kết quả từng câu | Group ID, đáp án, thời gian | Điểm, kết quả từng câu và bản ghi lịch sử luyện nghe | Cao
+FR-12 | Luyện viết | Học viên | Xem câu hỏi viết đã công khai theo dạng 51–54 | Loại câu,ID | Nội dung đề và barem lưu trong metadata | Cao
+591 
+592 
+
+TABLE 593
+Mã | Tên yêucầu | Tác nhân | Mô tả | Đầu vào | Đầu ra | Ưu tiên
+FR-13 | OCR bàiviết | Học viên | Upload ảnh hợp lệ và dùng Gemini nhận dạng văn bản | Ảnh JPG/PNG/ WEBPhoặc URL | Văn bản nhận dạng | Trung bình
+FR-14 | Chấm bài viết bằng AI | Học viên | Lưu submission trước, gọi Gemini và chuẩn hóa kết quả | Bài viết, câu hỏi, loại câu | Điểm/nhận xét tham khảo | Cao
+FR-15 | Lịch sử và duyệt bài viết | Học viên, quản trị viên | Xem bài đã nộp; admin ghi điểm/nhận xét thủ công khi có quyền hợp lệ | UID hoặc submission ID | Lịch sử/kết quả duyệt | Trung bình
+FR-16 | Quản lý sổ tay và bộ thẻ | Học viên | CRUD ghi chú, deck và từ vựng theo chủ sở hữu | Nội dung ghi chú/deck | Tài nguyênđã lưu | Cao
+FR-17 | Ôn theolịch | Học viên | Cập nhật ease factor, repetitions vàreview At từ mức đánh giá | Note ID, quality | Lịch ôn mới | Trung bình
+FR-18 | Lưu phiên học/tài liệu | Học viên | Lưu queue/vị trí phiên; upload và xem trước tài liệu hỗ trợ | Deck, mode, file | Phiên học hoặc preview | Trung bình
+FR-19 | Luyệnshadowing | Học viên | Xem lesson/seg ment, | Lesson, segment, văn | Điểm tham khảo dựa trên nhận | Trung bình
+594 
+595 
+
+TABLE 596
+Mã | Tên yêucầu | Tác nhân | Mô tả | Đầu vào | Đầu ra | Ưu tiên
+ |  |  | dictation, ghi âm và lưu progress | bản/audio | dạng giọng nói/độ tương đồng và tiến độ | 
+FR-20 | Tạo bài shadowing từ YouTube | Học viên | Tạo lesson xử lý bất đồng bộ từ URL công khai | URL, cấp độ | Lesson và trạng thái xử lý | Trung bình
+FR-21 | Quản trịshadowing | Quản trịviên | Quản lý channel, lesson, thứ tự, trạng thái và nguồn từ bank nghe | Dữ liệu channel/les son | Catalog đã cập nhật | Trung bình
+FR-22 | Cấu hìnhAI cá nhân | Học viên | Kết nối, kiểm tra hoặc xóa khóa Gemini/Gr oq đã mã hóa | Provider, API key | Trạng thái/maske d key | Cao
+FR-23 | Trợ lý ngôn ngữ | Học viên | Tra từ, phân tích câu và hỏi trợ lý bằng structured output | Văn bản tiếng Hàn/câu hỏi | Kết quả có cấu trúc | Trung bình
+FR-24 | Kế hoạch học tập | Học viên | Tạo/lưu kế hoạch theo cấp mục tiêu, ngày thi và thời lượng học; lưu cấu trúc tiến độ hiện có | Cấp mục tiêu, ngày thi, thời lượng | Kế hoạch và dữ liệu tiến độ | Trung bình
+FR-25 | Dashboardhọc viên | Học viên | Tổng hợp các chỉ số | UID | Các khối thống kê | Trung bình
+597 
+598 
+
+TABLE 599
+Mã | Tên yêucầu | Tác nhân | Mô tả | Đầu vào | Đầu ra | Ưu tiên
+ |  |  | hiện có; biểu đồ kỹ năng/điểm yếu/gần đây hiện chủ yếu dựa trên đọc, heatmap có thêm viết và shadowing |  | theo nguồn dữ liệu hiện có | 
+FR-26 | Gamificati on | Học viên | Tổng hợp XP, streak, badge, quest và mục tiêu ngày | Hoạt động học tập | Trạng thái gamificatio n | Trung bình
+FR-27 | Quản trị người dùng/audit | Quản trịviên | Tìm kiếm, cập nhật role/trạng thái và xem nhật ký theo permission | Bộ lọc, lệnh cập nhật | Dữ liệu hoặc audit log | Cao
+FR-28 | Quản trị học liệu | Quản trịviên | CRUD,validate, archive/pu blish bank đọc, nghe, viết và đề thi | Dữ liệu học liệu | Nội dung có trạng thái | Cao
+FR-29 | Import học liệu | Quản trịviên | Import Excel hoặc pipeline job/candid ate cho PDF,DOCX và audio | File, metadata | Job, candidate hoặc nội dung materialize d | Cao
+FR-30 | Quản lýmedia/TTS | Quản trịviên | Upload/chọn phiên | File hoặcscript/voic | Media URL và | Trung bình
+600 
+601 
+
+TABLE 602
+Mã | Tên yêucầu | Tác nhân | Mô tả | Đầu vào | Đầu ra | Ưu tiên
+ |  |  | bản audio, ảnh và gọi Google TTS khi đã cấu hình | e | trạng thái | 
+FR-31 | Cấu hình AI hệ thống | Quản trịviên | Quản lý provider, model, test kết nối và routing policy | Key, model, policy | Cấu hình đã che khóa | Cao
+FR-32 | Tạo thi thử nghe | Học viên | Học viên chọn đề nghe đã công bố; hệ thống tạo một attempt riêng, đóng băng nội dung đề và không trả đáp án trước khi nộp. | Test ID, Firebase token | Attempt ID,snapshot đề, câu hỏi, audio URL, thời lượng | Cao
+FR-33 | Lưu, nộp và chấm thi thử nghe | Học viên | Hệ thống lưu đáp án theo attempt, tự nộp khi hết giờ và chấm đáp án khách quan tại server. | Attempt ID, đáp án, thời gian làm | Điểm nghe, kết quả từng câu, trạng thái attempt hoàn thành | Cao
+FR-34 | Tạo bài thi thử viết | Học viên | Học viên chọn đề | Test ID, Firebase | AttemptID, đề viết, | Cao
+603 
+604 
+
+TABLE 605
+Mã | Tên yêucầu | Tác nhân | Mô tả | Đầu vào | Đầu ra | Ưu tiên
+ |  |  | viết đã công bố; hệ thống tạo attempt riêng, lưu snapshot đề/barem và cho phép làm bài trong thời gian quy định. | token | barem,thời lượng | 
+FR-35 | Lưu, nộp và chấm thi thử viết | Học viên, Giáo viên/AI | Hệ thống autosave bài viết, khóa attempt khi nộp hoặc hết giờ và điều phối chấm theo rubric, giáo viên hoặc AI tham khảo. | Attempt ID, nội dung bài viết, thời gian làm | Bài nộp đã lưu, trạng thái chấm, điểm/nhận xét khi có | Cao
+606 Yêu cầu phi chức năng
+607 Bên cạnh yêu cầu chức năng, hệ thống còn có các yêu cầu phi chức năng nhằm đảm bảo vận hành ổn định, an toàn và thuận tiện. Các yêu cầu trong Bảng 3.4 được xác định theo kiến trúc và phạm vi đồ án, trong đó mức “Cao” áp dụng cho các tiêu chí cốt lõi, còn “Trung bình” dành cho các tiêu chí hỗ trợ chất lượng và trải nghiệm người dùng.
+608 Bảng 3.4. Yêu cầu phi chức năng
+609 
+
+TABLE 610
+Mã | Nhóm | Nội dung | Tiêu chí kiểm chứng | Ưu tiên
+NFR-01 | Xác thực | API bảo vệ yêu cầu Firebase Bearer token hợp lệ | Thiếu/sai token nhận HTTP 401 | Cao
+NFR-02 | Phânquyền | Chức năng admin kiểm tra permission tại backend | Role/permission không phù hợp nhận HTTP 403 | Cao
+611 
+612 
+
+TABLE 613
+Mã | Nhóm | Nội dung | Tiêu chí kiểm chứng | Ưu tiên
+NFR-03 | Cô lập dữ liệu | Tài nguyên cá nhân được lọc theo UID từ principal | Không thể đọc/sửa tài nguyên khác chủ bằng UID trong request | Cao
+NFR-04 | Bí mật | Khóa AI lưu dưới dạng AES-GCM hoặc biến môi trường; response chỉ trả masked key/trạng thái | Không có khóa nguyên bản trong response và log thông thường | Cao
+NFR-05 | Bảo vệ đáp án | Payload bài đang làm không chứa đáp án đúng/lời giải | Kiểm tra response trước nộp và response sau nộp | Cao
+NFR-06 | Toàn vẹn | Validate DTO, template, trạng thái và quan hệ trước khi ghi/publish | Dữ liệu sai trả lỗi 4xx; candidate chưa xác nhận không materialize | Cao
+NFR-07 | Khả năng phục hồi AI | Luồng qua router có circuit breaker, model/provider fallback và kiểm tra schema | Mô phỏng timeout/429/5xx và đầu ra sai schema | Cao
+NFR-08 | Khôngmất bài | Submission viết được tạo trước khi gọi AI; job import giữ trạng thái lỗi | AI lỗi vẫn truy xuất được bài/job | Cao
+NFR-09 | Hiệu năng truyền tải | Nén response phù hợp và phân trang danh sách lớn | JSON từ 1 KiB được cấu hình nén; limit được chặn tại controller/service liên quan | Trung bình
+NFR-10 | Thời gian phản hồi | Các ngưỡng cho API nghiệp vụ phải được đo thay vì suy đoán | p50/p95 và tải đồng thời tại Chương 5 | Trung bình
+NFR-11 | Độ chínhxác AI | OCR/chấm viết/phát âm phải được đánh giá trên tập dữ liệu có nhãn | bộ dữ liệu, thước đo và ngưỡng chấp nhận | Cao
+NFR-12 | Khả dụng | UI có trạng thái loading/error/empty; API có health endpoint | Kiểm thử các trạng thái chính;/actuator/ health không lộ chi | Trung bình
+614 
+615 
+
+TABLE 616
+Mã | Nhóm | Nội dung | Tiêu chí kiểm chứng | Ưu tiên
+ |  |  | tiết công khai | 
+NFR-13 | Bảo trì | Module nghiệp vụ có biên rõ; DTO tách khỏi model; lỗi chuẩn hóa | Có thể xác định controller/service/rep ository theo module; ngoại lệ trả mã ổn định | Trung bình
+NFR-14 | Quan sát | Lỗi kỹ thuật ghi file log; audit admin được ghi theo cơ chế best effort | Có log tại đường dẫn cấu hình; kiểm tra bản ghiadmin_audit_ logs nhưng lỗi audit không rollback thao tác chính | Trung bình
+NFR-15 | Tươngthích | SPA hoạt động trên trình duyệt hiện đại và layout thích nghi màn hình | Ma trận trình duyệt/thiết bị và kết quả kiểm thử | Trung bình
+NFR-16 | Sao lưu/khôi phục | Phải có quy trình sao lưu DB và Storage | RPO, RTO và quy trình phục hồi | Cao
+NFR-17 | Mở rộng | Phiên bản hiện tại mở rộng theo modular monolith; chưa có nhu cầu scale module độc lập được chứng minh | Theo dõi tải thực tế trước khi cân nhắc tách dịch vụ | Thấp
+617 Phân tích use case
+618 Sơ đồ use case tổng quát
+619 Sơ đồ use case tổng quát được thể hiện qua Hình 3.2 chỉ mô tả mục tiêu của tác nhân, không biểu diễn Data Connect hoặc PostgreSQL như use case nghiệp vụ.
+620 Khách thực hiện đăng ký hoặc đăng nhập. Học viên kế thừa trạng thái đã xác thực để sử dụng các phân hệ học tập và xem dữ liệu của mình. Quản trị viên cũng phải đăng nhập, sau đó backend kiểm tra thêm role và permission trước mỗi thao tác bảo vệ. Quan hệ include chỉ được sử dụng cho bước bắt buộc như xác thực, kiểm tra permission, lưu submission trước khi chấm và tạo snapshot trước khi thi. Quan hệ extend được dùng cho nhánh tùy chọn như OCR khi bài viết được nộp bằng ảnh hoặc tạo shadowing từ URL mới.
+621 
+622 
+IMAGE D:\GreenFarm\tmp\chapter3\image10.jpeg
+623 Hình 3.2. Sơ đồ use case tổng quát của hệ thống
+624 
+625 Use case của học viên
+626 
+IMAGE D:\GreenFarm\tmp\chapter3\image11.jpeg
+627 Hình 3.3. Sơ đồ use case của học viên
+628 Use case học viên được tổ chức thành năm nhóm: tài khoản; luyện đọc/nghe/viết; sổ tay và shadowing; công cụ AI/kế hoạch; dashboard và gamification. Các nhóm dùng chung bước xác thực nhưng không được mô tả bằng quá nhiều quan hệ `include`, vì xác thực là tiền điều kiện chung chứ không phải một mục tiêu nghiệp vụ được lặp lại trên mọi đường nối.
+629 
+630 Use case của quản trị viên
+631 
+IMAGE D:\GreenFarm\tmp\chapter3\image12.jpeg
+632 Hình 3.4. Sơ đồ use case của quản trị viên
+633 Sơ đồ quản trị phân nhóm theo tài nguyên: người dùng và audit; ngân hàng học liệu; đề thi; import/media; shadowing; cấu hình AI. “Quản trị viên” là tác nhân tổng quát, còn quyền thực hiện từng use case do backend quyết định. Việc một mục xuất hiện trên sidebar không chứng minh người dùng có quyền gọi API; hiện frontend chỉ ẩn có điều kiện một số mục, trong khi backend mới là lớp kiểm soát cuối cùng.
+634 Danh sách use case
+635 
+636 Đặc tả use case tài khoản
+637 3.3.4.1-a. UC-01 — Đăng ký tài khoản
+638 Chức năng đăng ký tài khoản được đặc tả trong Bảng 3.5.
+639 Bảng 3.5: Đặc tả chức năng Đăng ký tài khoản
+640 
+
+TABLE 641
+Thuộc tính | Nội dung
+Usecase ID | UC-01
+Tênuse case | Đăng ký tài khoản
+Mô tả | Là khách, tôi muốn tạo tài khoản bằng email và mật khẩu để có thể đăng nhập và sử dụng khu vực học tập của TopikLearn.
+Tác nhân | Khách; Firebase Authentication; backend TopikLearn; nền tảng dữ liệu.
+Độ ưu tiên | Bắt buộc
+Sựkiện kích hoạt | Khách chọn Đăng ký trong hộp thoại xác thực trên trang chủ.
+Điềukiện tiên quyết | Người dùng chưa đăng nhập; email chưa được Firebase Authentication sử dụng; họ tên, email và mật khẩu đạt kiểm tra của giao diện/Firebase.
+Điềukiệnsau | Thành công: Firebase user, phiên xác thực và hồ sơ TopikLearn gắn với Firebase UID được tạo hoặc đồng bộ với role mặc định user. Thất bại: không hình thành phiên ứng dụng hợp lệ.
+Luồngchính | Khách mở hộp thoại xác thực và chọn chế độ đăng ký.Khách nhập họ tên, email, mật khẩu rồi xác nhận.Frontend kiểm tra dữ liệu bắt buộc và yêu cầu Firebase tạo tài khoản.Firebase trả người dùng cùng ID token.Frontend gọi POST /api/v1/auth/sync kèm token.Backend lấy UID từ principal, tạo/đồng bộ hồ sơ với role user.Frontend cập nhật phiên và chuyển người dùng vào khu vực học tập.
+Luồng thay thế | Không có luồng đăng ký Google được xác nhận trong implementation đăng ký hiện tại.
+Luồng ngoại lệ | E1. Email đã tồn tại: Firebase từ chối, giao diện yêu cầu email khác. E2. Email, mật khẩu hoặc dữ liệu bắt buộc không hợp lệ: dừng trước khi đồngbộ. E3. Tạo Firebase user thành công nhưng sync backend thất bại: frontend không coi hồ sơ TopikLearn đã đồng bộ; người dùng có thể đăng nhập lạiđểsync. E4. Token thiếu/không hợp lệ: backend trả HTTP 401.
+642 Biểu đồ tuần tự chức năng Đăng ký được thể hiện trong hình 3.5.
+643 
+644 
+IMAGE D:\GreenFarm\tmp\chapter3\image13.png
+645 Hình 3.5: Biểu đồ tuần tự chức năng Đăng ký 3.3.4.1-b. UC-02 — Đăng nhập/đăng xuất
+646 Chức năng đăng nhập/đăng xuất được đặc tả trong Bảng 3.6.
+647 Bảng 3.6: Đặc tả chức năng Đăng nhập/đăng xuất
+648 
+
+TABLE 649
+Thuộctính | Nội dung
+Use case ID | UC-02
+Tên use case | Đăng nhập/đăng xuất
+Mô tả | Cho phép khách xác thực bằng email/mật khẩu hoặc Google; cho phép người dùng đã có phiên đăng xuất khỏi ứng dụng.
+Tác nhân | Khách, học viên, quản trị viên; Firebase Authentication; backend TopikLearn.
+Độ ưutiên | Bắt buộc
+Sự kiện kích hoạt | Khách chọn Đăng nhập, hoặc người dùng đang có phiên chọn Đăng xuất.
+Điều kiện tiên quyết | Đăng nhập: có tài khoản Firebase hợp lệ. Đăng xuất: frontend đang giữ phiên Firebase.
+Điều kiệnsau | Đăng nhập thành công: frontend có phiên, hồ sơ và role đã đồng bộ. Đăng xuất thành công: Firebase session và dữ liệu phiên/cache phía client được xóa, người dùng trở về trang chủ.
+Luồngchính | Người dùng mở hộp thoại đăng nhập.Người dùng chọn email/mật khẩu hoặc Google.
+650 
+651 
+
+TABLE 652
+ | Firebase xác thực và cấp ID token.Frontend gọi POST /api/v1/auth/sync để lấy/đồng bộ hồ sơ và role.5. Frontend điều hướng tới khu vực học; quyền quản trị tiếp tục được kiểm tra ở UC-13.6. Khi đăng xuất, frontend gọi Firebase sign-out.7. Frontend xóa dữ liệu phiên/cache và chuyển về trang chủ.
+Luồng thay thế | A1. Với Google, frontend mở popup của nhà cung cấp; sau khi Firebase cấp ID token, hệ thống tiếp tục từ bước 4.
+Luồng ngoại lệ | E1. Sai thông tin, bị Firebase từ chối hoặc hủy popup Google: không tạo phiên.E2. ID token hết hạn/không hợp lệ: backend trả HTTP 401.E3. Hồ sơ không hoạt động hoặc role không phù hợp: API đích có thể từ chối dù Firebase đã xác thực.
+653 Biểu đồ tuần tự chức năng Đăng nhập/đăng xuất được thể hiện trong hình 3.6.
+654 
+IMAGE D:\GreenFarm\tmp\chapter3\image14.png
+655 Hình 3.6: Biểu đồ tuần tự chức năng Đăng nhập/đăng xuất 3.3.4.1-c. UC-03 — Quản lý hồ sơ
+656 Chức năng quản lý hồ sơ được đặc tả trong Bảng 3.7.
+657 Bảng 3.7: Đặc tả chức năng Quản lý hồ sơ
+658 
+
+TABLE 659
+Thuộc tính | Nội dung
+Use case ID | UC-03
+Tên use case | Quản lý hồ sơ
+Mô tả | Cho phép học viên xem và cập nhật các trường hồ sơ cá nhân mà hệ thống hỗ trợ.
+Tác nhân | Học viên; backend TopikLearn; nền tảng dữ liệu.
+Độ ưu tiên | Cao
+660 
+661 
+
+TABLE 662
+Sự kiện kích hoạt | Học viên mở trang hồ sơ hoặc gửi biểu mẫu cập nhật.
+Điều kiện tiên quyết | Học viên đã đăng nhập, token hợp lệ, hồ sơ đang hoạt động.
+Điều kiện sau | Dữ liệu hợp lệ được lưu đúng UID; dữ liệu của người dùng khác không bị đọc hoặc thay đổi.
+Luồng chính | Học viên mở trang hồ sơ.Frontend gửi yêu cầu có Firebase Bearer token.Backend lấy UID từ principal và tải hồ sơ tương ứng.Học viên sửa các trường được phép: họ tên, số điện thoại, ngày sinh hoặc địa chỉ.Frontend gửi cập nhật.Backend kiểm tra, ghi hồ sơ theo UID và trả phiên bản mới.Frontend cập nhật thông tin hiển thị.
+Luồng thay thế | A1. Học viên chỉ xem hồ sơ và không gửi thay đổi; hệ thống không tạo bản ghi cập nhật.
+Luồng ngoại lệ | E1. Token thiếu/hết hạn: HTTP 401.E2. Dữ liệu sai định dạng/thiếu trường: trả lỗi 4xx và giữ dữ liệu cũ.E3. Không có hồ sơ hoạt động: trả lỗi tương ứng, không chuyển sang hồ sơ của UID khác.
+663 Biểu đồ tuần tự chức năng Quản lý hồ sơ được thể hiện trong hình 3.7.
+664 
+IMAGE D:\GreenFarm\tmp\chapter3\image15.png
+665 
+666 Hình 3.7: Biểu đồ tuần tự chức năng Quản lý hồ sơ
+667 Đặc tả use case học viên
+668 3.3.4.2-a. UC-04 — Luyện đọc theo dạng
+669 Chức năng luyện đọc theo dạng được đặc tả trong Bảng 3.8.
+670 Bảng 3.8: Đặc tả chức năng Luyện đọc theo dạng
+671 
+
+TABLE 672
+Thuộc tính | Nội dung
+Use case ID | UC-04
+Tên use case | Luyện đọc theo dạng
+Mô tả | Cung cấp group câu hỏi đọc hợp lệ, che đáp án trước khi nộp và chấm kết quả tại server.
+Tác nhân | Học viên; backend TopikLearn; nền tảng dữ liệu.
+Độ ưu tiên | Cao
+Sự kiện kích hoạt | Học viên chọn dạng/bank luyện đọc và bắt đầu luyện tập.
+Điều kiện tiên quyết | Đã đăng nhập; tồn tại bank/group ở trạng thái được phép phục vụ.
+Điều kiện sau | Bài nộp được chấm; log luyện đọc thuộc UID được lưu để xem lịch sử và tổng hợp sau này.
+Luồng chính | Học viên chọn dạng bài đọc.Frontend yêu cầu group phù hợp.Backend lọc theo trạng thái và loại correctAnswer, explanation khỏi payload.Frontend hiển thị bài đọc, câu hỏi và phương án.Học viên chọn đáp án, rồi nộp bài.Backend chấm trên dữ liệu tin cậy và ghi log theo UID.Hệ thống trả điểm, đáp án và lời giải sau nộp.Học viên có thể mở lịch sử của chính mình.
+Luồng thay thế | A1. Học viên đổi lựa chọn trước khi nộp; frontend chỉ gửi bộ đáp án cuối cùng.
+Luồng ngoại lệ | E1. Không có group đúng trạng thái: trả trạng thái không có dữ liệu, không dùng nội dung nháp.E2. Group/đáp án không hợp lệ: lỗi 4xx.E3. Token không hợp lệ: HTTP 401 và không ghi log.
+673 Biểu đồ tuần tự chức năng Luyện đọc theo dạng được thể hiện trong hình 3.8.
+674 
+675 
+IMAGE D:\GreenFarm\tmp\chapter3\image16.png
+676 Hình 3.8: Biểu đồ tuần tự chức năng Luyện đọc theo dạng 3.3.4.2-b. UC-05 — Làm bài thi thử đọc
+677 Chức năng làm bài thi thử đọc được đặc tả trong Bảng 3.9.
+678 Bảng 3.9: Đặc tả chức năng Làm bài thi thử đọc
+679 
+
+TABLE 680
+Thuộc tính | Nội dung
+Use case ID | UC-05
+Tên use case | Làm bài thi thử đọc
+Mô tả | Tạo đề theo blueprint, đóng băng nội dung bằng snapshot, lưu đáp án và chấm attempt của học viên.
+Tác nhân | Học viên; backend TopikLearn; nền tảng dữ liệu.
+Độ ưu tiên | Cao
+Sự kiện kích hoạt | Học viên chọn bắt đầu đề thi thử đọc.
+Điều kiện tiên quyết | Đã đăng nhập; blueprint và các group nguồn đáp ứng điều kiện sinh đề.
+Điều kiện sau | Attempt thuộc UID có snapshot bất biến; khi nộp, điểm được chấm trên snapshot và có thể xem trong lịch sử.
+Luồng chính | Học viên chọn blueprint/đề và yêu cầu bắt đầu.Backend xác thực UID, chọn group theo blueprint và tạo snapshot.Backend tạo attempt liên kết snapshot, trả đề đã che đáp án.Học viên làm bài; frontend định kỳ lưu đáp án.Backend kiểm tra quyền sở hữu attempt trước khi cập nhật.Học viên xác nhận nộp.Backend chấm trên snapshot, chuyển attempt sang hoàn thành và
+681 
+682 
+
+TABLE 683
+ | trả kết quả.8. Học viên xem lại attempt/lịch sử của mình.
+Luồng thay thế | A1. Học viên rời trang rồi mở lại attempt còn hợp lệ; hệ thống dùng dữ liệu đã autosave để tiếp tục.
+Luồng ngoại lệ | E1. Blueprint thiếu dữ liệu hoặc không đủ group: không tạo attempt hoàn chỉnh.E2. Attempt không thuộc UID: từ chối truy cập.E3. Attempt đã hoàn thành/trạng thái không cho phép: từ chối lưu hoặc nộp lặp lại.E4. Autosave lỗi: frontend thông báo để học viên không hiểu nhầm dữ liệu đã được ghi.
+684 Biểu đồ tuần tự chức năng Làm bài thi thử đọc được thể hiện trong hình 3.9.
+685 
+IMAGE D:\GreenFarm\tmp\chapter3\image17.png
+686 Hình 3.9: Biểu đồ tuần tự chức năng Làm bài thi thử đọc 3.3.4.2-c. UC-06 — Luyện nghe
+687 Chức năng luyện nghe được đặc tả trong Bảng 3.10.
+688 Bảng 3.10: Đặc tả chức năng Luyện nghe
+689 
+
+TABLE 690
+Thuộc tính | Nội dung
+Use case ID | UC-06
+Tên use case | Luyện nghe
+Mô tả | Cho học viên nghe audio của group đã công khai, lưu trạng thái phát và nhận kết quả chấm mà không lộ đáp án trước khi nộp.
+Tác nhân | Học viên; backend TopikLearn; Firebase Storage; nền tảng dữ liệu.
+Độ ưu tiên | Cao
+Sự kiện kích | Học viên chọn một bài/group luyện nghe.
+691 
+692 
+
+TABLE 693
+hoạt | 
+Điều kiện tiên quyết | Đã đăng nhập; group published và có audio có thể phục vụ.
+Điều kiệnsau | Listening log được ghi khi có yêu cầu cập nhật; lần nộp được chấm và trả kết quả cho client.
+Luồng chính | Frontend tải danh sách group công khai.Học viên chọn group; backend trả audio, transcript, câu hỏi và che đáp án/lời giải.Học viên phát audio, đổi tốc độ/vị trí hoặc hiển thị transcript.Frontend gửi trạng thái player; backend lưu listening log theo UID/question.Học viên chọn đáp án và nộp.Backend chấm tại server.Hệ thống trả điểm và phản hồi lần nộp.
+Luồng thay thế | A1. Học viên nghe lại hoặc đổi tốc độ; listening log được cập nhật theo trạng thái mới.
+Luồng ngoại lệ | E1. Group chưa published, không tồn tại hoặc thiếu audio: không phục vụ bài hoàn chỉnh.E2. Đáp án sai cấu trúc: lỗi 4xx.E3. Audio URL không truy cập được: frontend báo lỗi phát, không suy diễn bài đã hoàn thành.
+694 Biểu đồ tuần tự chức năng Luyện nghe được thể hiện trong hình 3.10.
+695 
+IMAGE D:\GreenFarm\tmp\chapter3\image18.png
+696 Hình 3.10: Biểu đồ tuần tự chức năng Luyện nghe
+697 
+698 3.3.4.2-d. UC-07 — Luyện viết và nhận phản hồi AI
+699 Chức năng luyện viết và nhận phản hồi AI được đặc tả trong Bảng 3.11.
+700 Bảng 3.11: Đặc tả chức năng Luyện viết và nhận phản hồi AI
+701 
+
+TABLE 702
+Thuộc tính | Nội dung
+Use case ID | UC-07
+Tên use case | Luyện viết và nhận phản hồi AI
+Mô tả | Cho học viên chọn đề TOPIK 51–54, nhập hoặc OCR bài từ ảnh, lưu submission và nhận điểm/nhận xét tham khảo từ Gemini.
+Tác nhân | Học viên; backend TopikLearn; Firebase Storage; Google Gemini.
+Độ ưu tiên | Cao
+Sự kiện kích hoạt | Học viên chọn câu hỏi viết và gửi bài văn hoặc ảnh bài làm.
+Điều kiện tiên quyết | Đã đăng nhập; câu hỏi công khai; nội dung/tệp ảnh đạt kiểm tra đầu vào.
+Điều kiệnsau | Submission luôn được tạo trước lời gọi AI. Nếu chấm thành công, kết quả đã chuẩn hóa gắn với submission; nếu AI lỗi, bài vẫn tồn tại ở trạng thái failed.
+Luồngchính | Frontend tải câu hỏi viết công khai dạng 51–54.Học viên chọn đề, nhập bài và gửi chấm.Backend kiểm tra câu hỏi, loại bài, nội dung và chủ sở hữu.Backend tạo submission.Backend gửi dữ liệu/barem phù hợp tới Gemini.Backend kiểm tra JSON, chuẩn hóa điểm theomaxScore và dạng câu.Backend cập nhật submission với điểm, nhận xét, lỗi ngữ pháp/gợi ý từ vựng.Frontend hiển thị phản hồi và lịch sử của học viên.
+Luồng thay thế | A1. Học viên gửi ảnh JPG/PNG/WEBP: hệ thống upload ảnh, dùng OCR rồi cho phép chỉnh văn bản OCR trước khi nộp chấm.
+Luồng ngoại lệ | E1. Câu hỏi không công khai, sai loại hoặc nội dung rỗng: từ chối. E2. Ảnh sai định dạng/quá giới hạn/URL sai: không OCR.E3. Gemini timeout, lỗi hoặc sai schema: cập nhật submission thànhfailed, không mất nội dung bài.
+703 Biểu đồ tuần tự chức năng luyện viết , chấm điểm AI được trình bày trong Hình
+704 3.11.
+705 
+706 
+IMAGE D:\GreenFarm\tmp\chapter3\image19.png
+707 Hình 3.11: Biểu đồ tuần tự chức năng Luyện viết và nhận phản hồi AI 3.3.4.2-e. UC-08 — Quản lý sổ tay và ôn flashcard
+708 Chức năng quản lý sổ tay và ôn flashcard được đặc tả trong Bảng 3.12.
+709 Bảng 3.12: Đặc tả chức năng Quản lý sổ tay và ôn flashcard
+710 
+
+TABLE 711
+Thuộc tính | Nội dung
+Use case ID | UC-08
+Tên use case | Quản lý sổ tay và ôn flashcard
+Mô tả | Cho phép học viên quản lý deck, ghi chú/từ vựng, ôn thẻ theo lặp lại ngắt quãng và lưu trạng thái phiên học/tài liệu hỗ trợ.
+Tác nhân | Học viên; backend TopikLearn; nền tảng dữ liệu; dịch vụ lưu trữ tài liệu.
+Độ ưu tiên | Cao
+Sự kiện kích hoạt | Học viên mở sổ tay, tạo/sửa tài nguyên hoặc bắt đầu phiên ôn tập.
+Điều kiện tiên quyết | Đã đăng nhập; deck/note/document được truy cập phải thuộc UID của học viên.
+Điều kiệnsau | Dữ liệu hợp lệ và lịch ôn được cập nhật theo UID; tài nguyên người dùng khác không bị tác động.
+Luồng chính | Học viên xem danh sách deck/note của mình.Học viên tạo, sửa hoặc xóa deck/note/từ vựng hợp lệ.Backend kiểm tra UID, validate và lưu thay đổi.Học viên bắt đầu phiên flashcard.Backend tải các thẻ đến hạn/có thể học.Học viên trả lời và chọn quality.
+712 
+713 
+
+TABLE 714
+ | Backend cập nhật repetitions, ease factor, mastery vàreviewAt.Hệ thống trả thẻ/lịch ôn tiếp theo.
+Luồng thay thế | A1. Học viên đính kèm hoặc quản lý tài liệu hỗ trợ thuộc sổ tay theo thao tác được hỗ trợ.
+Luồng ngoại lệ | E1. Quality hoặc dữ liệu thẻ không hợp lệ: lỗi 4xx, không cập nhật lịch ôn.E2. Tài nguyên không thuộc UID: không cho đọc/sửa/xóa.
+715 Biểu đồ tuần tự chức năng Quản lý sổ tay và ôn flashcard được thể hiện trong hình
+716 3.12.
+717 
+IMAGE D:\GreenFarm\tmp\chapter3\image20.png
+718 Hình 3.12: Biểu đồ tuần tự chức năng Quản lý sổ tay và ôn flashcard 3.3.4.2-f. UC-09 — Luyện shadowing
+719 Chức năng luyện shadowing được đặc tả trong Bảng 3.13.
+720 Bảng 3.13: Đặc tả chức năng Luyện shadowing
+721 
+
+TABLE 722
+Thuộc tính | Nội dung
+Use case ID | UC-09
+Tên use case | Luyện shadowing
+Mô tả | Cho học viên luyện nghe–nhắc lại theo lesson/segment, làm dictation hoặc phát âm, nhận điểm tham khảo và lưu tiến độ.
+Tác nhân | Học viên; backend TopikLearn; dịch vụ lưu trữ; Gemini/Groq;YouTube metadata.
+Độ ưu tiên | Trung bình
+Sự kiện kích hoạt | Học viên chọn lesson shadowing hoặc yêu cầu tạo lesson từ URL YouTube công khai.
+723 
+724 
+
+TABLE 725
+Điều kiện tiên quyết | Đã đăng nhập; lesson công khai hoặc thuộc sở hữu học viên; segment hợp lệ.
+Điều kiệnsau | Attempt dictation/phát âm và progress được lưu; lesson tạo mới có job bất đồng bộ để theo dõi trạng thái.
+Luồng chính | Frontend tải catalog lesson công khai và lesson thuộc người dùng.Học viên chọn lesson, segment và hình thức luyện.Hệ thống cung cấp nội dung/audio được phép.Học viên gửi văn bản dictation hoặc audio phát âm.Backend xử lý nhận dạng/độ tương đồng và lưu attempt.Backend cập nhật progress theo UID.Frontend hiển thị kết quả tham khảo và tiến độ.
+Luồng thay thế | A1. Học viên gửi URL YouTube kèm cấp độ: backend tạo lesson/job bất đồng bộ, lấy metadata và cập nhật trạng thái khi hoàn tất.A2. Chủ sở hữu chia sẻ hoặc hủy chia sẻ lesson cá nhân theo chức năng hiện có.
+Luồng ngoại lệ | E1. URL/video không hợp lệ, bị hạn chế hoặc không lấy được metadata: job lỗi.E2. Audio ghi âm không hợp lệ/dịch vụ nhận dạng lỗi: không trả kết quả thành công.E3. Truy cập lesson riêng của người khác: backend từ chối.
+726 Biểu đồ tuần tự chức năng Luyện shadowing được thể hiện trong hình 3.13.
+727 
+IMAGE D:\GreenFarm\tmp\chapter3\image21.png
+728 Hình 3.13: Biểu đồ tuần tự chức năng Luyện shadowing 3.3.4.2-g. UC-10 — Sử dụng trợ lý/cấu hình AI
+729 Chức năng sử dụng trợ lý và cấu hình AI được đặc tả trong Bảng 3.14.
+730 Bảng 3.14: Đặc tả chức năng Sử dụng trợ lý/cấu hình AI
+731 
+732 
+
+TABLE 733
+Thuộc tính | Nội dung
+Use case ID | UC-10
+Tên use case | Sử dụng trợ lý/cấu hình AI
+Mô tả | Cho học viên lưu cấu hình Gemini/Groq cá nhân và dùng tra từ, phân tích câu hoặc trợ lý tiếng Hàn.
+Tác nhân | Học viên; backend TopikLearn; Google Gemini; Groq.
+Độ ưu tiên | Cao
+Sự kiện kích hoạt | Học viên mở cài đặt AI hoặc gửi yêu cầu tới công cụ ngôn ngữ.
+Điều kiện tiên quyết | Đã đăng nhập; provider/routing có cấu hình khả dụng; đầu vào đạt giới hạn API.
+Điều kiệnsau | Cấu hình cá nhân hợp lệ được lưu ở dạng bảo vệ hoặc kết quả AI có cấu trúc được trả về; khóa nguyên bản không xuất hiện trong response.
+Luồng chính | Học viên chọn Gemini/Groq trong cài đặt.Học viên nhập API key; backend validate và lưu mã hóa.Học viên yêu cầu kiểm tra kết nối.Backend gọi provider và chỉ trả trạng thái/masked key.Học viên gửi từ/câu/câu hỏi tới công cụ AI.Backend chọn provider/model, gọi dịch vụ, kiểm tra output.Frontend hiển thị kết quả có cấu trúc.
+Luồng thay thế | A1. Học viên xóa khóa cá nhân; backend xóa bí mật và cập nhật trạng thái.A2. Khi cấu hình cho phép, router có thể chọn provider/model dự phòng.
+Luồng ngoại lệ | E1. Khóa sai/provider từ chối: không báo cấu hình sẵn sàng.E2. Timeout, rate limit, 429/5xx hoặc sai schema: trả lỗi chuẩn hóa hoặc fallback nếu hỗ trợ.E3. Đầu vào không hợp lệ/vượt giới hạn: từ chối trước khi gọi provider.
+734 Biểu đồ tuần tự chức năng Sử dụng trợ lý/cấu hình AI được thể hiện trong hình
+735 3.14.
+736 
+737 
+IMAGE D:\GreenFarm\tmp\chapter3\image22.png
+738 Hình 3.14: Biểu đồ tuần tự chức năng Sử dụng trợ lý/cấu hình AI 3.3.4.2-h. UC-11 — Tạo và theo dõi kế hoạch học
+739 Chức năng tạo và theo dõi kế hoạch học được đặc tả trong Bảng 3.15.
+740 
+741 Bảng 3.15: Đặc tả chức năng Tạo và theo dõi kế hoạch học
+742 
+
+TABLE 743
+Thuộc tính | Nội dung
+Use case ID | UC-11
+Tên use case | Tạo và theo dõi kế hoạch học
+Mô tả | Lưu mục tiêu/cấp độ/ngày thi/thời lượng học, sinh kế hoạch và hiển thị cấu trúc kế hoạch/progress đang có.
+Tác nhân | Học viên; backend TopikLearn; nền tảng dữ liệu.
+Độ ưu tiên | Trung bình
+Sự kiện kích hoạt | Học viên mở trang kế hoạch, lưu thiết lập hoặc yêu cầu sinh kế hoạch.
+Điều kiện tiên quyết | Đã đăng nhập; cấp mục tiêu, ngày thi và số phút mỗi ngày hợp lệ.
+Điều kiện sau | Thiết lập hoặc kế hoạch được lưu theo UID; học viên có thể tải lại qua API/me.
+Luồng chính | Frontend gọiGET /api/v1/study-plans/me lấy kế hoạch hiện tại.Học viên nhập/sửa cấp mục tiêu, ngày thi, số phút học.Frontend gửi POST /api/v1/study-plans/me.Backend kiểm tra và lưu theo UID.Học viên gọi POST /api/v1/study-plans/me/generate.
+744 
+745 
+
+TABLE 746
+ | Backend tạo/lưu cấu trúc kế hoạch từ thiết lập.Frontend hiển thị kế hoạch và dayProgress hiện có.
+Luồng thay thế | A1. Đã có kế hoạch: tải/hiển thị mà không sinh lại.A2. Học viên thay đổi mục tiêu rồi yêu cầu sinh lại kế hoạch.
+Luồng ngoại lệ | E1. Ngày thi, cấp mục tiêu hoặc số phút không hợp lệ: từ chối và giữ dữ liệu cũ.E2. Chưa đủ thiết lập để generate: yêu cầu hoàn thiện cấu hình.
+747 Biểu đồ tuần tự chức năng tạo và theo dõi kế hoạch học được thể hiện trong hình
+748 3.15.
+749 
+IMAGE D:\GreenFarm\tmp\chapter3\image23.png
+750 Hình 3.15: Biểu đồ tuần tự chức năng Tạo và theo dõi kế hoạch học 3.3.4.2-i. UC-12 — Xem dashboard và gamification
+751 Chức năng xem dashboard và gamification được đặc tả trong Bảng 3.16.
+752 Bảng 3.16: Đặc tả chức năng Xem dashboard và gamification
+753 
+
+TABLE 754
+Thuộc tính | Nội dung
+Use case ID | UC-12
+Tên use case | Xem dashboard và gamification
+Mô tả | Tổng hợp hoạt động học hiện có thành dashboard, XP, level, streak, badge, quest, heatmap và mục tiêu ngày.
+Tác nhân | Học viên; backend TopikLearn; nền tảng dữ liệu.
+Độ ưu tiên | Trung bình
+Sự kiện | Học viên mở dashboard/gamification hoặc cập nhật mục tiêu ngày.
+755 
+756 
+
+TABLE 757
+kích hoạt | 
+Điều kiện tiên quyết | Đã đăng nhập; nguồn lịch sử có dữ liệu hoặc trả trạng thái rỗng hợp lệ.
+Điều kiệnsau | Chỉ số được tính/hiển thị theo dữ liệu nguồn hiện có; mục tiêu ngày hoặc snapshot streak/badge có thể được lưu theo chức năng tương ứng.
+Luồngchính | Frontend yêu cầu dashboard/gamification của người dùng hiện tại.Backend lấy log/attempt có sẵn theo UID.Service suy ra XP, level, streak từ lịch sử tại thời điểm đọc.Hệ thống đánh giá badge, quest, mục tiêu ngày.Dashboard tổng hợp summary, heatmap, biểu đồ kỹ năng, điểm yếu và hoạt động gần đây trong phạm vi nguồn có dữ liệu.Frontend hiển thị số liệu/trạng thái rỗng.Khi đổi mục tiêu ngày, backend lưu giá trị hợp lệ.
+Luồng thay thế | A1. Người dùng mới chưa có lịch sử: trả giá trị khởi tạo/danh sách rỗng, không tạo số liệu giả.A2. Khi đủ điều kiện, service có thể lưu snapshot streak/badge.
+Luồng ngoại lệ | E1. Nguồn dữ liệu thiếu/không hỗ trợ chỉ số: khối tương ứng giới hạn hoặc rỗng.E2. Mục tiêu ngày không hợp lệ: từ chối cập nhật.
+758 Biểu đồ tuần tự chức năng xem dashboard và gamification được thể hiện trong hình 3.16.
+IMAGE D:\GreenFarm\tmp\chapter3\image24.jpeg
+759 Hình 3.16: Biểu đồ tuần tự chức năng Xem dashboard và gamification 3.3.4.2-j. UC-13 — Làm bài thi thử nghe
+760 Chức năng làm bài thi thử nghe được đặc tả trong Bảng 3.17.
+761 Bảng 3.17: Đặc tả chức năng Làm bài thi thử nghe
+762 
+763 
+
+TABLE 764
+Thuộctính | Nội dung
+Use case ID | UC-13
+Tên use case | Làm bài thi thử nghe
+Mô tả | Cho phép học viên làm đề thi nghe đã công bố, phát audio theo từng phần, lưu đáp án trong lúc làm và nhận kết quả chấm khách quan khi nộp. Đây là use case mục tiêu; luồng người học đầy đủ chưa được xác minh end-to-end trong mã nguồn hiện tại.
+Tác nhân | Học viên; Test Catalog/Test Attempt API; nền tảng dữ liệu; Firebase Storage/media service.
+Độ ưutiên | Cao
+Sự kiện kích hoạt | Học viên chọn đề có section listening trong danh sách đề đã công bố và chọn Bắt đầu làm bài.
+Điều kiện tiên quyết | Học viên đã đăng nhập; đề published; đề có câu hỏi nghe, audio URL hợp lệ, thời lượng và cấu trúc section nghe hợp lệ.
+Điều kiện sau | Thành công: attempt thuộc UID có snapshot đề và đáp án đã lưu; khi nộp, điểm nghe/kết quả khách quan được lưu, đáp án/lời giải chỉ hiển thị theo chính sách đề. Thất bại: không tạo hoặc không hoàn tất attempt.
+Luồngchính | Học viên mở danh sách đề đã công bố.Hệ thống hiển thị đề có section listening và thời lượng.Học viên chọn đề; hệ thống tạo attempt in_progress với snapshot bất biến.Hệ thống trả câu hỏi, audio URL và thông tin cần làm bài; không trả đáp án đúng trước khi nộp.Học viên phát audio, chọn đáp án; frontend autosave đáp án vào attempt.Học viên nộp bài hoặc hệ thống tự nộp khi hết giờ.Backend kiểm tra chủ sở hữu/trạng thái, chấm đáp án khách quan trên dữ liệu tin cậy và cập nhật scoreListening, tổng điểm, gradingStatus.Hệ thống trả kết quả attempt theo chính sách công bố đáp án.
+Luồng thay thế | A1. Học viên mở lại attempt còn in_progress; hệ thống khôi phục snapshot, đáp án autosave và thời gian còn lại.A2. Audio được phát lại theo quy định đề; các thao tác phát có thể ghi log nghe riêng nếu thiết kế yêu cầu.
+Luồng ngoại lệ | E1. Đề không published, thiếu audio hoặc thiếu câu hỏi: không cho bắt đầu attempt.E2. Attempt không thuộc UID hoặc không còn in_progress: từ chối lưu/nộp.E3. Hết thời gian khi gửi đáp án: server tự nộp theo quy tắc, không tạo điểm hai lần.
+765 
+766 
+
+TABLE 767
+ | E4. Audio lỗi: hiển thị lỗi media, không tự đánh dấu bài hoàn thành.
+Trạng | SchemaDataConnectđãcóTest,TestQuestion.section,
+thái hiện | TestAttempt.scoreListening và AttemptAnswer; pipeline import nghe có
+thực | thể tạo đề nháp. Chưa xác minh được API/UI người học đầy đủ cho tạo
+ | attempt, autosave và submit/chấm generic test.
+768 Biểu đồ tuần tự chức năng Làm bài thi thử nghe được thể hiện trong hình 3.17.
+769 
+IMAGE D:\GreenFarm\tmp\chapter3\image25.png
+770 Hình 3.17: Biểu đồ tuần tự chức năng Làm bài thi thử nghe 3.3.4.2-k. UC-14 — Làm bài thi thử viết
+771 Chức năng làm bài thi thử viết được đặc tả trong Bảng 3.18.
+772 Bảng 3.18: Đặc tả chức năng Làm bài thi thử viết
+773 
+
+TABLE 774
+Thuộctính | Nội dung
+Use case ID | UC-14
+Tên use case | Làm bài thi thử viết
+Mô tả | Cho phép học viên làm đề thi viết đã công bố, lưu câu trả lời trong attempt, nộp bài theo thời gian quy định và nhận kết quả theo workflow chấm. Điểm AI, nếu có, chỉ là tham khảo; điểm chính thức phải theo quy trình giáo viên/rubric. Đây là use case mục tiêu; luồng người học đầy đủ chưa được xác minh end-to-end.
+Tác nhân | Học viên; Test Catalog/Test Attempt API; nền tảng dữ liệu; dịch vụ chấm AI hoặc giáo viên.
+775 
+776 
+
+TABLE 777
+Độ ưutiên | Cao
+Sự kiện kích hoạt | Học viên chọn đề có section writing trong danh sách đề đã công bố và chọn Bắt đầu làm bài.
+Điều kiện tiên quyết | Học viên đã đăng nhập; đềpublished; câu hỏi viết, barem, maxScore, thời lượng và chính sách hiển thị kết quả đã được cấu hình.
+Điều kiện sau | Thành công: attempt thuộc UID lưu snapshot, bài làm và thời điểm nộp; gradingStatus phản ánh đúng workflow chấm. Không tự coi điểm AI là điểm TOPIK chính thức.
+Luồngchính | Học viên mở danh sách đề đã công bố.Hệ thống hiển thị đề có section writing và thời lượng.Học viên chọn đề; hệ thống tạo attempt in_progress với snapshot đề/barem.Hệ thống trả đề viết/hướng dẫn; không trả đáp án mẫu hoặc điểm chấm trước khi nộp nếu chính sách đề cấm.Học viên soạn câu trả lời; frontend autosave answerText/answerPayload vào attempt.Học viên nộp bài hoặc hệ thống tự nộp khi hết giờ.Backend khóa attempt, lưu thời gian làm và đặt gradingStatus phù hợp workflow chấm.Hệ thống trả biên nhận; khi có chấm AI/giáo viên, trả kết quả tách biệt với bài làm gốc.
+Luồng thay thế | A1. Học viên mở lại attempt cònin_progress; hệ thống khôi phục snapshot, bản nháp và thời gian còn lại.A2. Nếu đề cho phép chấm AI tham khảo, hệ thống tạo yêu cầu chấm sau khi đã lưu bài; kết quả AI không thay thế điểm giáo viên.A3. Người chấm/giáo viên cập nhật điểm và nhận xét thủ công theo UC-17.
+Luồng ngoại lệ | E1. Đề/câu hỏi/barem không hợp lệ hoặc chưa published: không cho bắt đầu.E2. Attempt không thuộc UID hoặc đã nộp: từ chối autosave/nộp lại. E3. Hết giờ: server tự nộp một lần, tránh ghi/điểm trùng lặp.E4. AI lỗi: bài đã nộp vẫn được giữ, trạng thái chấm phản ánh lỗi/chờ chấm.
+Trạng thái hiện thực | Schema có TestAttempt.scoreWriting, AttemptAnswer.answerText và gradingStatus; Test Editor hỗ trợ candidate skill=writing. Chưa xác minh được API/UI generic test cho học viên để tạo attempt, autosave, submit và điều phối chấm viết.
+778 Biểu đồ tuần tự chức năng Làm bài thi thử viết được thể hiện trong hình 3.18.
+779 
+780 
+IMAGE D:\GreenFarm\tmp\chapter3\image26.png
+781 Hình 3.18: Biểu đồ tuần tự chức năng Làm bài thi thử viết
+782 3.3.4.3 Đặc tả use case quản trị viên
+783 3.3.4.3-a. UC-15 — Truy cập khu vực quản trị
+784 Chức năng truy cập khu vực quản trị được đặc tả trong Bảng 3.19.
+785 Bảng 3.19: Đặc tả chức năng Truy cập khu vực quản trị
+786 
+
+TABLE 787
+Thuộc tính | Nội dung
+Use case ID | UC-15
+Tên use case | Truy cập khu vực quản trị
+Mô tả | Kiểm tra quyền trước khi cho người dùng truy cập và sử dụng các chức năng quản trị.
+Tác nhân | Quản trị viên; backend TopikLearn; nền tảng dữ liệu.
+Độ ưu tiên | Bắt buộc
+Sự kiện kích hoạt | Người dùng mở đường dẫn quản trị hoặc gọi API quản trị.
+Điều kiện tiên quyết | Người dùng đã xác thực; hồ sơ hoạt động; role/permission được backend chấp nhận cho endpoint.
+Điều kiện sau | Có quyền: truy cập khu vực/module được phép. Không có quyền: nhận HTTP 403, không nhận dữ liệu quản trị.
+Luồng chính | Người dùng đăng nhập theo UC-02.Frontend yêu cầu route/API quản trị kèm Bearer token.Backend xác minh token, lấy UID và hồ sơ/permission.Backend kiểm tra permission của endpoint.
+788 
+789 
+
+TABLE 790
+ | 5. Hệ thống trả dữ liệu/trang quản trị được phép.
+Luồng thay thế | A1. Một role quản trị chỉ thấy/thao tác các module tương ứng permission được cấp.
+Luồng ngoại lệ | E1. Token thiếu/hết hạn: HTTP 401.E2. Không có permission yêu cầu: HTTP 403. E3. Hồ sơ không hoạt động: từ chối truy cập.
+791 Biểu đồ tuần tự chức năng Truy cập khu vực quản trị được thể hiện trong hình
+792 3.19.
+793 
+IMAGE D:\GreenFarm\tmp\chapter3\image27.jpeg
+794 Hình 3.19: Biểu đồ tuần tự chức năng Truy cập khu vực quản trị
+795 
+796 3.3.4.3-b. UC-16 — Quản lý người dùng và audit
+797 Chức năng quản lý người dùng và audit được đặc tả trong Bảng 3.20.
+798 Bảng 3.20: Đặc tả chức năng Quản lý người dùng và audit
+799 
+
+TABLE 800
+Thuộc tính | Nội dung
+Use case ID | UC-16
+Tên use case | Quản lý người dùng và audit
+Mô tả | Cho phép quản trị viên có quyền xem, tìm kiếm, cập nhật trạng thái/role người dùng và tra cứu audit theo phạm vi API hỗ trợ.
+Tác nhân | Quản trị viên; backend TopikLearn; nền tảng dữ liệu.
+Độ ưu tiên | Cao
+Sự kiện kích hoạt | Quản trị viên mở danh sách người dùng, thay đổi trạng thái/role hoặc xem audit.
+Điều kiện tiên quyết | Đã qua UC-13; có permission tương ứng với thao tác người dùng/audit.
+Điều kiệnsau | Thay đổi hợp lệ được lưu; thao tác quan trọng có thể tạo audit best-effort; người không có quyền bị từ chối.
+Luồng chính | Quản trị viên mở danh sách người dùng/audit.Backend kiểm tra permission và trả dữ liệu phân trang/lọc.Quản trị viên chọn người dùng, chỉnh trạng thái hoặc role được cho phép.Backend validate role/trạng thái và cập nhật hồ sơ mục tiêu.Backend ghi audit khi chức năng/điểm tích hợp hiện có hỗ trợ.Hệ thống trả phiên bản dữ liệu mới.
+Luồng thay thế | A1. Quản trị viên chỉ tìm kiếm/xem người dùng hoặc audit, không thay đổi dữ liệu.
+Luồng ngoại lệ | E1. Thiếu permission: HTTP 403.E2. User/role không tồn tại hoặc dữ liệu cập nhật sai: lỗi 4xx/404.E3. Audit lỗi: không được báo là audit đã ghi; thay đổi nghiệp vụ chỉ tiếp tục nếu transaction hiện tại cho phép.
+801 Biểu đồ tuần tự chức năng Quản lý người dùng và audit được thể hiện trong hình
+802 3.20.
+803 
+804 
+IMAGE D:\GreenFarm\tmp\chapter3\image28.jpeg
+805 Hình 3.20: Biểu đồ tuần tự chức năng Quản lý người dùng và audit 3.3.4.3-c. UC-17 — Quản lý ngân hàng đọc
+806 Chức năng quản lý ngân hàng đọc được đặc tả trong Bảng 3.21.
+807 Bảng 3.21: Đặc tả chức năng Quản lý ngân hàng đọc
+808 
+
+TABLE 809
+Thuộc tính | Nội dung
+Use case ID | UC-17
+Tên use case | Quản lý ngân hàng đọc
+Mô tả | Quản trị ngân hàng đọc, group, câu hỏi, đáp án, metadata và trạng thái phục vụ/sinh đề.
+Tác nhân | Quản trị viên; backend TopikLearn; nền tảng dữ liệu.
+Độ ưu tiên | Cao
+Sự kiện kích hoạt | Quản trị viên mở module ngân hàng đọc và thực hiện xem, tạo, sửa, đổi trạng thái hoặc kiểm tra group.
+Điều kiện tiên quyết | Đã qua UC-13; có questions:read để đọc và questions:write để thay đổi; dữ liệu group/câu hỏi hợp lệ.
+Điều kiện sau | Dữ liệu hợp lệ được lưu; chỉ group đủ điều kiện/trạng thái mới được phục vụ hoặc sinh đề cho học viên.
+Luồng chính | Quản trị viên mở ngân hàng đọc.Backend kiểm traquestions:read, trả danh sách/chi tiết.Quản trị viên tạo/sửa group, câu hỏi, option, đáp án, metadata hoặc trạng thái.Backend kiểm tra questions:write và validate cấu trúc.Backend lưu thay đổi.Khi chuyển trạng thái phục vụ, backend kiểm tra điều kiện publish/ready.
+810 
+811 
+
+TABLE 812
+ | 7. Hệ thống trả dữ liệu đã cập nhật.
+Luồng thay thế | A1. Quản trị viên archive group/câu hỏi hoặc chỉ xem/preview nội dung.A2. Có thể chuyển sang UC-19 để import học liệu đọc.
+Luồng ngoại lệ | E1. Thiếu permission: HTTP 403.E2. Group/câu hỏi không tồn tại: HTTP 404.E3. Thiếu option/đáp án/câu hỏi con hoặc trạng thái không hợp lệ: không cho publish/ready.
+813 Biểu đồ tuần tự chức năng Quản lý ngân hàng đọc được thể hiện trong hình 3.21.
+814 
+IMAGE D:\GreenFarm\tmp\chapter3\image29.png
+815 Hình 3.21: Biểu đồ tuần tự chức năng Quản lý ngân hàng đọc
+816 3.3.4.3-d. UC-18 — Quản lý ngân hàng nghe và media
+817 Chức năng quản lý ngân hàng nghe và media được đặc tả trong Bảng 3.22.
+818 Bảng 3.22: Đặc tả chức năng Quản lý ngân hàng nghe và media
+819 
+
+TABLE 820
+Thuộc tính | Nội dung
+Use case ID | UC-18
+Tên use case | Quản lý ngân hàng nghe và media
+Mô tả | Quản trị listening group, câu hỏi, transcript, audio version, metadata, trạng thái công bố và tác vụ audio/TTS theo khả năng hệ thống.
+Tác nhân | Quản trị viên; backend TopikLearn; Firebase Storage; dịch vụ media/TTS; nền tảng dữ liệu.
+Độ ưu tiên | Cao
+Sự kiện kích hoạt | Quản trị viên mở ngân hàng nghe và tạo/sửa/publish group hoặc quản lý audio.
+821 
+822 
+
+TABLE 823
+Điều kiện tiên quyết | ĐãquaUC-13;cópermissionquestions:read/write;group/audio/metadata hợp lệ.
+Điều kiệnsau | Group/audio version hợp lệ được lưu/chọn; chỉ group published có audio hợp lệ được phục vụ cho học viên.
+Luồngchính | Quản trị viên mở ngân hàng nghe.Backend kiểm tra quyền đọc và trả group/audio version.Quản trị viên tạo/sửa câu hỏi, transcript, segment, metadata và audio version.Backend kiểm tra quyền ghi, validate nội dung và media.Backend lưu group/version; quản trị viên chọn audio version dùng để phục vụ.Khi publish, backend kiểm tra group đủ dữ liệu và audio hợp lệ.Hệ thống trả trạng thái mới.
+Luồng thay thế | A1. Quản trị viên upload audio hoặc yêu cầu sinh audio/TTS; job/phiên bản trả trạng thái xử lý.A2. Quản trị viên đổi audio version được chọn hoặc archive version cũ.
+Luồng ngoại lệ | E1. Thiếu quyền: HTTP 403.E2. Media sai định dạng/không truy cập được: không chọn/publish version lỗi.E3. Group thiếu câu hỏi, đáp án hoặc audio: validate thất bại, không publish.E4. Job/TTS lỗi: không báo audio đã sinh thành công.
+824 Biểu đồ tuần tự chức năng Quản lý ngân hàng nghe và media thể hiện trong hình 3.22.
+825 
+IMAGE D:\GreenFarm\tmp\chapter3\image30.png
+826 
+827 Hình 3.22: Biểu đồ tuần tự chức năng Quản lý ngân hàng nghe và media 3.3.4.3-e. UC-19 — Quản lý câu hỏi/bài viết
+828 Chức năng quản lý câu hỏi và bài viết được đặc tả trong Bảng 3.23.
+829 Bảng 3.23: Đặc tả chức năng Quản lý câu hỏi/bài viết
+830 
+
+TABLE 831
+Thuộctính | Nội dung
+Use case ID | UC-19
+Tên use case | Quản lý câu hỏi/bài viết
+Mô tả | Quản lý ngân hàng câu hỏi viết và cho phép người có quyền xem/đánh giá submission bằng điểm, nhận xét thủ công.
+Tác nhân | Quản trị viên; backend TopikLearn; nền tảng dữ liệu.
+Độ ưu tiên | Cao
+Sự kiện kích hoạt | Quản trị viên mở ngân hàng viết/danh sách bài nộp và thực hiện quản lý hoặc đánh giá.
+Điều kiện tiên quyết | Đã qua UC-13; controller hiện kiểm tra questions:read để đọc và questions:write để thay đổi/duyệt.
+Điều kiệnsau | Câu hỏi hoặc kết quả duyệt hợp lệ được lưu; người thiếu permission bị từ chối.
+Luồngchính | Quản trị viên mở ngân hàng câu hỏi viết.Backend kiểm tra questions:read, trả câu hỏi/bài nộp.Quản trị viên tạo/sửa đề dạng 51–54, metadata, barem, trạng thái.Backend kiểm tra questions:write, validate và lưu.Quản trị viên chọn submission.Hệ thống hiển thị bài làm và kết quả AI hiện có.Quản trị viên nhập điểm/nhận xét thủ công.Backend kiểm tra quyền, phạm vi điểm và cập nhật submission.
+Luồng thay thế | A1. Quản trị viên chỉ xem lịch sử/submission, không thay đổi đánh giá. A2. Quản trị viên archive hoặc đổi trạng thái câu hỏi theo chức năng hỗ trợ.
+Luồng ngoại lệ | E1. Thiếu questions:read/write: HTTP 403.E2. Submission/câu hỏi không tồn tại hoặc điểm ngoài phạm vi: từ chối cập nhật.E3. Role teacher_reviewer chỉ có writing:read/writing:score theo cấu hình hiện tại nhưng controller yêu cầu questions:read/write; role này bị từ chối nếu không có thêm permission.
+832 
+833 Biểu đồ tuần tự chức năng Quản lý câu hỏi/bài viết được thể hiện trong hình 3.23.
+834 
+IMAGE D:\GreenFarm\tmp\chapter3\image31.png
+835 Hình 3.23: Biểu đồ tuần tự chức năng Quản lý câu hỏi/bài viết 3.3.4.3-f. UC-20 — Quản lý đề thi và shadowing
+836 Chức năng quản lý đề thi và shadowing được đặc tả trong Bảng 3.24.
+837 Bảng 3.24: Đặc tả chức năng Quản lý đề thi và shadowing
+838 
+
+TABLE 839
+Thuộc tính | Nội dung
+Use case ID | UC-20
+Tên use case | Quản lý đề thi và shadowing
+Mô tả | Quản lý cấu hình đề thi và catalog shadowing gồm channel, lesson, thứ tự, trạng thái hoặc nguồn từ bank nghe.
+Tác nhân | Quản trị viên; backend TopikLearn; nền tảng dữ liệu; YouTube metadata; Gemini khi lesson cần xử lý.
+Độ ưu tiên | Cao
+Sự kiện kích hoạt | Quản trị viên mở phân hệ đề thi/shadowing và gửi thao tác quản lý.
+Điều kiện tiên quyết | Đã qua UC-13; đề thi cầntests:read/write; controller shadowing hiện kiểm tra questions:write cho thao tác quản trị.
+Điều kiệnsau | Đề/channel/lesson hợp lệ được cập nhật; catalog học viên chỉ nhận nội dung đúng trạng thái.
+Luồng chính | Quản trị viên chọn phân hệ đề thi hoặc shadowing.Backend kiểm tra permission endpoint.Với đề thi, quản trị viên xem/tạo/sửa cấu hình, quan hệ học liệu, trạng thái.Với shadowing, quản trị viên quản lý channel, lesson, thứ tự, trạng thái, nguồn liên quan.
+840 
+841 
+
+TABLE 842
+ | Backend validate dữ liệu/quan hệ tham chiếu.Backend lưu thay đổi.Quản trị viên kiểm tra lại catalog/trạng thái.Chỉ nội dung đủ điều kiện được phục vụ cho học viên.
+Luồng thay thế | A1. Tạo lesson shadowing từ nguồn bank nghe khi endpoint hỗ trợ. A2. Sắp xếp lại thứ tự hoặc archive nội dung.
+Luồng ngoại lệ | E1. Thiếu tests:read/write đối với đề thi: HTTP 403.E2. Thiếu questions:write đối với shadowing: HTTP 403, kể cả thao tác đọc do controller hiện bảo vệ bằng permission này.E3. Học liệu nguồn không tồn tại/dữ liệu không đạt validate: không publish/cập nhật trạng thái phục vụ.
+843 Biểu đồ tuần tự chức năng Quản lý đề thi và shadowing thể hiện trong hình 3.24.
+844 
+IMAGE D:\GreenFarm\tmp\chapter3\image32.jpeg
+845 Hình 3.24: Biểu đồ tuần tự chức năng Quản lý đề thi và shadowing
+846 
+847 3.3.4.3-g. UC-21 — Import học liệu
+848 Chức năng import học liệu được đặc tả trong Bảng 3.25.
+849 Bảng 3.25: Đặc tả chức năng Import học liệu
+850 
+
+TABLE 851
+Thuộc tính | Nội dung
+Use case ID | UC-21
+Tên use case | Import học liệu
+Mô tả | Nhập học liệu từ Excel hoặc xử lý PDF, DOCX, audio qua job/candidate; chỉ materialize dữ liệu đã kiểm tra/xác nhận.
+Tác nhân | Quản trị viên; backend TopikLearn; Storage; nền tảng dữ liệu; Gemini/Groq; FFmpeg/ffprobe tùy loại import.
+Độ ưu tiên | Cao
+Sự kiện kích hoạt | Quản trị viên upload file và chọn luồng import của phân hệ đọc/nghe hoặc tài nguyên liên quan.
+Điều kiện tiên quyết | Đã qua UC-13; có permission tài nguyên đích; file, template, metadata hợp lệ.
+Điều kiệnsau | Excel hợp lệ được ghi trực tiếp theo nghiệp vụ. PDF/DOCX/audio tạo job/candidate và chỉ sinh học liệu khi xác nhận/materialize thành công.
+Luồngchính | Quản trị viên chọn phân hệ, loại file, upload tài liệu.Backend kiểm tra permission, định dạng, dung lượng, metadata.Với PDF/DOCX/audio, backend tạo/claim job.Worker/service trích xuất và tạo candidate.Quản trị viên xem trạng thái job/candidate.Hệ thống kiểm tra candidate; quản trị viên xác nhận dữ liệu đạt yêu cầu.Backend materialize candidate thành bank/group/câu hỏi/tài nguyên đích.Hệ thống trả định danh tài nguyên và trạng thái cuối.
+Luồng thay thế | A1. Excel validate template/header/từng dòng rồi ghi trực tiếp, không tạo candidate.A2. Job lỗi có thể retry theo endpoint/trạng thái hỗ trợ.A3. Materialize nghe liên quan đề thi có thể cần thêm tests:write.
+Luồng ngoại lệ | E1. File/header/dòng sai: validate thất bại, không ghi dữ liệu không được chấp nhận.E2. Trích xuất/AI lỗi: job lỗi, candidate không hợp lệ không được materialize.E3. Candidate chưa đạt trạng thái/chưa xác nhận: backend từ chối materialize.E4. Thiếu permission: HTTP 403.
+852 
+853 Biểu đồ tuần tự chức năng Import học liệu được thể hiện trong hình 3.25.
+854 
+IMAGE D:\GreenFarm\tmp\chapter3\image33.png
+855 Hình 3.25: Biểu đồ tuần tự chức năng Import học liệu 3.3.4.3-h. UC-22 — Quản lý cấu hình AI
+856 Chức năng quản lý cấu hình AI được đặc tả trong Bảng 3.26.
+857 Bảng 3.26: Đặc tả chức năng Quản lý cấu hình AI
+858 
+
+TABLE 859
+Thuộc tính | Nội dung
+Use case ID | UC-22
+Tên use case | Quản lý cấu hình AI
+Mô tả | Quản lý provider, model, khóa kết nối và routing policy AI ở cấp hệ thống.
+Tác nhân | Quản trị viên; backend TopikLearn; Google Gemini; Groq.
+Độ ưu tiên | Cao
+Sự kiện kích hoạt | Quản trị viên mở cài đặt AI, lưu provider/model/policy, kiểm tra kết nối hoặc xóa khóa.
+Điều kiện tiên quyết | Đã qua UC-13; có ai:settings; provider/model/policy đạt kiểm tra.
+Điều kiệnsau | Cấu hình hợp lệ được lưu; response chỉ có masked key/trạng thái. Cấu hình lỗi không được báo kết nối thành công.
+Luồng chính | Quản trị viên mở cấu hình AI.Backend kiểm tra ai:settings, trả provider/model/routing và masked key.Quản trị viên đổi provider/model hoặc nhập khóa mới.Backend validate, lưu bí mật dưới dạng bảo vệ.Quản trị viên yêu cầu test kết nối.Backend gọi provider và trả kết quả kiểm tra.
+860 
+861 
+
+TABLE 862
+ | Quản trị viên cấu hình routing/fallback.Backend validate, lưu policy và trả cấu hình đã che dữ liệu nhạy cảm.
+Luồng thay thế | A1. Quản trị viên xóa khóa provider; backend cập nhật trạng thái không còn khóa lưu.A2. Quản trị viên chỉ đổi model/routing policy mà không đổi khóa.
+Luồng ngoại lệ | E1. Thiếuai:settings: HTTP 403.E2. Khóa sai, timeout/rate limit/provider lỗi: không báo kết nối thành công.E3. Provider/model/policy sai: backend từ chối bằng lỗi 4xx.
+863 Biểu đồ tuần tự chức năng Quản lý cấu hình AI được thể hiện trong hình 3.26.
+864 
+IMAGE D:\GreenFarm\tmp\chapter3\image34.jpeg
+865 Hình 3.26: Biểu đồ tuần tự chức năng Quản lý cấu hình AI
+866 Thiết kế kiến trúc hệ thống
+867 Lựa chọn mô hình kiến trúc
+868 TopikLearn được xây dựng theo kiến trúc kết hợp, bao gồm mô hình ứng dụng web client–server, kiến trúc SPA ở phía frontend, REST API đồng bộ và modular monolith ở phía backend. Backend được tổ chức thành các package tương ứng với từng nhóm nghiệp vụ, nhưng toàn bộ vẫn được đóng gói và triển khai trong một artifact Spring Boot duy nhất.
+869 Trong phần lớn các module, luồng xử lý yêu cầu được thực hiện theo chuỗi
+870 
+871 Controller – Service – Repository – DataConnectClient. Tuy nhiên, tại một số chức năng thuộc các module auth và admin, tầng service có thể gọi trực tiếp DataConnectClient mà không thông qua repository. Do đó, hệ thống thể hiện rõ định hướng phân lớp, nhưng chưa tuân thủ hoàn toàn một kiến trúc phân lớp nghiêm ngặt. Các đặc điểm kiến trúc của hệ thống được tổng hợp và trình bày trong Bảng 3.27.
+872 Bảng 3.27. Quyết định kiến trúc và đánh đổi
+873 
+
+TABLE 874
+Quyết định | Căn cứ lựa chọn | Lợi ích | Hạn chế/đánh đổi
+SPA + REST | Giao diện có nhiều trạng thái luyện tập và media | Tách giao diện/điều khiển khỏi backend; cập nhật trang không tải lại toàn bộ | Phải quản lý auth state, cache và lỗi mạng phía client
+Modular monolith | Phạm vi đồ án, một backend và chưa có bằng chứng cần scale từng miền độc lập | Triển khai, debug và giao dịch đơn giản hơn microservices | Các module cùng phiên bản và cùng tiến trình
+Firebase Authentication | Không tự quản lý mật khẩu/token | Dùng email/Google và Firebase Admin SDK | Phụ thuộc dịch vụ Firebase
+Data Connect + PostgreSQL | Dữ liệu quan hệ và schema có nhiều ràng buộc | Giữ quan hệ/unique/index; backend không cần JDBC trực tiếp | Phụ thuộc endpoint Data Connect và operation GraphQL
+Storage cho media | Audio/ảnh/tài liệu không phù hợp lưu trực tiếp trong bảng | Tách tệp lớn khỏi dữ liệu nghiệp vụ | Cần quản lý URL, quyền bucket và vòng đời tệp
+Snapshot đề đọc | Nội dung bank có thể thay đổi sau khi học viên bắt đầu | Đảm bảo attempt được chấm trên dữ liệu bất biến | Tăng số bảng và dung lượng snapshot
+Nhiều provider AI | Gemini mạnh về multimodal; Groq hỗ trợ text/transcription | Có lựa chọn/fallback cho một số tác vụ | Cấu hình, chuẩn hóa output và kiểm thử phức tạp hơn
+875 Hệ thống chưa lựa chọn Microservices, Event Sourcing hoặc Message Broker vì hiện chưa có yêu cầu về mở rộng độc lập, vận hành phân tán hay xử lý thời gian thực. Các kiến trúc này chỉ nên được xem xét khi Modular Monolith không còn đáp ứng nhu cầu thực tế.
+876 
+877 Kiến trúc tổng thể
+878 Dựa trên các quyết định trên, kiến trúc tổng thể được thể hiện trong Hình 3.27.
+879 
+IMAGE D:\GreenFarm\tmp\chapter3\image35.jpeg
+880 Hình 3.27. Kiến trúc tổng thể của hệ thống
+881 Trình duyệt tải React SPA và đăng nhập trực tiếp với Firebase Authentication. Khi gọi REST API, apiClient lấy Firebase ID token và gắn vào header Authorization. FirebaseAuthenticationFilter xác minh token, tạo principal rồi chuyển request tới controller. Service thực hiện quy tắc nghiệp vụ, có thể gọi repository/Data Connect, Storage hoặc dịch vụ AI. DataConnectClient gửi GraphQL qua HTTPS tới Firebase Data Connect; Data Connect thao tác trên PostgreSQL. Media được backend upload vào Storage và frontend tải bằng URL được cấp. Lỗi nghiệp vụ được chuẩn hóa trước khi trả client; lỗi kỹ thuật được ghi log. Mọi chấm điểm có đáp án và kiểm tra permission vẫn nằm ở backend.
+882 
+883 Sơ đồ thành phần
+884 
+IMAGE D:\GreenFarm\tmp\chapter3\image36.jpeg
+885 Hình 3.28. Sơ đồ thành phần của hệ thống
+886 Backend gồm 17 package cấp cao: auth, security, readingbank, listeningbank, writing, notebook, studyplan, shadowing, gamification, userdashboard, tests, admin, ai, system, common, config và dataconnect. Trong đó common, config, security và dataconnect là hạ tầng dùng chung, không phải mô-đun nghiệp vụ độc lập. Phần lớn lời gọi AI đi qua AiTaskRouter để thống nhất việc chọn provider, kiểm tra đầu ra và xử lý lỗi; riêng luồng tạo bài shadowing từ YouTube vẫn có service gọi Gemini riêng. Sơ đồ biểu diễn cả hai đường gọi này để tránh sai lệch với mã nguồn.
+887 
+888 Sơ đồ triển khai
+889 
+IMAGE D:\GreenFarm\tmp\chapter3\image37.jpeg
+890 Hình 3.29. Sơ đồ triển khai hệ thống
+891 Môi trường phát triển sử dụng Vite dev server cho frontend và Spring Boot trên JVM 21 cho backend, mặc định tại cổng 8080. Trên môi trường thực tế, frontend được triển khai trên Vercel tại tên miền topiklearn.id.vn, backend được đóng gói thành container Docker và chạy trên Render tại vùng Singapore, còn dữ liệu nằm trên Cloud SQL for PostgreSQL thông qua Firebase Data Connect tại vùng asia-southeast1. Firebase Data Connect hỗ trợ PGlite ở môi trường phát triển. Hình 3.29 thể hiện các thành phần và ranh giới triển khai này; chi tiết cấu hình được trình bày tại mục 4.1.
+892 Thiết kế module AI
+893 
+IMAGE D:\GreenFarm\tmp\chapter3\image38.jpeg
+894 Hình 3.30. Luồng xử lý và kiểm soát đầu ra AI
+895 Đầu vào AI có thể gồm văn bản, câu hỏi, ảnh, PDF, audio hoặc URL YouTube. Trước khi gọi mô hình, hệ thống kiểm tra quyền, dữ liệu đầu vào và xây dựng prompt
+896 
+897 cùng cấu trúc đầu ra. AiTaskRouter lựa chọn provider và model theo cấu hình, kiểm tra structured output, hỗ trợ sửa lỗi một lần, chuyển model hoặc provider khi cần và tạm ngắt provider lỗi lặp lại bằng cơ chế circuit breaker. Các tác vụ chấm bài viết, xây dựng kế hoạch học tập và phân tích câu hỏi phía quản trị đều đi qua router này, nhờ đó điểm và nhận xét được chuẩn hóa theo từng dạng bài trước khi trả về người học.
+898 Khóa API được mã hóa bằng AES-GCM và chỉ giải mã khi thực hiện lời gọi. Dữ liệu import được lưu ở trạng thái trung gian để kiểm duyệt trước khi đưa vào hệ thống chính; bài viết cũng được lưu trước khi gọi AI nhằm tránh mất dữ liệu khi provider lỗi. Phiên bản hiện tại chưa có cơ chế đánh giá định lượng độ chính xác AI, vector store hoặc pipeline RAG.
+899 Thiết kế cơ sở dữ liệu
+900 Mô hình dữ liệu khái niệm
+901 Mô hình dữ liệu được tổ chức quanh thực thể người dùng. Một người dùng có thể sở hữu nhiều attempt, log, submission, ghi chú, phiên học, kế hoạch và tiến độ shadowing. Học liệu đọc/nghe được quản lý độc lập với lịch sử học; attempt tham chiếu hoặc sao chụp nội dung cần thiết để việc chỉnh sửa bank không làm thay đổi kết quả cũ. Import job và candidate là vùng staging tách khỏi dữ liệu đã xuất bản. Cấu hình AI tách phạm vi hệ thống và phạm vi học viên.
+902 Tổng quan cơ sở dữ liệu
+903 Cơ sở dữ liệu của TopikLearn là PostgreSQL chạy trên Cloud SQL, được khai báo bằng ngôn ngữ lược đồ của Firebase Data Connect trong tệp schema.gql và sinh bảng tự động. Lược đồ hiện có 52 bảng, không sử dụng khung nhìn hay hàm lưu trữ; mọi thay đổi cấu trúc đều đi qua lệnh migrate của Data Connect. Thiết kế tuân theo các quy ước sau:
+904 Khóa chính. Bảng không khai báo khóa tự nhiên sẽ nhận khóa đại diện kiểu UUID. Các bảng gắn với danh tính dùng khóa tự nhiên như user_profiles(uid) hoặc ai_provider_settings(provider); các bảng ghi nhận trạng thái theo ngữ cảnh dùng khóa ghép, ví dụ attempt_answers(attempt_id, question_id), listening_logs(user_uid, question_id) và shadowing_progress(user_uid, lesson_id).
+905 Khóa ngoại. Quan hệ được khai báo tường minh; 30 bảng tham chiếu tới user_profiles(uid), tức định danh Firebase của người học, để xác định chủ sở hữu
+906 
+907 dữ liệu. Hai trường tham chiếu đa hình là listening_playback_logs(question_id) và listening_practice_attempts(group_id) không khai báo khóa ngoại vì phải trỏ tới cả câu hỏi thế hệ cũ lẫn câu hỏi phiên bản hóa.
+908 Ràng buộc duy nhất. Được dùng để chặn trùng theo nghiệp vụ, chẳng hạn (group_version_id, question_order), (test_id, section, order_no), (job_id, question_no), (user_uid, badge_code); riêng source_exam_code và idempotency_key của các tác vụ nhập liệu giúp hệ thống không xử lý trùng khi thực hiện lại.
+909 Phiên bản và bản chụp. Vì học liệu có thể được sửa sau khi người học đã sử dụng, ngân hàng nghe tách định danh ổn định khỏi nội dung theo phiên bản, lượt làm bài sao chụp đề vào cột test_snapshot và question_snapshot, còn đề đọc sinh tự động được chốt trong reading_exam_snapshots.
+910 Vùng dữ liệu trung gian. Nội dung do AI hoặc OCR tạo ra nằm ở các bảng import job và candidate, có trạng thái kiểm duyệt, số hiệu phiên bản để khóa lạc quan và thông tin thuê worker để phục hồi khi tiến trình lỗi, trước khi được chuyển thành dữ liệu chính thức.
+911 Quy ước khác. Nội dung có cấu trúc thay đổi theo dạng bài được lưu ở cột JSON; khóa truy cập dịch vụ AI được lưu dạng bản mã AES-GCM; mọi bảng đều có cột thời điểm tạo và cập nhật.
+912 Các bảng được nhóm theo nghiệp vụ như trình bày trong Bảng 3.28. Cách nhóm này cũng là cơ sở để tách sơ đồ thực thể–liên kết chi tiết tại mục 3.5.4.
+913 Bảng 3.28. Các nhóm bảng trong cơ sở dữ liệu
+914 
+
+TABLE 915
+Nhóm nghiệp vụ | Số bảng | Các bảng trong nhóm | Quan hệ chính
+Người dùng và quản trị | 3 | user_profiles, user_devices, admin_audit_logs | Người dùng sở hữu nhiều thiết bị; mỗi thao tác quản trị sinh một bản ghi nhật ký, cho phép để trống actorUid nhằm giữ lịch sử
+Cấu hình AI | 3 | ai_provider_settings, ai_learner_provider_settings, ai_routing_settings | Cấu hình theo provider ở phạm vi hệ thống và theo cặp (chủ sở hữu, provider) ở phạm vi học viên; chính sách định tuyến lưu theo khóa cấu hình
+Ngân hàng câu | 4 | question_groups, questions, | Nhóm nội dung 1–N câu hỏi,
+916 
+917 
+
+TABLE 918
+Nhóm nghiệp vụ | Số bảng | Các bảng trong nhóm | Quan hệ chính
+hỏi tổng quát |  | question_options, tts_jobs | câu hỏi 1–N phương án; mỗi nhóm có thể có nhiều tác vụ tổng hợp giọng đọc
+Ngân hàng nghe | 9 | listening_bank_templates, listening_groups, listening_group_versions, listening_speakers, listening_script_segments, listening_questions, listening_question_options, listening_audio_versions, listening_audio_generation_jobs | Nhóm nghe 1–N phiên bản nội dung; mỗi phiên bản 1–N người nói, phân đoạn kịch bản và câu hỏi; mỗi phiên bản audio gắn với đúng một tác vụ sinh audio
+Nhập đề nghe | 3 | listening_import_jobs, listening_import_candidates, listening_import_question_cand idates | Một lần nhập sinh tối đa 35 dữ liệu trung gian theo cụm audio và 50 theo câu hỏi; job liên kết tới đề thi được tạo ra
+Ngân hàng đọc và nhập đề đọc | 5 | reading_bank_templates, reading_group_banks, reading_group_questions, reading_import_jobs, reading_import_question_candi dates | Khuôn dạng 1–N nhóm đọc, nhóm đọc 1–N câu hỏi con; một lần nhập sinh 50 dữ liệu trung gian và truy vết được về nhóm đã duyệt
+Sinh đề đọc và nhật ký luyện đọc | 5 | reading_exam_blueprints, reading_exam_snapshots, reading_exam_snapshot_items, reading_exam_attempts, reading_practice_logs | Bản chụp đề 1–50 câu đã chốt; mỗi bản chụp 1–N lượt làm bài; người học 1–N nhật ký luyện theo dạng
+Đề thi và bài làm | 4 | tests, test_questions, test_attempts, attempt_answers | Đề thi liên kết nhiều–nhiều với câu hỏi qua bảng trung gian lưu phần thi và thứ tự; đề 1–N lượt làm bài, mỗi lượt 1–N đáp án
+Nhật ký luyện nghe | 3 | listening_logs, listening_playback_logs, listening_practice_attempts | Mỗi cặp người học–câu hỏi có một bản ghi trạng thái phát; người học 1–N lượt luyện nghe đã chấm kèm bản chụp nhóm câu hỏi
+Luyện viết | 1 | writing_submissions | Người học 1–N bài nộp; mỗi bài gắn với một câu hỏi viết và có thể được giáo viên duyệt lại
+Sổ tay và flashcard | 4 | notebook_folders, flashcard_decks, user_notes, study_sessions | Thư mục tự tham chiếu tối đa năm cấp, chứa nhiều bộ thẻ; mỗi bộ thẻ 1–N ghi chú; mỗi bộ ba người học–bộ thẻ–chế độ có
+919 
+920 
+
+TABLE 921
+Nhóm nghiệp vụ | Số bảng | Các bảng trong nhóm | Quan hệ chính
+ |  |  | một phiên học
+Kế hoạch học tập | 1 | study_plans | Người học có nhiều kế hoạch nhưng chỉ một kế hoạch đang hoạt động
+Shadowing | 5 | shadowing_channels, shadowing_lessons, shadowing_segments, shadowing_progress, shadowing_attempts | Kênh 1–N bài học, bài học 1–N phân đoạn; mỗi cặp người học–bài học có một bản ghi tiến độ và nhiều lượt luyện
+Gamification | 2 | user_streaks, user_badges | Mỗi người học có một bản ghi chuỗi ngày học và nhiều huy hiệu, mỗi huy hiệu chỉ ghi nhận một lần
+Tổng cộng | 52 |  | 
+922 Sơ đồ thực thể–liên kết tổng quát
+923 Do toàn bộ sơ đồ 52 bảng không thể đọc rõ trên một trang A4, Hình 3.31 trình bày mức khái quát. Sơ đồ thực thể–liên kết chi tiết được tách theo từng nhóm nghiệp vụ và trình bày tại mục 3.5.4.
+IMAGE D:\GreenFarm\tmp\chapter3\image39.jpeg
+924 Hình 3.31. Sơ đồ thực thể–liên kết mức khái quát
+925 Quan hệ người dùng sử dụng Firebase UID làm khóa liên kết. Các quan hệ 1–N
+926 
+927 phổ biến gồm group–question, question–option, lesson–segment, job–candidate và test–attempt. Quan hệ nhiều–nhiều được tách qua bảng trung gian như test_questions và attempt_answers. Một số thực thể dùng khóa ghép để bảo đảm một bản ghi duy nhất theo ngữ cảnh, chẳng hạn listening_logs(user_uid, question_id), shadowing_progress(user_uid, lesson_id) và ai_learner_provider_settings(owner_uid, provider).
+928 Sơ đồ thực thể–liên kết theo nhóm nghiệp vụ
+929 Do hệ thống có 52 bảng, sơ đồ thực thể–liên kết được chia theo từng nhóm nghiệp vụ để bảo đảm tính rõ ràng và dễ theo dõi. Các nhóm chính gồm người dùng và cấu hình AI, học liệu và ngân hàng câu hỏi, đề thi và đánh giá kết quả, cùng các công cụ hỗ trợ học tập. Trong sơ đồ, PK là khóa chính, FK là khóa ngoại, UK/UQ là ràng buộc duy nhất; một số thực thể tham chiếu được lặp lại để từng sơ đồ có thể được đọc độc lập.
+930 Nhóm người dùng, quản trị và cấu hình AI
+931 Hình 3.32 mô tả nhóm dữ liệu hồ sơ người dùng, thiết bị đăng nhập, nhật ký thao tác quản trị và các cấu hình phục vụ việc sử dụng mô hình AI ở phạm vi hệ thống cũng như phạm vi từng học viên.
+IMAGE D:\GreenFarm\tmp\chapter3\image40.jpeg
+932 Hình 3.32. Sơ đồ thực thể–liên kết nhóm người dùng, quản trị và cấu hình AI Trong sơ đồ, UserProfile là thực thể trung tâm, lưu hồ sơ người dùng gắn với UID
+933 của Firebase Authentication. UserDevice quản lý các thiết bị của người dùng bằng khóa ghép userUid và deviceFingerprint. AdminAuditLog ghi lại các thao tác quản trị và cho phép actorUid để trống nhằm bảo toàn lịch sử nhật ký.
+934 Các thực thể AiProviderSetting, AiLearnerProviderSetting và AiRoutingSetting
+935 
+936 dùng để cấu hình và định tuyến dịch vụ AI. Trong đó, AiLearnerProviderSetting hỗ trợ cấu hình riêng theo từng người dùng và provider; các khóa API được lưu dưới dạng mã hóa để tăng tính bảo mật.
+937 Nhóm ngân hàng câu hỏi tổng quát
+938 Hình 3.33 mô tả cấu trúc ngân hàng câu hỏi dùng chung của hệ thống. Nhóm dữ liệu này quản lý nhóm nội dung, câu hỏi, các phương án trả lời và những tác vụ tổng hợp âm thanh liên quan đến câu hỏi.
+IMAGE D:\GreenFarm\tmp\chapter3\image41.jpeg
+939 Hình 3.33. Sơ đồ thực thể–liên kết nhóm ngân hàng câu hỏi tổng quát QuestionGroup dùng để nhóm nội dung chung như đoạn văn, kịch bản nghe, hình
+940 ảnh hoặc âm thanh và có thể liên kết với nhiều Question. Mỗi câu hỏi có nhiều QuestionOption, với các ràng buộc duy nhất giúp tránh trùng số câu hỏi, phương án và thứ tự hiển thị trong cùng phạm vi.
+941 TtsJob lưu các tác vụ tổng hợp âm thanh cho nhóm câu hỏi; ràng buộc kết hợp theo nhóm, provider, giọng đọc và nội dung đầu vào giúp hạn chế tạo tác vụ trùng lặp.
+942 Nhóm ngân hàng câu hỏi nghe
+943 Hình 3.34 mô tả cấu trúc dữ liệu của ngân hàng câu hỏi nghe theo mô hình phiên bản, bao gồm khuôn dạng câu hỏi, nhóm nội dung nghe, phiên bản nội dung, người nói, các đoạn hội thoại, câu hỏi, phương án trả lời và phiên bản âm thanh.
+944 
+945 
+IMAGE D:\GreenFarm\tmp\chapter3\image42.jpeg
+946 Hình 3.34. Sơ đồ thực thể–liên kết nhóm ngân hàng câu hỏi nghe ListeningBankTemplate định nghĩa cấu trúc nhóm câu hỏi nghe theo đề TOPIK.
+947 ListeningGroup lưu định danh ổn định của nhóm nghe, còn ListeningGroupVersion quản lý các phiên bản nội dung, gồm người nói, kịch bản, câu hỏi và phương án trả lời. Phần âm thanh được quản lý riêng qua ListeningAudioGenerationJob và ListeningAudioVersion, cho phép lưu nhiều phiên bản audio theo thời gian. Liên kết giữa ListeningBankTemplate và ListeningGroup qua bankCode chỉ là liên kết logic.
+948 Nhóm pipeline nhập dữ liệu nghe lưu dữ liệu trung gian do AI hoặc quá trình xử lý tự động tạo ra trước khi quản trị viên kiểm duyệt và đưa vào ngân hàng câu hỏi chính.
+949 Nhóm pipeline nhập dữ liệu nghe
+950 Hình 3.35 mô tả quy trình lưu trữ dữ liệu trung gian khi hệ thống nhập đề nghe. Nhóm thực thể được thiết kế nhằm tách dữ liệu do AI hoặc quá trình xử lý tự động tạo ra khỏi ngân hàng câu hỏi chính trước khi được quản trị viên kiểm duyệt.
+951 
+952 
+IMAGE D:\GreenFarm\tmp\chapter3\image43.jpeg
+953 Hình 3.35. Sơ đồ thực thể–liên kết nhóm pipeline nhập dữ liệu nghe ListeningImportJob đại diện cho một lần nhập đề nghe và có thể tạo nhiều
+954 ListeningImportCandidate cùng ListeningImportQuestionCandidate để lưu dữ liệu trung gian theo nhóm audio và theo câu hỏi. Các candidate do AI, OCR hoặc pipeline tạo ra phải được kiểm duyệt trước khi chuyển thành dữ liệu chính thức. Các trường như sourceExamCode, idempotencyKey và ràng buộc duy nhất giúp hạn chế xử lý trùng khi hệ thống thực hiện retry.
+955 Nhóm ngân hàng câu hỏi đọc và pipeline nhập dữ liệu đọc
+956 Hình 3.36 mô tả dữ liệu của ngân hàng câu hỏi đọc và quá trình nhập nội dung đọc từ tệp PDF hoặc DOCX. Nhóm này bao gồm khuôn dạng câu hỏi đọc, dữ liệu trung gian được trích xuất từ đề và các nhóm câu hỏi đã được kiểm duyệt.
+957 
+958 
+IMAGE D:\GreenFarm\tmp\chapter3\image44.jpeg
+959 Hình 3.36. Sơ đồ thực thể–liên kết nhóm ngân hàng câu hỏi đọc và pipeline nhập dữ liệu đọc
+960 ReadingBankTemplate định nghĩa cấu trúc chuẩn của các dạng câu hỏi đọc TOPIK và được sử dụng bởi nhiều ReadingGroupBank. Mỗi nhóm đọc đã duyệt có thể chứa nhiều câu hỏi thông qua ReadingGroupQuestion.
+961 Quá trình nhập dữ liệu được quản lý bởi ReadingImportJob và ReadingImportQuestion Candidate, dùng để lưu nội dung OCR, đáp án gợi ý và trạng thái kiểm duyệt trước khi đưa vào ngân hàng chính. Liên kết với ReadingGroupBank giúp truy vết nguồn dữ liệu, còn các ràng buộc theo importJobId và importGroupOrder giúp hạn chế nhập trùng khi retry.
+962 Nhóm sinh đề và luyện tập đọc
+963 Hình 3.37 mô tả quá trình tạo đề đọc, lưu bản chụp cấu trúc đề và ghi nhận kết quả luyện tập của người học. Việc tách blueprint và snapshot giúp hệ thống duy trì tính ổn định của một đề sau khi đã được sinh.
+964 
+965 
+IMAGE D:\GreenFarm\tmp\chapter3\image45.jpeg
+966 Hình 3.37. Sơ đồ thực thể–liên kết nhóm sinh đề và luyện tập đọc ReadingExamBlueprintđịnhnghĩacấutrúcchuẩncủađềđọc,còn
+967 ReadingExamSnapshot lưu phiên bản đề đã được chốt tại một thời điểm. Mỗi snapshot gồm nhiều ReadingExamSnapshotItem liên kết với nhóm và câu hỏi đọc.
+968 Khi làm bài, ReadingExamAttempt liên kết trực tiếp với snapshot để bảo đảm cấu trúc đề không thay đổi dù ngân hàng câu hỏi được cập nhật sau đó. ReadingPracticeLog dùng để ghi nhận các hoạt động luyện tập đọc riêng lẻ.
+969 Nhóm đề thi, bài làm và nhật ký luyện tập
+970 Hình 3.38 mô tả nhóm dữ liệu phục vụ đề thi tổng hợp, câu hỏi thuộc đề, lượt làm bài, đáp án của học viên, bài viết và các nhật ký luyện nghe.
+IMAGE D:\GreenFarm\tmp\chapter3\image46.jpeg
+971 Hình 3.38. Sơ đồ thực thể–liên kết nhóm đề thi, bài làm và nhật ký luyện tập
+972 Test đại diện cho đề thi tổng hợp và liên kết nhiều - nhiều với Question thông qua TestQuestion, nơi lưu phần thi và thứ tự câu hỏi. TestAttempt ghi nhận mỗi lượt làm bài, còn AttemptAnswer lưu đáp án theo từng câu hỏi và bảo đảm mỗi câu chỉ có một đáp án hiện hành trong một lượt thi.
+973 
+974 Ngoài ra, hoạt động luyện nghe được ghi trên ba bảng: ListeningLog và ListeningPlaybackLog lưu trạng thái phát của từng câu hỏi, còn ListeningPracticeAttempt lưu mỗi lượt luyện nghe đã chấm kèm bản chụp nhóm câu hỏi để người học xem lại. WritingSubmission quản lý bài viết, hỗ trợ đánh giá bởi AI hoặc giáo viên thông qua reviewedByUid.
+975 Nhóm sổ tay, flashcard và kế hoạch học tập
+976 Hình 3.39 mô tả nhóm dữ liệu hỗ trợ quá trình tự học của người dùng, bao gồm cây thư mục sổ tay, bộ flashcard, ghi chú từ vựng hoặc ngữ pháp, phiên học và kế hoạch học tập cá nhân hóa.
+IMAGE D:\GreenFarm\tmp\chapter3\image47.jpeg
+977 Hình 3.39. Sơ đồ thực thể–liên kết nhóm sổ tay, flashcard và kế hoạch học tập NotebookFolder tổ chức sổ tay thành cây thư mục tự tham chiếu tối đa năm cấp;
+978 mỗi FlashcardDeck có thể nằm trong một thư mục, thuộc người dùng hoặc là deck hệ thống. UserNote lưu ghi chú từ vựng, ngữ pháp và hạn chế tạo trùng theo người dùng, loại ghi chú và nội dung.
+979 StudySession lưu trạng thái phiên học hiện tại và bảo đảm mỗi người dùng chỉ có một phiên cho cùng deck và chế độ học. StudyPlan quản lý kế hoạch học cá nhân dựa trên mục tiêu, ngày thi và thời lượng học mỗi ngày.
+980 Nhóm shadowing và gamification
+981 Hình 3.40 mô tả các thực thể phục vụ chức năng luyện shadowing và cơ chế gamification. Nhóm này quản lý nội dung bài luyện, các phân đoạn lời thoại, lịch sử luyện tập, tiến độ của người học, chuỗi ngày học và huy hiệu.
+982 
+983 
+IMAGE D:\GreenFarm\tmp\chapter3\image48.jpeg
+984 Hình 3.40. Sơ đồ thực thể–liên kết nhóm shadowing và gamification
+985 3.5.5. Từ điển dữ liệu các bảng trọng yếu
+986 Mục này mô tả chi tiết ba bảng đại diện cho các luồng nghiệp vụ chính là người dùng, làm bài thi và luyện viết của hệ thống. Trong cột ràng buộc, PK là khóa chính, FK là khóa ngoại, UQ là ràng buộc duy nhất và NN là ràng buộc không rỗng. Tên cột được trình bày theo quy ước của cơ sở dữ liệu quan hệ.
+987 Bảng 3.29. Từ điển dữ liệu bảng user_profiles
+988 
+
+TABLE 989
+Cột | Kiểu dữ liệu | Ràng buộc | Mô tả
+uid | String | PK | Định danh Firebase của người dùng
+email | String | NN, UQ | Địa chỉ email đăng nhập
+full_name, avatar_url, phone, address | String |  | Thông tin hồ sơ cá nhân
+date_of_birth | Date |  | Ngày sinh
+role | String | NN, mặc định 'user' | user, premium_user hoặc một trong sáu vai trò quản trị
+is_active | Boolean | NN, mặc định true | Trạng thái khóa hoặc mở tài khoản
+last_login_at | Timestamp |  | Thời điểm đăng nhập gần nhất
+990 Bảng user_profiles là điểm neo của toàn bộ dữ liệu cá nhân. Khi người dùng đăng nhập lần đầu, backend đồng bộ hồ sơ từ Firebase Authentication và tạo bản ghi tương
+991 
+992 ứng, nhờ đó mọi bảng khác chỉ cần tham chiếu tới một định danh duy nhất.
+993 Bảng 3.30. Từ điển dữ liệu nhóm đề thi và bài làm
+994 
+
+TABLE 995
+Cột | Kiểu dữ liệu | Ràng buộc | Mô tả
+tests.id | UUID | PK | Định danh đề thi
+tests.title, level, duration_minutes | String, Int, Int | NN | Tên đề, cấp độ và thời lượng làm bài
+tests.status | String | NN, mặc định 'draft' | Vòng đời đề thi: nháp, đã công bố, lưu trữ
+tests.import_job_id | UUID | UQ | Đề được tạo tự động từ một lần nhập học liệu; mỗi lần nhập chỉ sinh một đề
+tests.metadata | JSON | NN | Loại đề theo kỹ năng và thời lượng từng phần thi
+test_attempts.test_id, user_uid | UUID, String | FK, NN | Đề thi và người thực hiện lượt làm bài
+test_attempts.status, grading_status | String | NN | Trạng thái làm bài và trạng thái chấm; phần viết ở trạng thái chờ chấm
+test_attempts.test_snapshot | JSON | NN | Bản chụp đề tại thời điểm bắt đầu; đáp án được loại bỏ trước khi trả về client
+test_attempts.score_listenin g, score_reading, score_writing, total_score | Float | NN | Điểm theo từng kỹ năng và tổng điểm
+test_attempts.answer_write_lease_token, answer_write_lease_expire s_at | String, Timestamp |  | Khóa thuê ghi đáp án nhằm chặn ghi đồng thời
+attempt_answers.attempt_i d, question_id | UUID | PK ghép, FK | Bảo đảm mỗi câu hỏi chỉ có một đáp án hiện hành trong một lượt làm bài
+attempt_answers.selected_o ption_key, answer_text | String |  | Đáp án trắc nghiệm hoặc nội dung tự luận
+attempt_answers.is_correct, score_awarded, feedback | Boolean, Float, JSON |  | Kết quả chấm của từng câu
+996 Ba bảng trên tạo thành luồng làm bài hoàn chỉnh. Bản chụp đề và bản chụp câu hỏi bảo đảm kết quả cũ không thay đổi khi quản trị viên chỉnh sửa học liệu, còn khóa thuê ghi đáp án ngăn hai thiết bị cùng ghi vào một lượt làm bài.
+997 Bảng 3.31. Từ điển dữ liệu bảng writing_submissions
+998 
+
+TABLE 999
+Cột | Kiểu dữ liệu | Ràng buộc | Mô tả
+id | UUID | PK | Định danh bài nộp
+user_uid, question_id | String, UUID | FK, NN | Người học và câu hỏi viết
+writing_type | String | NN | Dạng câu 51, 52, 53 hoặc 54
+answer_text, | String, JSON | NN | Bài làm dạng văn bản hoặc kết quả nhận dạng
+1000 
+1001 
+
+TABLE 1002
+Cột | Kiểu dữ liệu | Ràng buộc | Mô tả
+answer_metadata |  |  | từ ảnh, kèm siêu dữ liệu
+ai_score, ai_score_breakdown, ai_feedback, ai_grammar_errors, ai_vocab_suggestions | Float, JSON, String |  | Kết quả chấm của AI theo từng tiêu chí
+teacher_score, teacher_feedback, reviewed_by_uid | Float, String, String | FK | Kết quả chấm thủ công của giáo viên
+status, error_message, scored_at | String, String, Timestamp | NN, mặc định 'submitted' | Bài luôn được lưu trước khi gọi AI nên vẫn truy xuất được khi dịch vụ lỗi
+1003 Bài viết được ghi xuống cơ sở dữ liệu trước khi gọi dịch vụ AI. Nếu nhà cung cấp gặp lỗi, bản ghi vẫn tồn tại ở trạng thái lỗi kèm thông điệp, người học không mất bài và có thể yêu cầu chấm lại.
+1004 Thiết kế API
+1005 Toàn bộ trao đổi giữa giao diện và máy chủ đi qua một tầng API duy nhất. Hệ thống hiện có 227 điểm cuối thuộc 39 lớp điều khiển, trong đó 88 điểm cuối phục vụ người học và 139 điểm cuối phục vụ quản trị viên. Mục này trình bày quy ước thiết kế chung, danh mục các nhóm API, đặc tả các API chính và ma trận phân quyền.
+1006 Quy ước thiết kế
+1007 Các quy ước dưới đây được áp dụng thống nhất cho mọi điểm cuối nhằm giảm chi phí ghi nhớ cho phía giao diện và giúp việc kiểm thử hợp đồng API trở nên khả thi.
+1008 Bảng 3.32. Quy ước thiết kế API
+1009 
+
+TABLE 1010
+Khía cạnh | Quy ước áp dụng | Thành phần hiện thực
+Kiểu giao tiếp | REST trên HTTPS, dữ liệu trao đổi bằng JSON, mọi đường dẫn mang tiền tố /api/v1. Tài nguyên đặt tên theo danh từ số nhiều; hành động nghiệp vụ đặc thù dùng POST tới tài nguyên con như/submit, /confirm, /materialize hoặc /generate | Khai báo đường dẫn tại lớp điều khiển
+Xác thực | Mỗi yêu cầu mang tiêu đề Authorization với lược đồ Bearer và mã thông báo định danh do Firebase cấp. Phiên làm việc không lưu trạng thái trên máy chủ và không dùng cookie nên không cần chống giả mạo yêu cầu liên trang | FirebaseAuthenticationFilter xác minh mã thông báo rồi tạo principal cho ngữ cảnh bảo mật của Spring Security
+Đường dẫn công khai | Chỉ năm nhóm không yêu cầu đăng nhập: trạng thái hệ thống, nhóm xác thực, danh mục đề đã công bố, chi tiết câu hỏi viết đã công bố và điểm kiểm tra sức khỏe ứng dụng. Mọi đường dẫn còn lại bắt buộc xác thực | Cấu hình chuỗi lọc trong SecurityConfig
+Phân quyền quản trị | Quyền được kiểm tra tại máy chủ theo ánh xạ vai trò sang tập quyền, không dựa vào giao | AdminAccessService kiểm tra quyền yêu cầu ở đầu mỗi thao tác quản trị
+1011 
+1012 
+
+TABLE 1013
+Khía cạnh | Quy ước áp dụng | Thành phần hiện thực
+ | diện. Thiếu quyền trả về mã 403 trước khi chạm tới tầng nghiệp vụ | 
+Cô lập dữ liệu cá nhân | Định danh người dùng luôn lấy từ mã thông báo, không nhận từ tham số yêu cầu. Mọi truy vấn dữ liệu cá nhân được lọc theo định danh này | Tầng dịch vụ nhận principal và lọc theo chủ sở hữu ở mọi truy vấn
+Cấu trúc lỗi | Phản hồi lỗi gồm cờ thất bại, mã lỗi ổn định, thông điệp cho người dùng, danh sách lỗi theo từng trường và dấu thời gian | GlobalExceptionHandler và ApiErrorResponse
+Phân trang | Danh sách dài dùng tham số giới hạn và vị trí bắt đầu; giới hạn bị chặn trong khoảng cho phép. Phản hồi kèm cờ cho biết còn dữ liệu phía sau | Lớp PageResponse và kiểm tra ràng buộc trên tham số
+Tải tệp lên | Sử dụng biểu mẫu nhiều phần. Hệ thống kiểm tra phần mở rộng, kiểu nội dung và chuỗi byte nhận dạng đầu tệp trước khi ghi lên kho lưu trữ; tệp nhập đề đọc bị giới hạn dung lượng | Bộ lọc giới hạn kích thước và dịch vụ lưu trữ nhập liệu
+Giới hạn tần suất | Ba nhóm chức năng AI dành cho người học bị giới hạn số lần gọi theo tài khoản; vượt ngưỡng trả về mã 429 | Bộ chặn giới hạn tần suất theo thuật toán gáo mã thông báo
+Khóa lạc quan | Thao tác trên dữ liệu trung gian của quá trình nhập học liệu phải gửi kèm số hiệu phiên bản đang hiển thị; nếu lệch phiên bản, máy chủ trả về mã 409 thay vì ghi đè | Trường expectedRevision trong các yêu cầu duyệt và sửa
+1014 Việc chuẩn hóa lỗi có ý nghĩa quan trọng vì giao diện cần phân biệt được lỗi do người dùng nhập sai, lỗi do thiếu quyền và lỗi do dịch vụ bên ngoài để hiển thị thông điệp phù hợp. Bảng 3.33 liệt kê các mã lỗi mà hệ thống cam kết giữ ổn định.
+1015 Bảng 3.33. Mã lỗi chuẩn hóa của hệ thống
+1016 
+
+TABLE 1017
+Mã HTTP | Mã lỗi | Tình huống phát sinh
+400 | bad_request | Tham số nghiệp vụ không hợp lệ
+400 | validation_error | Dữ liệu gửi lên không qua được kiểm tra ràng buộc, JSON sai định dạng, giá trị liệt kê không tồn tại hoặc kiểu tham số sai; phản hồi kèm danh sách lỗi theo từng trường
+401 | invalid_firebase_token | Mã thông báo sai, hết hạn hoặc không xác minh được
+401 | api_authentication_required | Gọi đường dẫn được bảo vệ mà không gửi mã thông báo
+403 | forbidden | Tài khoản thiếu quyền quản trị cần thiết hoặc thao tác trên tài nguyên của người khác
+404 | not_found | Không tìm thấy bản ghi, hoặc bản ghi thuộc người dùng khác nên được che giấu
+409 | conflict | Trùng mã đề nguồn, số hiệu phiên bản đã cũ, chọn phiên bản audio không còn hợp lệ hoặc thiếu dạng bài khi sinh đề viết
+410 | gone | Điểm cuối thế hệ cũ đã ngừng phục vụ
+1018 
+1019 
+
+TABLE 1020
+Mã HTTP | Mã lỗi | Tình huống phát sinh
+429 | rate_limited | Vượt hạn mức gọi dịch vụ AI của tài khoản
+502 | dataconnect_error | Tầng dữ liệu trả lỗi; thông điệp đã được lược bỏ tên bảng và câu truy vấn
+503 | ai_unavailable | Không nhà cung cấp AI nào khả dụng cho tác vụ, phản hồi nêu lý do theo từng nhà cung cấp
+500 | internal_error | Lỗi chưa phân loại; chi tiết chỉ được ghi vào nhật ký
+1021 Danh mục các nhóm API
+1022 Các điểm cuối được tổ chức theo miền nghiệp vụ, mỗi miền có một tiền tố đường dẫn riêng. Bảng 3.34 tổng hợp số lượng điểm cuối và yêu cầu quyền của từng nhóm.
+1023 Bảng 3.34. Tổng hợp các nhóm API của hệ thống
+1024 
+
+TABLE 1025
+Nhóm chức năng | Tiền tố đường dẫn | Số điểm cuối | Quyền truy cập
+Trạng thái hệ thống | /api/v1/system | 1 | Công khai
+Xác thực và hồ sơ | /api/v1/auth | 3 | Mã thông báo hợp lệ
+Đề thi và làm bài | /api/v1/tests | 6 | Danh mục công khai; lượt làm bài theo chủ sở hữu
+Luyện đọc theo dạng | /api/v1/reading-bank/practice | 5 | Người học
+Sinh đề và thi thử đọc | /api/v1/reading-bank/exams | 5 | Người học
+Luyện nghe | /api/v1/listening | 7 | Người học
+Luyện viết | /api/v1/writing | 7 | Người học; chi tiết câu hỏi công khai
+Sổ tay, thư mục và bộ thẻ | /api/v1/notes, /api/v1/notebook | 21 | Người học, theo chủ sở hữu
+Shadowing | /api/v1/shadowing | 10 | Người học
+Công cụ AI cho người học | /api/v1/ai | 10 | Người học, có giới hạn tần suất
+Kế hoạch học tập | /api/v1/study-plans | 3 | Người học
+Tổng quan và gamification | /api/v1/users/me | 10 | Người học
+Kiểm tra quyền quản trị | /api/v1/admin/access | 2 | Vai trò quản trị
+Tổng quan, người dùng và nhật ký | /api/v1/admin/dashboard, /users,/audit-logs | 6 | dashboard:read, users:read và users:write, audit:read
+Quản trị đề thi | /api/v1/admin/tests | 13 | tests:read, tests:write
+Quản trị ngân hàng đọc | /api/v1/admin/reading,/api/v1/admin/reading-bank | 30 | questions:read, questions:write
+Quản trị ngân hàng nghe | /api/v1/admin/listening,/api/v1/admin/listening-bank | 43 | questions:read, questions:write, tests:write
+Quản trị luyện viết | /api/v1/admin/writing | 10 | questions:read, questions:write
+1026 
+1027 
+
+TABLE 1028
+Nhóm chức năng | Tiền tố đường dẫn | Số điểm cuối | Quyền truy cập
+Quản trị bộ thẻ hệ thống | /api/v1/admin/notes | 8 | questions:read, questions:write
+Quản trị shadowing | /api/v1/admin/shadowing | 17 | questions:write
+Quản trị tệp phương tiện | /api/v1/admin/media | 2 | questions:write
+Công cụ và cấu hình AI quản trị | /api/v1/admin/ai, /api/v1/admin/ai-settings | 8 | questions:write, ai:settings
+Tổng cộng |  | 227 | 
+1029 Đặc tả các API chính
+1030 Bảng 3.35 đặc tả các điểm cuối tiêu biểu cho từng luồng nghiệp vụ, gồm 24 điểm cuối phục vụ người học và 16 điểm cuối phục vụ quản trị viên. Các điểm cuối còn lại chủ yếu là thao tác đọc, sửa, xóa đơn giản theo cùng quy ước và đã được tổng hợp theo nhóm tại Bảng 3.34. Trong cột quyền, “Chủ sở hữu” nghĩa là người dùng chỉ thao tác được trên bản ghi do chính mình tạo ra; dấu “…” thay cho tiền tố /api/v1/admin.
+1031 Bảng 3.35. Đặc tả các API chính của hệ thống
+1032 
+
+TABLE 1033
+Phương thức và đường dẫn | Chức năng | Dữ liệu vào | Quyền
+Luồng học tập của người học
+POST /api/v1/auth/sync | Khởi tạo hồ sơ sau đăng nhập, cập nhật thời điểm đăng nhập | Mã thông báo | Đã đăng nhập
+GET /api/v1/tests/published | Danh mục đề đã công bố, lọc theo kỹ năng và kiểu đề | Phần thi, kiểu đề, phân trang | Công khai
+POST/api/v1/tests/{testId}/attempts | Bắt đầu hoặc khôi phục lượt làm bài, tạo bản chụp đề không kèm đáp án | Mã đề | Đã đăng nhập
+PUT/api/v1/tests/attempts/{attemptI d}/answers | Lưu tạm các đáp án thay đổi, có khóa thuê chống ghi đồng thời | Danh sách đáp án | Chủ sở hữu
+POST/api/v1/tests/attempts/{attemptI d}/submit | Nộp bài, chấm phần khách quan tại máy chủ; phần viết chờ chấm | Mã lượt làm bài | Chủ sở hữu
+GET/api/v1/tests/attempts/{attemptI d}/result | Kết quả chi tiết; tự nộp nếu lượt làm bài đã hết giờ | Mã lượt làm bài | Chủ sở hữu
+GET /api/v1/reading-bank/practice/banks/{bankCode}/random | Lấy ngẫu nhiên một nhóm câu hỏi đọc đã công bố, không kèm đáp án | Mã dạng bài | Đã đăng nhập
+POST /api/v1/reading-bank/practice/submit | Chấm bài luyện đọc, trả lời giải và cộng điểm kinh nghiệm | Mã nhóm, đáp án, thời gian | Đã đăng nhập
+GET | Nội dung bài nghe gồm audio, | Mã nhóm | Đã đăng
+1034 
+1035 
+
+TABLE 1036
+Phương thức và đường dẫn | Chức năng | Dữ liệu vào | Quyền
+/api/v1/listening/groups/{groupI d} | phụ đề và câu hỏi, không kèm đáp án |  | nhập
+POST/api/v1/listening/groups/{groupI d}/submit | Chấm tại máy chủ và lưu lượt luyện nghe kèm bản chụp nhóm câu hỏi | Đáp án, thời gian, chế độ | Đã đăng nhập
+POST/api/v1/listening/logs/{questionI d} | Ghi vị trí, tốc độ và số lần nghe | Trạng thái phát | Chủ sở hữu
+POST/api/v1/writing/submissions | Lưu bài viết rồi gọi AI chấm theo thang điểm của dạng bài | Mã câu hỏi, dạng câu, nội dung | Đã đăng nhập
+POST/api/v1/writing/submissions/ocr | Nhận dạng chữ viết tay tiếng Hàn từ ảnh | Địa chỉ ảnh | Đã đăng nhập
+POST /api/v1/notes | Tạo ghi chú hoặc thẻ từ vựng, ngữ pháp | Nội dung, loại, bộ thẻ | Đã đăng nhập
+POST /api/v1/notes/{id}/review | Ghi mức độ nhớ và tính lại lịch ôn theo SM-2 | Mức đánh giá 0–5 | Chủ sở hữu
+PUT/api/v1/notes/decks/{id}/session | Lưu hàng đợi, vị trí và kết quả phiên học | Chế độ, hàng đợi, vị trí | Chủ sở hữu
+POST /api/v1/notes/folders | Tạo thư mục sổ tay, tối đa năm cấp, không trùng tên trong cùng thư mục cha | Tên, thư mục cha | Đã đăng nhập
+POST/api/v1/shadowing/lessons/yout ube | Tạo bài shadowing từ video công khai, xử lý bất đồng bộ | Địa chỉ video, cấp độ | Đã đăng nhập
+POST/api/v1/shadowing/pronunciatio n | Nhận dạng bản ghi âm và so khớp với câu mẫu để chấm phát âm | Phân đoạn, tệp ghi âm | Đã đăng nhập
+PUT/api/v1/ai/settings/{provider} | Lưu khóa AI cá nhân, mã hóa trước khi ghi | Nhà cung cấp, khóa, model | Chủ sở hữu
+POST/api/v1/ai/sentence/analyze | Phân tích câu: tách từ, ngữ pháp và các bước dịch | Câu tiếng Hàn | Giới hạn tần suất
+POST /api/v1/ai/tutor | Hỏi đáp với trợ giảng kèm ngữ cảnh bài đang học | Lịch sử hội thoại, ngữ cảnh | Giới hạn tần suất
+POST /api/v1/study-plans/me/generate | Dùng AI sinh kế hoạch học theo tuần | Không có | Chủ sở hữu
+GET/api/v1/users/me/gamification/s ummary | Điểm kinh nghiệm, cấp độ, chuỗi ngày học và mục tiêu ngày | Không có | Chủ sở hữu
+Luồng quản trị
+PATCH/api/v1/admin/users/{uid}/role | Đổi vai trò người dùng, có ghi nhật ký | Vai trò mới | users:write
+1037 
+1038 
+
+TABLE 1039
+Phương thức và đường dẫn | Chức năng | Dữ liệu vào | Quyền
+GET /api/v1/admin/audit-logs | Nhật ký thao tác quản trị có phân trang | Phân trang | audit:read
+PATCH/api/v1/admin/tests/{id}/status | Công bố hoặc thu hồi đề thi | Trạng thái | tests:write
+POST/api/v1/admin/tests/generate-writing | Sinh đề viết gồm một câu cho mỗi dạng 51–54 | Không có | tests:write
+POST /api/v1/admin/reading-bank/import-jobs | Tạo tác vụ nhận dạng đề đọc từ PDF hoặc DOCX | Tệp đề, mã đề nguồn, đáp án | questions:w rite
+POST …/reading-bank/import-jobs/{jobId}/candidates/{candid ateId}/confirm | Duyệt một câu hỏi; chặn nếu thiếu ảnh, đoạn văn hoặc trùng phương án | Số hiệu phiên bản | questions:w rite
+POST …/reading-bank/import-jobs/{jobId}/materialize | Đưa câu hỏi đã duyệt vào ngân hàng và tạo bộ đề đọc | Mã tác vụ | questions:w rite
+PUT /api/v1/admin/listening-bank/groups/{groupId} | Lưu nhóm bài nghe thành một phiên bản mới bất biến | Bản nháp nhóm | questions:w rite
+POST …/listening-bank/groups/{groupId}/audio/se lect | Chọn phiên bản audio đang sử dụng | Mã phiên bản audio | questions:w rite
+GET …/listening-bank/groups/{groupId}/preview | Xem trước như người học ở chế độ thi, luyện tập hoặc xem lại | Chế độ xem | questions:re ad
+POST /api/v1/admin/listening-bank/import-jobs | Tạo tác vụ nhập đề nghe từ audio và tệp đề in | Tệp audio, tệp đề, đáp án | questions:w rite, tests:write
+PATCH …/listening-bank/import-jobs/{jobId}/candidates/{candid ateId}/boundaries | Chỉnh mốc đầu, cuối của một cụm audio và dịch chuyển cụm liền kề | Mốc thời gian mới | questions:w rite
+POST …/listening-bank/import-jobs/{jobId}/materialize | Đưa 35 cụm audio đã duyệt vào ngân hàng nghe và tạo đề | Mã tác vụ | questions:w rite, tests:write
+POST/api/v1/admin/writing/submissio ns/{submissionId}/review | Giáo viên chấm điểm và nhận xét bài viết | Điểm, nhận xét | questions:w rite
+POST…/shadowing/lessons/from-listening-group/{groupId} | Tạo bài shadowing từ nhóm bài nghe đã duyệt | Mã nhóm nghe | questions:w rite
+PUT /api/v1/admin/ai-settings/routing-policy | Đổi chính sách định tuyến tác vụ AI tới nhà cung cấp | Chính sách theo tác vụ | ai:settings
+1040 
+1041 Ma trận vai trò và quyền
+1042 Hệ thống không gắn quyền trực tiếp vào từng tài khoản mà gắn vào vai trò, sau đó ánh xạ vai trò sang tập quyền cố định trong mã nguồn. Cách làm này giúp việc kiểm tra quyền chỉ diễn ra tại một điểm duy nhất và dễ kiểm thử.
+1043 Bảng 3.36. Ma trận vai trò và quyền truy cập
+1044 
+
+TABLE 1045
+Vai trò | Tập quyền | Nhóm API được phép sử dụng
+super_admin | Toàn quyền | Toàn bộ API quản trị
+admin | admin:access, dashboard:read, users:read, users:write, audit:read, tests:read, tests:write, questions:read, questions:write, ai:settings, reports:read | Mọi nhóm trừ nhóm thanh toán
+content_admin | admin:access, dashboard:read, tests:read, tests:write, questions:read, questions:write, cms:write | Đề thi, ngân hàng đọc, ngân hàng nghe, luyện viết, bộ thẻ, shadowing, tệp phương tiện và công cụ phân tích AI
+teacher_reviewer | admin:access, dashboard:read, writing:read, writing:score | Tổng quan quản trị. Màn hình duyệt bài viết hiện yêu cầu questions:read và questions:write nên vai trò này chưa truy cập được, đây là hạn chế đã nêu ở mục 6.2
+support_admin | admin:access, dashboard:read, users:read, users:write | Quản trị người dùng
+finance_admin | admin:access, dashboard:read, payments:read, payments:write | Tổng quan quản trị; hệ thống chưa có API thanh toán tương ứng
+user và premium_user | Không có quyền quản trị | Toàn bộ API dành cho người học, giới hạn trong dữ liệu của chính tài khoản
+1046 Tài khoản bị khóa sẽ bị từ chối ngay ở bước tra cứu hồ sơ, trước khi hệ thống xét đến vai trò. Nhờ vậy việc vô hiệu hóa một tài khoản có hiệu lực tức thì trên mọi điểm cuối được bảo vệ.
+1047 Thiết kế giao diện
+1048 Giao diện TopikLearn được xây dựng theo mô hình ứng dụng đơn trang. Toàn bộ 47 màn hình được khai báo trong một bộ định tuyến phía trình duyệt, trong đó 27 màn hình phục vụ người học và 20 màn hình phục vụ quản trị viên. Mục này trình bày nguyên tắc thiết kế, cấu trúc bố cục, sơ đồ điều hướng, danh sách màn hình gắn với API và use case tương ứng, cùng thiết kế tương tác của các màn hình trọng tâm. Hình ảnh giao diện thực tế được trình bày tại Chương 4.
+1049 
+1050 Nguyên tắc thiết kế
+1051 Sáu nguyên tắc dưới đây được áp dụng xuyên suốt nhằm bảo đảm trải nghiệm nhất quán giữa các phân hệ và tránh để giao diện làm lộ dữ liệu mà máy chủ đang bảo vệ.
+1052 Giữ liền mạch một phiên học. Ứng dụng không tải lại trang khi chuyển màn hình; dữ liệu từ máy chủ được lưu đệm trong một khoảng thời gian ngắn nên thao tác quay lại danh sách diễn ra tức thì. Công cụ tra từ và trợ giảng AI được thiết kế dưới dạng lớp phủ để người học không phải rời khỏi bài đang làm.
+1053 Không hiển thị đáp án trước khi nộp. Giao diện chỉ hiển thị những gì API trả về. Vì dữ liệu bài đang làm không chứa đáp án và phụ đề bị ẩn ở chế độ thi, người học không thể xem trước kết quả bằng công cụ phát triển của trình duyệt.
+1054 Mọi vùng dữ liệu đều có bốn trạng thái. Khung xương khi tải lần đầu, chỉ báo khi làm mới, trạng thái rỗng kèm hành động gợi ý và thông báo lỗi lấy từ mã lỗi của API. Nhờ vậy người dùng luôn biết hệ thống đang ở trạng thái nào.
+1055 Tập trung khi làm bài thi. Màn hình làm bài và màn hình kết quả ẩn toàn bộ thanh điều hướng, chỉ giữ đồng hồ đếm ngược, lưới số câu và thao tác nộp bài.
+1056 Thống nhất bằng hệ thống thành phần dùng chung. Bảng màu, cỡ chữ và khoảng cách được khai báo tập trung; các thành phần lặp lại như thẻ ghi chú, trình phát audio, hộp thoại và bảng dữ liệu được tái sử dụng giữa các phân hệ.
+1057 Thích ứng với kích thước màn hình. Bố cục dùng lưới co giãn, thanh điều hướng thu gọn thành biểu tượng trên màn hình hẹp, bảng dữ liệu dài cuộn ngang trong khung riêng để thân trang không bị tràn.
+1058 Cấu trúc bố cục
+1059 Giao diện sử dụng bốn khung bố cục. Trang giới thiệu dành cho khách không yêu cầu đăng nhập; không gian học viên gồm thanh điều hướng, thanh trên và vùng nội dung; phòng thi ẩn toàn bộ điều hướng; khu vực quản trị có thanh điều hướng 13 mục và chỉ mở khi tài khoản có quyền admin:access.
+1060 Hình 3.42 mô tả bố cục của không gian học viên, nơi người dùng dành phần lớn thời gian. Thanh điều hướng bên trái nhóm các chức năng theo mục tiêu sử dụng thay vì theo cấu trúc kỹ thuật, giúp người học tìm nhanh hoạt động tiếp theo.
+1061 
+1062 
+IMAGE D:\GreenFarm\tmp\chapter3\image49.jpeg
+1063 Hình 3.42. Bố cục màn hình không gian học viên
+1064 Ngược lại, phòng thi được thiết kế theo hướng loại bỏ mọi yếu tố gây phân tán. Hình 3.43 cho thấy chỉ còn lại thông tin cần thiết cho việc làm bài: tiến độ phần thi, thời gian còn lại, nội dung câu hỏi và lưới số câu để di chuyển nhanh.
+1065 
+IMAGE D:\GreenFarm\tmp\chapter3\image50.jpeg
+1066 Hình 3.43. Bố cục màn hình phòng thi
+1067 Sơ đồ điều hướng
+1068 Sơ đồ điều hướng trong Hình 3.41 thể hiện ba vùng của ứng dụng. Khách truy cập chỉ xem được trang chủ và các trang giới thiệu. Sau khi xác thực, hệ thống đọc vai trò của tài khoản từ máy chủ: tài khoản học viên vào không gian học tập, còn tài khoản có vai trò quản trị được chuyển thẳng tới khu vực quản trị. Các màn hình làm bài tách khỏi khung bố cục chung để bảo đảm sự tập trung.
+1069 
+1070 
+IMAGE D:\GreenFarm\tmp\chapter3\image51.jpeg
+1071 
+1072 Hình 3.41. Sơ đồ điều hướng của giao diện
+1073 Danh sách màn hình
+1074 Bảng 3.37 liệt kê toàn bộ màn hình của hệ thống kèm đường dẫn và use case tương ứng đã mô tả tại mục 3.3. Việc đối chiếu này cho thấy các yêu cầu chức năng đều có màn hình hiện thực và không có màn hình nào nằm ngoài phạm vi đã xác định.
+1075 Bảng 3.37. Danh sách màn hình của hệ thống
+1076 
+
+TABLE 1077
+Mã | Màn hình | Đường dẫn | Use case
+Nhóm màn hình dành cho khách truy cập
+GD-01 | Trang chủ và hộp thoại xác thực | / | UC-01, UC-02
+GD-02 | Sáu trang giới thiệu tính năng | /luyen-doc, /luyen-nghe, /luyen-viet, /thi-thu,/tu-vung, /goi-hoc | —
+Nhóm màn hình dành cho học viên
+GD-10 | Tổng quan học tập | /learn | UC-11, UC-12
+GD-11 | Hồ sơ cá nhân | /profile | UC-03
+GD-12 | Cấu hình AI cá nhân | /settings/ai | UC-10
+GD-20 | Sảnh luyện đọc | /reading/practice | UC-04
+GD-21 | Phiên luyện đọc | /reading/practice/:bankCode | UC-04, UC-08
+GD-22 | Kho đề theo kỹ năng | /exams | UC-05, UC-13, UC-14
+GD-23 | Danh mục thi thử TOPIK | /tests | UC-05, UC-13,
+1078 
+1079 
+
+TABLE 1080
+Mã | Màn hình | Đường dẫn | Use case
+ |  |  | UC-14
+GD-24 | Phòng thi | /tests/take/:attemptId | UC-05, UC-13, UC-14
+GD-25 | Kết quả bài thi | /tests/result/:attemptId | UC-05, UC-13, UC-14
+GD-30 | Sảnh luyện nghe | /listening-practice | UC-06
+GD-31 | Phiên luyện nghe | /listening-practice/:groupId | UC-06
+GD-40 | Luyện viết | /writing | UC-07
+GD-41 | Lịch sử bài viết | /writing/history | UC-07
+GD-50 | Sổ tay ghi chú | /notebook | UC-08
+GD-51 | Bảng viết | /notebook/whiteboard | UC-08
+GD-52 | Tài liệu cá nhân | /notebook/documents | UC-08
+GD-53 | Ôn thẻ đến hạn | /notebook/review | UC-08
+GD-54 | Học bộ thẻ theo ba chế độ | /notebook/study,/vocabulary/decks/:deckId/study | UC-08
+GD-55 | Từ vựng theo cây thư mục | /vocabulary | UC-08
+GD-60 | Phân tích câu tiếng Hàn | /sentence-analysis | UC-10
+GD-61 | Trợ giảng AI và tra từ (lớp phủ) | Mọi màn hình học viên | UC-10
+GD-70 | Danh mục shadowing | /shadowing | UC-09
+GD-71 | Phiên shadowing | /shadowing/:lessonId | UC-09
+Nhóm màn hình dành cho quản trị viên
+QT-01 | Tổng quan quản trị | /admin/dashboard | UC-15
+QT-02 | Người dùng và chi tiết người dùng | /admin/users, /admin/users/:uid | UC-16
+QT-03 | Nhật ký thao tác quản trị | /admin/audit-logs | UC-16
+QT-04 | Đề thi và trình soạn đề | /admin/tests, /admin/tests/:testId | UC-20
+QT-05 | Kho đề theo kỹ năng | /admin/skill-exams | UC-20
+QT-06 | Ngân hàng đọc và trình soạn nhóm | /admin/reading, /admin/reading/groups/:groupId | UC-17, UC-19
+QT-07 | Nhập đề đọc từ tệp | /admin/reading/upload | UC-21
+QT-08 | Ngân hàng nghe và trình soạn nhóm | /admin/listening,/admin/listening/groups/:groupId | UC-18
+QT-09 | Nhập đề nghe từ audio | /admin/listening/import | UC-21
+QT-10 | Câu hỏi viết và duyệt bài nộp | /admin/writing | UC-19
+QT-11 | Bộ thẻ hệ thống | /admin/vocabulary, /admin/vocabulary/:deckId | UC-19
+QT-12 | Kho nội dung shadowing | /admin/shadowing | UC-20
+QT-13 | Cấu hình AI hệ thống | /admin/settings/ai | UC-22
+1081 Thiết kế tương tác của các màn hình trọng tâm
+1082 
+1083 Bốn màn hình dưới đây có luồng tương tác phức tạp hơn phần còn lại, vì phải xử lý thời gian thực, dữ liệu lớn hoặc kết quả trả về từ dịch vụ bên ngoài. Bảng 3.38 mô tả luồng thao tác và các quy tắc giao diện tương ứng.
+1084 Bảng 3.38. Thiết kế tương tác của các màn hình trọng tâm
+1085 
+
+TABLE 1086
+Màn hình | Luồng tương tác chính | Quy tắc giao diện
+Phòng thi (GD-24) | Chọn đề, hệ thống tạo lượt làm bài hoặc khôi phục lượt đang dở; làm từng phần thi theo thời lượng TOPIK; mỗi lần chọn đáp án giao diện lưu tạm phần thay đổi; khi hết giờ hoặc bấm nộp, máy chủ chấm và chuyển sang trang kết quả | Ẩn thanh điều hướng để tránh phân tán; đồng hồ đếm ngược theo từng phần; lưới số câu đổi màu theo trạng thái đã trả lời và đánh dấu; cảnh báo khi người dùng định rời trang; bản nháp lưu thêm trên trình duyệt để khôi phục tức thì
+Phiên luyện nghe (GD-31) | Chọn nhóm bài, nghe audio, đổi tốc độ phát, tua theo mốc từng câu, trả lời rồi nộp; sau khi nộp giao diện hiện đáp án, phụ đề đồng bộ theo từng từ và lời giải, kèm nút chuyển sang một nhóm khác cùng dạng | Phụ đề tô sáng từ đang phát; số lần nghe và vị trí được ghi lại để lần sau tiếp tục; với nhóm không có mốc thời gian thật, thanh thời gian trải đều toàn bản ghi
+Luyện viết (GD-40) | Chọn dạng câu từ 51 đến 54, đọc đề và phần lý thuyết, nhập bài hoặc tải ảnh bài viết tay để nhận dạng, chỉnh sửa rồi nộp; hệ thống trả điểm theo tiêu chí, nhận xét và danh sách lỗi ngữ pháp | Bộ đếm ký tự theo giới hạn của dạng bài; trạng thái đang chấm hiển thị khung xương; khi dịch vụ AI lỗi vẫn hiển thị bài đã lưu kèm nút chấm lại; luôn ghi rõ điểm AI chỉ mang tính tham khảo
+Nhập đề nghe (QT-09) | Tải tệp audio, tệp đề in và bảng đáp án; tác vụ chạy nền theo từng bước; kết quả là 35 cụm audio và 50 câu hỏi ở trạng thái chờ duyệt; quản trị viên nghe từng cụm, chỉnh mốc thời gian, kịch bản, bản dịch rồi xác nhận; cuối cùng đưa vào ngân hàng và sinh đề | Trình hướng dẫn bốn bước với thanh tiến độ; cụm lỗi được đánh dấu cảnh báo nhưng không chặn các cụm còn lại; trạng thái rỗng có nút nhận diện lại audio; các con số 35 và 50 lấy từ danh mục khuôn dạng của máy chủ
+1087 Xử lý trạng thái và khả năng tiếp cận
+1088 Mọi thông báo lỗi đều bắt nguồn từ mã lỗi chuẩn hóa ở mục 3.6.1: lỗi xác thực đưa người dùng về bước đăng nhập, lỗi phân quyền báo không đủ quyền, lỗi vượt hạn mức AI nêu thời điểm thử lại, lỗi kiểm tra dữ liệu gắn vào đúng ô nhập. Các nút và ô nhập có trạng thái tiêu điểm để thao tác bằng bàn phím; chế độ học thẻ có phím tắt; học liệu dùng phông chữ có đủ ký tự Hangul.

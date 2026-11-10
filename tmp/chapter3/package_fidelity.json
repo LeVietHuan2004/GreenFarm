@@ -1,0 +1,39 @@
+{
+  "preserved_parts": 86,
+  "changed_parts": [
+    "[Content_Types].xml",
+    "docProps/core.xml",
+    "word/_rels/document.xml.rels",
+    "word/document.xml"
+  ],
+  "added_parts": [
+    "word/media/image69.png",
+    "word/media/image70.png",
+    "word/media/image71.png",
+    "word/media/image72.png",
+    "word/media/image73.png",
+    "word/media/image74.png",
+    "word/media/image75.png",
+    "word/media/image76.png",
+    "word/media/image77.png",
+    "word/media/image78.png",
+    "word/media/image79.png",
+    "word/media/image80.png",
+    "word/media/image81.png",
+    "word/media/image82.png",
+    "word/media/image83.png",
+    "word/media/image84.png",
+    "word/media/image85.png",
+    "word/media/image86.png",
+    "word/media/image87.png",
+    "word/media/image88.png",
+    "word/media/image89.png",
+    "word/media/image90.png",
+    "word/media/image91.png",
+    "word/media/image92.png",
+    "word/media/image93.png",
+    "word/footerGreenFarm.xml"
+  ],
+  "tables": 49,
+  "figures": 25
+}
