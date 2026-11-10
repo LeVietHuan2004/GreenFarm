@@ -23,6 +23,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.annotation.AnnotationTransactionAttributeSource;
+import org.springframework.transaction.interceptor.TransactionInterceptor;
+import org.springframework.transaction.support.AbstractPlatformTransactionManager;
+import org.springframework.transaction.support.DefaultTransactionStatus;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @ExtendWith(MockitoExtension.class)
 class PaymentServiceTest {
@@ -113,6 +120,30 @@ class PaymentServiceTest {
         assertThat(response.get("RspCode")).isEqualTo("97");
         verifyNoInteractions(orderLifecycle);
         verify(payments, never()).findByReferenceCodeForUpdate(any());
+    }
+
+    @Test void ipnEntryPointStartsTransactionBeforeLockingPayment() {
+        when(payments.findByReferenceCodeForUpdate("VNP-42")).thenAnswer(call -> {
+            assertThat(TransactionSynchronizationManager.isActualTransactionActive()).isTrue();
+            return Optional.empty();
+        });
+        var transactions = new TransactionInterceptor();
+        transactions.setTransactionAttributeSource(new AnnotationTransactionAttributeSource());
+        transactions.setTransactionManager(new AbstractPlatformTransactionManager() {
+            @Override protected Object doGetTransaction() { return new Object(); }
+            @Override protected void doBegin(Object transaction, TransactionDefinition definition) {}
+            @Override protected void doCommit(DefaultTransactionStatus status) {}
+            @Override protected void doRollback(DefaultTransactionStatus status) {}
+        });
+        var factory = new ProxyFactory(service);
+        factory.addAdvice(transactions);
+        PaymentService proxied = (PaymentService) factory.getProxy();
+
+        var response = proxied.ipnResponse(signedParameters("5000000", "00", "00"));
+
+        assertThat(response.get("RspCode")).isEqualTo("01");
+        verify(payments, never()).save(any());
+        verifyNoInteractions(orderLifecycle, invoiceEmails, couponEngine);
     }
 
     @Test void duplicateSuccessfulCallbackIsIdempotent() {

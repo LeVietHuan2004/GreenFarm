@@ -182,6 +182,7 @@ public class PaymentService {
             payment.getOrder().getId(), reference, responseCode, SUCCESS_CODE);
     }
 
+    @Transactional
     public Map<String, String> ipnResponse(Map<String, String> parameters) {
         CallbackOutcome outcome = handleVnpayCallback(parameters);
         return Map.of("RspCode", outcome.ipnCode(), "Message", outcome.valid() ? "Confirm Success" : outcome.message());
