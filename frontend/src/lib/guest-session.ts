@@ -10,7 +10,8 @@ export function getGuestSession(): StoredGuestSession | null {
   if (typeof window === "undefined") return null;
   try {
     const value = JSON.parse(localStorage.getItem(SESSION_KEY) ?? "null") as StoredGuestSession | null;
-    if (!value?.token || new Date(value.expiresAt).getTime() <= Date.now()) { localStorage.removeItem(SESSION_KEY); return null; }
+    const expiresAt = new Date(value?.expiresAt ?? "").getTime();
+    if (typeof value?.token !== "string" || !value.token || !Number.isFinite(expiresAt) || expiresAt <= Date.now()) { localStorage.removeItem(SESSION_KEY); return null; }
     return value;
   } catch { localStorage.removeItem(SESSION_KEY); return null; }
 }

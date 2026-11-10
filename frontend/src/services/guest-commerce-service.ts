@@ -1,19 +1,57 @@
+import axios from "axios";
+
 import { apiClient } from "@/lib/axios-client";
-import { getGuestSession, saveGuestSession } from "@/lib/guest-session";
-import type { ApiResponse } from "@/types/auth";
+import { clearGuestSession, getGuestSession, saveGuestSession } from "@/lib/guest-session";
+import type { ApiError, ApiResponse } from "@/types/auth";
 import type { Cart, AddCartItemInput, UpdateCartItemInput } from "@/types/commerce";
 import type { CheckoutPreview, GuestCheckoutInput, GuestOrderCreated, Order, PaymentMethodOptions } from "@/types/order";
 
+let sessionPromise: Promise<string> | null = null;
+
+async function createSession() {
+  const response=await apiClient.post<ApiResponse<{token:string;expiresAt:string}>>("/public/guest/sessions");
+  saveGuestSession(response.data.data);
+  return response.data.data.token;
+}
+
 async function token() {
   const current=getGuestSession(); if(current) return current.token;
-  const response=await apiClient.post<ApiResponse<{token:string;expiresAt:string}>>("/public/guest/sessions");
-  saveGuestSession(response.data.data); return response.data.data.token;
+  sessionPromise ??= createSession().finally(() => { sessionPromise = null; });
+  return sessionPromise;
+}
+
+function isInvalidSession(error: unknown) {
+  if (!axios.isAxiosError<ApiError>(error)) return false;
+  const status = error.response?.status;
+  const code = error.response?.data?.code;
+  return (status === 401 && (code === "INVALID_GUEST_SESSION" || code === "GUEST_SESSION_EXPIRED"))
+    || (status === 409 && code === "GUEST_SESSION_CONSUMED");
+}
+
+function clearSessionIfCurrent(failedToken: string) {
+  // A late failure from an old request must not clear a newer session.
+  if (getGuestSession()?.token === failedToken) clearGuestSession();
+}
+
+async function getCart() {
+  const sessionToken = await token();
+  const request = (value: string) => apiClient.get<ApiResponse<Cart>>("/public/guest/cart", {
+    headers: { "X-Guest-Token": value }
+  });
+  try {
+    return (await request(sessionToken)).data.data;
+  } catch (error) {
+    if (!isInvalidSession(error)) throw error;
+    clearSessionIfCurrent(sessionToken);
+    // Retry this read once. Never replay checkout or payment requests.
+    return (await request(await token())).data.data;
+  }
 }
 async function headers(){ return {"X-Guest-Token":await token()}; }
 
 export const guestCommerceService={
   token,
-  async getCart(){return (await apiClient.get<ApiResponse<Cart>>("/public/guest/cart",{headers:await headers()})).data.data;},
+  getCart,
   async addItem(input:AddCartItemInput){return (await apiClient.post<ApiResponse<Cart>>("/public/guest/cart/items",input,{headers:await headers()})).data.data;},
   async updateItem(id:number,input:UpdateCartItemInput){return (await apiClient.patch<ApiResponse<Cart>>(`/public/guest/cart/items/${id}`,input,{headers:await headers()})).data.data;},
   async removeItem(id:number){return (await apiClient.delete<ApiResponse<Cart>>(`/public/guest/cart/items/${id}`,{headers:await headers()})).data.data;},
@@ -23,5 +61,14 @@ export const guestCommerceService={
   async recover(sessionToken:string,key:string){return (await apiClient.get<ApiResponse<GuestOrderCreated>>("/public/guest/orders/recovery",{headers:{"X-Guest-Token":sessionToken},params:{key}})).data.data;},
   async lookup(orderId:number,email:string,lookupToken:string){return (await apiClient.post<ApiResponse<Order>>("/public/guest/orders/lookup",{orderId,email,token:lookupToken})).data.data;},
   async paymentMethods(){return (await apiClient.get<ApiResponse<PaymentMethodOptions>>("/public/guest/payment-methods")).data.data;},
-  async merge(){const current=getGuestSession();if(!current)return null;return (await apiClient.post<ApiResponse<Cart>>("/cart/merge-guest",null,{headers:{"X-Guest-Token":current.token}})).data.data;}
+  async merge(){
+    const current=getGuestSession();if(!current)return null;
+    try {
+      return (await apiClient.post<ApiResponse<Cart>>("/cart/merge-guest",null,{headers:{"X-Guest-Token":current.token}})).data.data;
+    } catch (error) {
+      if (!isInvalidSession(error)) throw error;
+      clearSessionIfCurrent(current.token);
+      return null;
+    }
+  }
 };

@@ -1,6 +1,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
 import { useAuthStore } from "@/stores/auth-store";
+import type { ApiError } from "@/types/auth";
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080/api";
 export const apiClient = axios.create({
@@ -25,7 +26,12 @@ let refreshPromise: Promise<string> | null = null;
 
 apiClient.interceptors.response.use(
   (response) => response,
-  async (error: AxiosError) => {
+  async (error: AxiosError<ApiError>) => {
+    // Guest-session failures do not invalidate the signed-in account.
+    const code = error.response?.data?.code;
+    if (code === "INVALID_GUEST_SESSION" || code === "GUEST_SESSION_EXPIRED" || code === "GUEST_SESSION_CONSUMED") {
+      return Promise.reject(error);
+    }
     const config = error.config as RetryConfig | undefined;
     const requestUrl = error.config?.url as string | undefined;
     const isAuthRequest = requestUrl?.startsWith("/auth/");
