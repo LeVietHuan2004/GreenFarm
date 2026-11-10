@@ -3,7 +3,7 @@ FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /workspace/backend
 COPY backend/ ./
 
-RUN --mount=type=cache,target=/root/.m2 mvn package
+RUN mvn package
 
 FROM eclipse-temurin:21-jre
 
