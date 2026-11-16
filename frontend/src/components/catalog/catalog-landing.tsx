@@ -29,7 +29,9 @@ export function CatalogLanding() {
     ])
       .then(([categoryData, productData]) => {
         if (!active) return;
-        setCategories(categoryData);
+        setCategories([...categoryData].sort((first, second) =>
+          Number(first.slug === "thuc-pham-khac") - Number(second.slug === "thuc-pham-khac")
+        ));
         setProducts(productData.content);
         setTotalProducts(productData.totalElements);
       })

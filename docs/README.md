@@ -7,6 +7,7 @@
 - `api/guest-commerce.md`: phiên khách, giỏ khách, checkout, tra cứu đơn và merge.
 - `api/orders.md`: hợp đồng API checkout, địa chỉ và đơn hàng khách hàng.
 - `api/payments.md`: hợp đồng API thanh toán COD/VNPAY và coupon.
+- [Email hóa đơn trên Railway Trial](railway-invoice-email.md): Resend HTTPS, biến môi trường và nghiệm thu email.
 - `api/order-operations.md`: quy trình vận hành đơn cho admin, staff và delivery staff.
 - `api/engagement.md`: hợp đồng API review, liên hệ hỗ trợ và thông báo.
 - `api/loyalty.md`: quy tắc tích điểm, đổi điểm và API GreenFarm Rewards.

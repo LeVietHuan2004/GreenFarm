@@ -41,6 +41,7 @@ Thiết lập các biến sau trong `.env` để bật:
 ```dotenv
 STOREFRONT_URL=https://your-domain.example
 INVOICE_EMAIL_ENABLED=true
+INVOICE_EMAIL_PROVIDER=smtp
 INVOICE_EMAIL_FROM=billing@your-domain.example
 MAIL_HOST=smtp.example.com
 MAIL_PORT=587
@@ -54,6 +55,12 @@ Lỗi SMTP không làm đơn hàng hoặc thanh toán đã xác nhận bị roll
 lần thử, lỗi gần nhất và thời điểm thử lại; scheduler retry theo exponential backoff
 tối đa 5 lần (cấu hình qua `INVOICE_EMAIL_MAX_ATTEMPTS`,
 `INVOICE_EMAIL_BASE_RETRY_MINUTES`, `INVOICE_EMAIL_RETRY_SCAN_MS`).
+
+Railway Trial/Free/Hobby không hỗ trợ SMTP. Với các gói này, dùng provider `resend`
+qua HTTPS: xem [Hướng dẫn email trên Railway](../railway-invoice-email.md).
+Payment API có thêm `invoiceEmailStatus` và `invoiceEmailSentAt`; giao diện hóa đơn
+chỉ báo đã gửi khi dịch vụ email đã tiếp nhận thành công và backend đã ghi nhận.
+Đây không phải bằng chứng thư đã đến hộp thư đến; cần kiểm tra Resend Emails/hộp thư.
 
 ## VNPAY callbacks
 

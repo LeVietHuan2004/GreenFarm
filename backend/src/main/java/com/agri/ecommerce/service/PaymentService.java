@@ -299,7 +299,8 @@ public class PaymentService {
 
     private PaymentResponse toResponse(Payment payment, String paymentUrl) {
         return new PaymentResponse(payment.getId(), payment.getPaymentMethod().getApiValue(), payment.getStatus().getValue(),
-            payment.getAmount(), payment.getReferenceCode(), payment.getTransactionId(), payment.getPaidAt(), paymentUrl);
+            payment.getAmount(), payment.getReferenceCode(), payment.getTransactionId(), payment.getPaidAt(), paymentUrl,
+            invoiceEmails.status(payment), payment.getInvoiceEmailSentAt());
     }
 
     public record CallbackOutcome(

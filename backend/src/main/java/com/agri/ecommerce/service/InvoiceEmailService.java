@@ -4,6 +4,7 @@ import com.agri.ecommerce.entity.Order;
 import com.agri.ecommerce.entity.OrderItem;
 import com.agri.ecommerce.entity.Payment;
 import com.agri.ecommerce.entity.PaymentMethod;
+import com.agri.ecommerce.entity.PaymentStatus;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
@@ -12,9 +13,6 @@ import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.lang.Nullable;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -24,24 +22,21 @@ public class InvoiceEmailService {
     private static final Locale VIETNAMESE = Locale.forLanguageTag("vi-VN");
     private static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("HH:mm, dd/MM/yyyy");
 
-    private final JavaMailSender mailSender;
+    private final InvoiceEmailSender mailSender;
     private final boolean enabled;
-    private final String from;
     private final String storefrontUrl;
     private final int maxAttempts;
     private final long baseRetryMinutes;
 
     public InvoiceEmailService(
-        @Nullable JavaMailSender mailSender,
+        InvoiceEmailSender mailSender,
         @Value("${app.invoice.email-enabled:false}") boolean enabled,
-        @Value("${app.invoice.from:}") String from,
         @Value("${app.storefront-url:http://localhost:3000}") String storefrontUrl,
         @Value("${app.invoice.max-attempts:5}") int maxAttempts,
         @Value("${app.invoice.base-retry-minutes:2}") long baseRetryMinutes
     ) {
         this.mailSender = mailSender;
         this.enabled = enabled;
-        this.from = from;
         this.storefrontUrl = storefrontUrl.replaceAll("/+$", "");
         this.maxAttempts = maxAttempts;
         this.baseRetryMinutes = baseRetryMinutes;
@@ -49,7 +44,9 @@ public class InvoiceEmailService {
 
     /** Sends once after a successfully-created COD order or a completed VNPAY payment. */
     public void sendInvoiceIfEnabled(Payment payment) {
-        if (!enabled || mailSender == null || payment.getInvoiceEmailSentAt() != null || payment.getInvoiceEmailAttempts() >= maxAttempts) return;
+        if (!enabled || !mailSender.configured() || !eligible(payment)
+            || payment.getInvoiceEmailSentAt() != null || payment.getInvoiceEmailAttempts() >= maxAttempts
+            || (payment.getInvoiceEmailNextRetryAt() != null && payment.getInvoiceEmailNextRetryAt().isAfter(LocalDateTime.now()))) return;
         Order order = payment.getOrder();
         String recipient = order == null ? null : order.getUser() == null ? order.getGuestEmail() : order.getUser().getEmail();
         if (!StringUtils.hasText(recipient)) {
@@ -57,17 +54,12 @@ public class InvoiceEmailService {
             return;
         }
         try {
-            var message = mailSender.createMimeMessage();
-            var helper = new MimeMessageHelper(message, false, "UTF-8");
-            if (StringUtils.hasText(from)) helper.setFrom(from);
-            helper.setTo(recipient.trim());
-            helper.setSubject("GreenFarm | Hóa đơn đơn hàng #" + order.getId());
-            helper.setText(render(order, payment), true);
-            mailSender.send(message);
+            mailSender.send(recipient.trim(), "GreenFarm | Hóa đơn đơn hàng #" + order.getId(),
+                render(order, payment), "greenfarm-invoice/" + order.getId());
             payment.setInvoiceEmailSentAt(LocalDateTime.now());
             payment.setInvoiceEmailNextRetryAt(null);
             payment.setInvoiceEmailLastError(null);
-            log.info("Invoice email sent for order {} to {}", order.getId(), recipient);
+            log.info("Invoice email accepted by provider for order {}", order.getId());
         } catch (Exception exception) {
             int attempts = payment.getInvoiceEmailAttempts() + 1;
             payment.setInvoiceEmailAttempts(attempts);
@@ -80,6 +72,22 @@ public class InvoiceEmailService {
             }
             log.warn("Unable to send invoice email for order {}", order.getId(), exception);
         }
+    }
+
+    public String status(Payment payment) {
+        if (payment.getInvoiceEmailSentAt() != null) return "sent";
+        if (!eligible(payment)) return "not_applicable";
+        if (!enabled) return "disabled";
+        if (!mailSender.configured()) return "not_configured";
+        if (payment.getInvoiceEmailAttempts() >= maxAttempts) return "failed";
+        if (payment.getInvoiceEmailNextRetryAt() != null) return "retrying";
+        return "not_sent";
+    }
+
+    private boolean eligible(Payment payment) {
+        return (payment.getPaymentMethod() == PaymentMethod.COD
+            && (payment.getStatus() == PaymentStatus.PENDING || payment.getStatus() == PaymentStatus.COMPLETED))
+            || (payment.getPaymentMethod() == PaymentMethod.VNPAY && payment.getStatus() == PaymentStatus.COMPLETED);
     }
 
     private String render(Order order, Payment payment) {

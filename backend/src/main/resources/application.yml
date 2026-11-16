@@ -83,6 +83,8 @@ app:
       return-url: ${VNPAY_RETURN_URL:}
   storefront-url: ${STOREFRONT_URL:http://localhost:3000}
   invoice:
+    provider: ${INVOICE_EMAIL_PROVIDER:smtp}
+    resend-api-key: ${RESEND_API_KEY:}
     email-enabled: ${INVOICE_EMAIL_ENABLED:false}
     from: ${INVOICE_EMAIL_FROM:}
     max-attempts: ${INVOICE_EMAIL_MAX_ATTEMPTS:5}

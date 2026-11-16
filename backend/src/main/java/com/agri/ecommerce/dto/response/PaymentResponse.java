@@ -4,4 +4,5 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record PaymentResponse(Long id, String method, String status, BigDecimal amount, String referenceCode,
-                              String transactionId, LocalDateTime paidAt, String paymentUrl) {}
+                              String transactionId, LocalDateTime paidAt, String paymentUrl,
+                              String invoiceEmailStatus, LocalDateTime invoiceEmailSentAt) {}

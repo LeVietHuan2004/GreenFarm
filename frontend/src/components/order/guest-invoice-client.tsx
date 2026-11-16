@@ -54,7 +54,7 @@ export function GuestInvoiceClient({ id }: { id: number }) {
     }
   }
 
-  if (order) return <InvoiceDocument order={order} backHref={`/guest-orders?orderId=${id}`} emailNote="Hóa đơn đã được gửi đến email đặt hàng của bạn." />;
+  if (order) return <InvoiceDocument order={order} backHref={`/guest-orders?orderId=${id}`} />;
 
   return <main className="catalog-main invoice-page-main">
     <Link className="commerce-back" href={`/guest-orders?orderId=${id}`}><ArrowLeft size={16}/>Tra cứu đơn hàng</Link>

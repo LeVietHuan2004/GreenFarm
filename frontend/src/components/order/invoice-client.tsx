@@ -26,7 +26,7 @@ export function InvoiceClient({ id }: { id: number }) {
   return <InvoiceDocument order={order} backHref={`/orders/${order.id}`} />;
 }
 
-export function InvoiceDocument({ order, backHref, emailNote = "Hóa đơn đã được gửi đến email đăng ký của bạn." }: { order: Order; backHref: string; emailNote?: string }) {
+export function InvoiceDocument({ order, backHref }: { order: Order; backHref: string }) {
   const paymentLabel = order.payment?.method === "cod" ? "Thanh toán khi nhận hàng (COD)" : "Thanh toán VNPAY";
   const paymentStatus = order.payment?.status === "completed" ? "Đã thanh toán" : order.payment?.status === "refunded" ? "Đã hoàn tiền" : order.payment?.status === "failed" ? "Không thành công" : "Chờ thanh toán";
 
@@ -38,6 +38,17 @@ export function InvoiceDocument({ order, backHref, emailNote = "Hóa đơn đã 
       <section className="invoice-items"><div className="invoice-table-head"><span>Sản phẩm</span><span>SL</span><span>Đơn giá</span><span>Thành tiền</span></div>{order.items.map((item) => <div className="invoice-item" key={item.id}><span><strong>{item.productName}</strong><small>{item.productUnit || "Sản phẩm"}</small></span><span>{item.quantity}</span><span>{formatPrice(item.unitPrice)}</span><strong>{formatPrice(item.lineTotal)}</strong></div>)}</section>
       <section className="invoice-footer"><p>Hóa đơn điện tử được tạo tự động từ GreenFarm. Cảm ơn bạn đã mua sắm!</p><div className="invoice-totals"><div><span>Tạm tính</span><strong>{formatPrice(order.subtotal)}</strong></div>{order.discountAmount > 0 && <div className="discount-row"><span>Giảm giá {order.couponCode && `(${order.couponCode})`}</span><strong>−{formatPrice(order.discountAmount)}</strong></div>}{order.loyaltyDiscountAmount > 0 && <div className="discount-row"><span>Điểm tích lũy ({order.loyaltyPointsUsed} điểm)</span><strong>−{formatPrice(order.loyaltyDiscountAmount)}</strong></div>}<div><span>Phí giao hàng</span><strong>{formatPrice(order.shippingFee)}</strong></div>{order.shippingDiscountAmount > 0 && <div className="discount-row"><span>Giảm phí vận chuyển {order.shippingCouponCode && `(${order.shippingCouponCode})`}</span><strong>−{formatPrice(order.shippingDiscountAmount)}</strong></div>}<div className="invoice-grand-total"><span>Tổng cộng</span><strong>{formatPrice(order.total)}</strong></div></div></section>
     </article>
-    <p className="invoice-email-note no-print"><Download size={15}/> {emailNote}</p>
+    <p className="invoice-email-note no-print"><Download size={15}/> {invoiceEmailNote(order)}</p>
   </main>;
+}
+
+function invoiceEmailNote(order: Order) {
+  switch (order.payment?.invoiceEmailStatus) {
+    case "sent": return "Hóa đơn đã được gửi qua email. Nếu chưa thấy, vui lòng kiểm tra thư rác.";
+    case "retrying": return "Email hóa đơn chưa gửi thành công. Hệ thống đang chờ thử lại. Bạn vẫn có thể in hoặc lưu PDF tại đây.";
+    case "failed": return "Chưa gửi được email hóa đơn. Bạn có thể in hoặc lưu PDF tại đây.";
+    case "not_sent": return "Hóa đơn email chưa được gửi. Bạn có thể in hoặc lưu PDF tại đây.";
+    case "not_applicable": return "Email hóa đơn được gửi sau khi thanh toán thành công. Bạn có thể in hoặc lưu PDF tại đây.";
+    default: return "Bạn có thể in hoặc lưu hóa đơn PDF tại đây.";
+  }
 }

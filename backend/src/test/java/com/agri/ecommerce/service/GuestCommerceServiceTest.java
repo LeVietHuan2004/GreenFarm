@@ -99,7 +99,7 @@ class GuestCommerceServiceTest {
         when(orders.save(any(Order.class))).thenAnswer(call->{Order saved=call.getArgument(0);ReflectionTestUtils.setField(saved,"id",42L);return saved;});
         when(payments.createForOrder(any(Order.class),eq(PaymentMethod.VNPAY),eq("127.0.0.1")))
             .thenAnswer(call->{Order saved=call.getArgument(0);assertThat(saved.getTotalPrice()).isEqualByComparingTo("50000.00");
-                return new PaymentResponse(9L,"vnpay","pending",saved.getTotalPrice(),"VNP-42",null,null,"https://sandbox.vnpayment.vn/pay?order=42");});
+                return new PaymentResponse(9L,"vnpay","pending",saved.getTotalPrice(),"VNP-42",null,null,"https://sandbox.vnpayment.vn/pay?order=42","not_applicable",null);});
         GuestCheckoutRequest request=new GuestCheckoutRequest("Nguyen Van A","0901234567","a@example.com","1 Duong X","Ha Noi","standard",null,null,"vnpay","repeat-key-123456");
         var result=service.checkout("secret",request,"127.0.0.1");
         assertThat(result.replayed()).isFalse();
