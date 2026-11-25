@@ -143,10 +143,15 @@ a {
   font-weight: 700;
 }
 
-.site-primary-nav a:hover {
+.site-primary-nav a:hover,
+.site-primary-nav a[aria-current="page"] {
   background: var(--green-soft);
   color: var(--green-dark);
 }
+
+.site-navigation { display: contents; }
+.site-header .mobile-cart-link,
+.site-header .mobile-menu-toggle { display: none; }
 
 .account-nav {
   margin-left: auto;
@@ -3945,4 +3950,104 @@ a.portal-module:hover {
   border-radius: 6px;
   background: #fff;
   font: inherit;
+}
+
+/* Keep navigation and account actions reachable on phone and tablet screens. */
+@media (max-width: 1120px) {
+  .site-header { position: relative; }
+  .site-header:has(.site-navigation.is-open) { z-index: 70; }
+  .site-header-inner {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 44px 44px;
+    gap: 10px;
+    padding: 12px 16px;
+  }
+  .site-header .brand-link { grid-column: 1; grid-row: 1; min-width: 0; }
+  .site-header .brand-copy { display: grid; }
+  .site-header .brand-copy small { display: none; }
+  .site-header .mobile-cart-link,
+  .site-header .mobile-menu-toggle { display: inline-grid; width: 44px; min-height: 44px; }
+  .mobile-cart-link { grid-column: 2; grid-row: 1; }
+  .mobile-menu-toggle { grid-column: 3; grid-row: 1; }
+  .site-header .header-search { grid-column: 1 / -1; grid-row: 2; width: 100%; max-width: none; min-width: 0; min-height: 44px; }
+  .site-header .header-search input { font-size: 16px; }
+  .site-header .header-search button { min-width: 52px; font-size: 14px; }
+  .site-header .header-search button::after { content: none; }
+  .site-header .site-navigation { display: none; }
+  .site-header .site-navigation.is-open {
+    position: absolute;
+    z-index: 80;
+    top: calc(100% + 4px);
+    right: 16px;
+    left: 16px;
+    display: grid;
+    max-height: calc(100dvh - 140px);
+    gap: 16px;
+    padding: 16px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 16px 40px rgb(20 50 30 / 16%);
+  }
+  .site-header .site-primary-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin: 0; }
+  .site-header .site-primary-nav a { width: 100%; min-height: 44px; padding: 10px; justify-content: flex-start; font-size: 14px; }
+  .site-header .account-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .site-header .account-nav .header-icon-link,
+  .site-header .account-nav .header-icon-link:first-child,
+  .site-header .account-nav .portal-link,
+  .site-header .site-navigation .role-menu-trigger.compact { display: flex; width: 100%; min-height: 44px; padding: 8px 10px; justify-content: flex-start; gap: 8px; font-size: 12px; line-height: 1.4; }
+  .site-header .account-nav .header-icon-link::after { content: attr(title); }
+  .site-header .account-nav svg { flex-shrink: 0; }
+  .site-header .account-nav .notification-menu > button::after { content: "Thông báo"; }
+  .site-header .notification-menu:has(.notification-dropdown),
+  .site-header .role-login-menu { grid-column: 1 / -1; min-width: 0; }
+  .site-header .role-menu-trigger.compact::after { content: "Đăng nhập"; }
+  .site-header .role-menu-popover,
+  .site-header .notification-dropdown { position: static; width: 100%; margin-top: 8px; box-shadow: none; }
+  .site-header .role-menu-popover a { min-height: 44px; }
+  .site-header .notification-list { max-height: 280px; }
+  .site-header .notification-list > a > span:last-child { min-width: 0; overflow-wrap: anywhere; }
+  .site-header :is(a, button):focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+}
+
+@media (max-width: 760px) {
+  /* Input text stays readable when a phone keyboard is open. */
+  body :is(.app-shell, .auth-page) :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]) { min-width: 0; max-width: 100%; font-size: 16px; }
+  .catalog-main { padding: 32px 16px 64px; }
+  .checkout-content, .checkout-summary, .order-detail-layout > *, .address-form label, .guest-checkout-form label { min-width: 0; }
+  .checkout-products > div, .checkout-summary > div:not(.checkout-products), .order-totals > div { flex-wrap: wrap; }
+  .checkout-products span, .order-product > div, .guest-order-items span { min-width: 0; overflow-wrap: anywhere; }
+  .checkout-products strong, .order-totals strong, .checkout-summary strong { overflow-wrap: anywhere; }
+  .payment-method { grid-template-columns: auto 24px minmax(0, 1fr); }
+  .address-book-title, .address-form-heading, .address-actions, .guest-order-result > header, .guest-order-result footer, .refund-request-form form > div { flex-wrap: wrap; }
+  .address-actions button, .address-form-heading button, .cart-remove, .cart-update, .quantity-stepper button { min-width: 44px; min-height: 44px; }
+  .cart-row { grid-template-columns: 64px minmax(0, 1fr) 44px; gap: 10px; padding: 14px; }
+  .cart-image { width: 64px; height: 64px; }
+  .cart-remove { grid-column: 3; grid-row: 1; }
+  .cart-product-copy { min-width: 0; overflow-wrap: anywhere; }
+  .cart-quantity-form { grid-column: 2 / -1; grid-row: 2; width: 148px; max-width: 100%; }
+  .cart-line-total { grid-column: 2 / -1; grid-row: 3; text-align: left; }
+  .quantity-stepper input { width: 50px; }
+  .order-list-item > div, .order-timeline li > div { min-width: 0; overflow-wrap: anywhere; }
+  .order-product { grid-template-columns: 54px minmax(0, 1fr); }
+  .order-product > a { width: 54px; height: 54px; }
+  .order-product > strong { grid-column: 2; }
+  .order-heading-actions { justify-items: start; max-width: 100%; }
+  .order-heading-actions .secondary-button { height: auto; padding-block: 12px; line-height: 1.4; text-align: center; }
+  .guest-order-items article { flex-wrap: wrap; }
+  .guest-order-lookup small { align-items: flex-start; line-height: 1.6; }
+  .guest-order-lookup small svg { flex-shrink: 0; }
+  .chat-panel { height: min(530px, calc(100dvh - 84px)); }
+  .chat-panel-header button, .chat-composer button { min-width: 44px; min-height: 44px; }
+}
+
+@media (max-width: 500px) {
+  .product-card-footer, .market-home .product-card-footer { flex-wrap: wrap; gap: 8px; }
+  .market-home .product-add-button, .market-home .product-favorite,
+  .product-add-button, .product-favorite { width: 44px; min-height: 44px; height: 44px; }
+  .product-card .product-price { min-width: 0; }
+  .product-card .product-price strong { overflow-wrap: anywhere; }
 }

@@ -1,0 +1,380 @@
+[
+  {
+    "id": 6,
+    "name": "Cải ngọt",
+    "slug": "cai-ngot-1762274283",
+    "unit": "túi",
+    "unitEn": "bag",
+    "description": "Cải ngọt có thân mềm, lá xanh, dễ kết hợp trong bữa cơm gia đình. Phù hợp để luộc, xào tỏi hoặc nấu canh với thịt băm.",
+    "descriptionEn": "Choy sum with tender stems and leafy greens for everyday meals. Suitable for boiling, stir-frying with garlic or cooking in soup."
+  },
+  {
+    "id": 7,
+    "name": "Mầm giá đỗ",
+    "slug": "mam-gia-do-1762274326",
+    "unit": "túi",
+    "unitEn": "bag",
+    "description": "Giá đỗ có thân giòn, vị thanh, phù hợp chế biến món xào hoặc dùng trong các món bún, phở. Đóng theo túi, thuận tiện chọn lượng cho từng bữa ăn.",
+    "descriptionEn": "Crunchy bean sprouts with a mild flavour for stir-fries, noodle dishes and soups. Sold by the bag for convenient meal planning."
+  },
+  {
+    "id": 8,
+    "name": "Rau khoai lang",
+    "slug": "rau-khoai-lang-1762274367",
+    "unit": "túi",
+    "unitEn": "bag",
+    "description": "Lá và ngọn rau khoai lang mềm khi nấu, phù hợp luộc, xào tỏi hoặc nấu canh. Dễ kết hợp với các món thịt, cá trong bữa cơm hằng ngày.",
+    "descriptionEn": "Sweet potato leaves and shoots that become tender when cooked. A versatile choice for boiling, garlic stir-fries and soups."
+  },
+  {
+    "id": 9,
+    "name": "Rau muống",
+    "slug": "rau-muong-1762274411",
+    "unit": "túi",
+    "unitEn": "bag",
+    "description": "Rau muống có cọng giòn và lá mềm, phù hợp xào tỏi, luộc hoặc nấu canh chua. Bán theo túi, tiện chuẩn bị phần rau cho bữa cơm gia đình.",
+    "descriptionEn": "Water spinach with crisp stems and tender leaves. Suitable for garlic stir-fries, boiling and sour soups; sold by the bag."
+  },
+  {
+    "id": 10,
+    "name": "Hành lá",
+    "slug": "hanh-la-1762274448",
+    "unit": "túi",
+    "unitEn": "bag",
+    "description": "Hành lá có hương thơm đặc trưng, dùng làm gia vị cho canh, cháo, món xào hoặc trứng chiên. Có thể cắt nhỏ để rắc lên món ăn hoặc làm mỡ hành.",
+    "descriptionEn": "Spring onions for adding flavour to soups, porridge, stir-fries and omelettes. Chop as a finishing garnish or use to make scallion oil."
+  },
+  {
+    "id": 11,
+    "name": "Rau má",
+    "slug": "rau-ma-1762274494",
+    "unit": "túi",
+    "unitEn": "bag",
+    "description": "Rau má có hương vị đặc trưng, phù hợp nấu canh hoặc chế biến đồ uống. Sản phẩm bán theo túi, thuận tiện lựa chọn lượng dùng cho gia đình.",
+    "descriptionEn": "Pennywort leaves with a distinctive flavour for soups and homemade drinks. Sold by the bag for convenient household use."
+  },
+  {
+    "id": 12,
+    "name": "Rau mồng tơi",
+    "slug": "rau-mong-toi-1762274524",
+    "unit": "túi",
+    "unitEn": "bag",
+    "description": "Rau mồng tơi có lá mềm và độ sánh tự nhiên khi nấu. Phù hợp nấu canh với tôm, cua hoặc thịt băm để đổi vị cho bữa cơm.",
+    "descriptionEn": "Malabar spinach with tender leaves and a naturally silky texture when cooked. Suitable for soups with shrimp, crab or minced meat."
+  },
+  {
+    "id": 13,
+    "name": "Rau tía tô",
+    "slug": "rau-tia-to-1762274544",
+    "unit": "túi",
+    "unitEn": "bag",
+    "description": "Tía tô là rau gia vị có mùi thơm đặc trưng, thường dùng trong cháo, canh hoặc các món cuốn. Lá có thể thái nhỏ để kết hợp cùng nhiều món ăn Việt.",
+    "descriptionEn": "Perilla leaves with a distinctive aroma for porridge, soups and Vietnamese wraps. Slice finely to add flavour to a variety of dishes."
+  },
+  {
+    "id": 14,
+    "name": "Bưởi da xanh",
+    "slug": "buoi-da-xanh-1762274598",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Bưởi da xanh có hương thơm dịu, phù hợp tách múi ăn trực tiếp hoặc làm gỏi. Một lựa chọn cho đĩa trái cây và món tráng miệng của gia đình.",
+    "descriptionEn": "Da xanh pomelo for enjoying in segments, fruit platters or Vietnamese salads. A versatile choice for snacks and desserts."
+  },
+  {
+    "id": 15,
+    "name": "Chuối giống Nam Mỹ",
+    "slug": "chuoi-giong-nam-my-1762274674",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Chuối giống Nam Mỹ phù hợp dùng khi chín, làm sinh tố, bánh hoặc ăn kèm ngũ cốc. Sản phẩm tính giá theo kg, dễ chọn lượng theo nhu cầu.",
+    "descriptionEn": "South American-variety bananas for enjoying when ripe, blending into smoothies or using in baking. Priced per kilogram."
+  },
+  {
+    "id": 16,
+    "name": "Dưa hấu Hàn Quốc",
+    "slug": "dua-hau-han-quoc-1762274733",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Dưa hấu có phần thịt mọng nước, phù hợp cắt miếng, làm nước ép hoặc món tráng miệng. Bán theo kg, tiện chọn lượng cho bữa ăn và những buổi sum họp.",
+    "descriptionEn": "Watermelon with juicy flesh for sliced fruit platters, fresh juice and desserts. Sold by the kilogram for everyday meals or gatherings."
+  },
+  {
+    "id": 17,
+    "name": "Dừa Xiêm tiện lợi",
+    "slug": "dua-xiem-tien-loi-1762274770",
+    "unit": "quả",
+    "unitEn": "piece",
+    "description": "Dừa Xiêm phù hợp dùng nước dừa trực tiếp hoặc kết hợp trong các món kho, món chè. Đơn vị bán theo quả giúp bạn dễ chọn số lượng cần dùng.",
+    "descriptionEn": "Siam coconut for enjoying coconut water or using in braised dishes and desserts. Sold individually so you can choose the quantity you need."
+  },
+  {
+    "id": 18,
+    "name": "Lê Trung Quốc",
+    "slug": "le-trung-quoc-1762274810",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Lê có kết cấu giòn, phù hợp ăn trực tiếp, làm salad trái cây hoặc chế biến món tráng miệng. Sản phẩm bán theo kg để thuận tiện lựa chọn lượng mua.",
+    "descriptionEn": "Pears with a crisp texture for snacking, fruit salads and desserts. Sold by the kilogram for flexible household portions."
+  },
+  {
+    "id": 19,
+    "name": "Mít Thái",
+    "slug": "mit-thai-1762274843",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Mít Thái có hương thơm đặc trưng, có thể tách múi ăn trực tiếp hoặc dùng làm xôi mít, sinh tố và món chè. Sản phẩm được tính giá theo kg.",
+    "descriptionEn": "Thai-variety jackfruit with a distinctive aroma. Enjoy the pods on their own or use them in sticky rice desserts, smoothies and sweet soups; priced per kilogram."
+  },
+  {
+    "id": 20,
+    "name": "Nho sữa Trung",
+    "slug": "nho-sua-trung-1762274882",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Nho sữa phù hợp ăn tươi, bày đĩa trái cây hoặc kết hợp với sữa chua và salad. Bán theo kg, thuận tiện chuẩn bị món ăn nhẹ hoặc tráng miệng.",
+    "descriptionEn": "Milk grapes for fresh fruit platters, yoghurt bowls and salads. Sold by the kilogram for snacks and desserts."
+  },
+  {
+    "id": 21,
+    "name": "Xoài Cát",
+    "slug": "xoai-cat-1762274908",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Xoài Cát có hương thơm đặc trưng khi chín, phù hợp ăn trực tiếp, làm sinh tố hoặc xôi xoài. Dễ kết hợp trong nhiều món tráng miệng của gia đình.",
+    "descriptionEn": "Cat mangoes with a distinctive aroma when ripe. Suitable for enjoying fresh, blending into smoothies or serving with sticky rice."
+  },
+  {
+    "id": 22,
+    "name": "Cherry nội địa Trung",
+    "slug": "cherry-noi-dia-trung-1762274947",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Cherry phù hợp ăn tươi, kết hợp với sữa chua hoặc trang trí bánh và món tráng miệng. Sản phẩm bán theo kg, dễ lựa chọn lượng dùng cho từng dịp.",
+    "descriptionEn": "Cherries for fresh snacking, yoghurt bowls, cake decoration and desserts. Sold by the kilogram for flexible portions."
+  },
+  {
+    "id": 23,
+    "name": "Ba chỉ bò Mỹ",
+    "slug": "ba-chi-bo-duc-1762275033",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Ba chỉ bò có các lớp nạc và mỡ xen kẽ, phù hợp nướng, áp chảo hoặc dùng cho món lẩu. Có thể kết hợp với rau củ và các loại sốt theo khẩu vị.",
+    "descriptionEn": "Beef belly with alternating layers of lean meat and fat. Suitable for grilling, pan-searing or hot pot with vegetables and your favourite sauces."
+  },
+  {
+    "id": 24,
+    "name": "Ba rọi heo 500g",
+    "slug": "ba-roi-heo-500g-1762275087",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Ba rọi heo có lớp nạc và mỡ xen kẽ, phù hợp kho trứng, rang cháy cạnh hoặc nướng. Dễ tẩm ướp và kết hợp trong nhiều món ăn gia đình.",
+    "descriptionEn": "Pork belly with layers of lean meat and fat for braising with eggs, pan-frying or grilling. A versatile cut for family meals."
+  },
+  {
+    "id": 25,
+    "name": "Cá Hồi cắt khúc 250g",
+    "slug": "ca-hoi-cat-khuc-1kg-1762275158",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Cá hồi cắt khúc thuận tiện chế biến món áp chảo, nướng hoặc nấu canh. Có thể kết hợp với sốt chanh, bơ tỏi hoặc rau củ để thay đổi thực đơn.",
+    "descriptionEn": "Salmon steaks for pan-searing, baking or soups. Pair with lemon sauce, garlic butter or vegetables to add variety to your meals."
+  },
+  {
+    "id": 26,
+    "name": "Chân giò heo 500g",
+    "slug": "chan-gio-heo-500g-1762275199",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Chân giò heo phù hợp cho món hầm, luộc hoặc nấu canh với các loại củ. Phần da và thịt tạo kết cấu đặc trưng cho những món nấu chậm.",
+    "descriptionEn": "Pork hock for slow-cooked stews, boiled dishes and soups with root vegetables. The skin and meat provide a distinctive texture."
+  },
+  {
+    "id": 27,
+    "name": "Sườn non",
+    "slug": "suon-non-1762275234",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Sườn non dễ chế biến thành sườn xào chua ngọt, sườn kho hoặc canh rau củ. Phần thịt bám xương phù hợp cho những món nấu trong bữa cơm gia đình.",
+    "descriptionEn": "Pork spare ribs for sweet-and-sour dishes, braises and vegetable soups. A versatile option for everyday family cooking."
+  },
+  {
+    "id": 28,
+    "name": "Thịt bò xay 200g",
+    "slug": "thit-bo-xay-200g-1762275267",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Thịt bò xay thuận tiện tẩm ướp và tạo hình cho bò viên, nhân bánh hoặc sốt mì Ý. Cũng phù hợp xào cùng rau củ để chuẩn bị bữa ăn nhanh gọn.",
+    "descriptionEn": "Minced beef for meatballs, savoury fillings and pasta sauces. Also suitable for quick stir-fries with vegetables."
+  },
+  {
+    "id": 29,
+    "name": "Thịt heo xay cp 200g",
+    "slug": "thit-heo-xay-cp-200g-1762275309",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Thịt heo xay CP phù hợp nấu canh, làm nhân chả giò, viên thịt hoặc các món hấp. Dạng xay giúp việc tẩm ướp và chia phần khi nấu ăn thuận tiện hơn.",
+    "descriptionEn": "CP minced pork for soups, spring roll fillings, meatballs and steamed dishes. Easy to season and portion for everyday cooking."
+  },
+  {
+    "id": 30,
+    "name": "Thịt thăn bò Áo",
+    "slug": "thit-than-bo-ao-1762275343",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Thịt thăn bò phù hợp áp chảo, nướng hoặc thái miếng để xào cùng rau củ. Dễ kết hợp với sốt tiêu, sốt nấm và các món ăn kèm theo sở thích.",
+    "descriptionEn": "Beef tenderloin for pan-searing, grilling or slicing into vegetable stir-fries. Pair with pepper or mushroom sauce and your preferred side dishes."
+  },
+  {
+    "id": 31,
+    "name": "Sữa thùng Vinamilk 1l",
+    "slug": "sua-thung-vinamilk-1l-1762275418",
+    "unit": "thùng",
+    "unitEn": "carton",
+    "description": "Sữa Vinamilk quy cách 1 lít, bán theo thùng, thuận tiện chuẩn bị cho nhu cầu dùng thường xuyên. Có thể dùng trực tiếp, pha chế hoặc ăn kèm ngũ cốc.",
+    "descriptionEn": "Vinamilk milk in one-litre packs, sold by the carton for regular household use. Suitable for drinking, preparing beverages or serving with cereal."
+  },
+  {
+    "id": 32,
+    "name": "Thịt bò Úc",
+    "slug": "thit-bo-uc-1762275609",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Thịt bò phù hợp chế biến món xào, kho hoặc hầm tùy cách cắt và tẩm ướp. Có thể kết hợp với hành tây, rau củ và các loại sốt cho bữa cơm gia đình.",
+    "descriptionEn": "Beef for stir-fries, braises and stews, depending on how it is cut and seasoned. Combine with onions, vegetables and sauces for family meals."
+  },
+  {
+    "id": 33,
+    "name": "Heo sữa",
+    "slug": "heo-sua-1762275646",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Thịt heo sữa phù hợp chế biến món quay, nướng hoặc hấp theo khẩu vị. Sản phẩm tính giá theo kg, thuận tiện lựa chọn lượng thịt cho từng bữa ăn.",
+    "descriptionEn": "Suckling pig meat for roasting, grilling or steaming. Priced per kilogram so you can choose the amount needed for your meal."
+  },
+  {
+    "id": 34,
+    "name": "Sữa bịch dutchlady",
+    "slug": "sua-bich-dutchlady-1762276023",
+    "unit": "hộp",
+    "unitEn": "box",
+    "description": "Sữa Dutch Lady dạng bịch có bao gói gọn, thuận tiện dùng cho bữa sáng hoặc bữa phụ. Có thể uống trực tiếp, pha đồ uống hoặc kết hợp với ngũ cốc.",
+    "descriptionEn": "Dutch Lady milk in compact pouches for breakfast or snack time. Suitable for drinking, preparing beverages or serving with cereal."
+  },
+  {
+    "id": 35,
+    "name": "Sữa hộp dutchlady 1 thùng",
+    "slug": "sua-hop-dutchlady-1-thung-1762276065",
+    "unit": "thùng",
+    "unitEn": "carton",
+    "description": "Sữa Dutch Lady dạng hộp, bán theo thùng, phù hợp chuẩn bị cho nhu cầu dùng thường xuyên. Thuận tiện chia phần để sử dụng tại nhà, trường học hoặc văn phòng.",
+    "descriptionEn": "Dutch Lady milk boxes sold by the carton for regular use. Convenient for individual servings at home, school or the office."
+  },
+  {
+    "id": 36,
+    "name": "Trứng cút hộp 30 quả",
+    "slug": "trung-cut-hop-30-qua-1762276110",
+    "unit": "hộp",
+    "unitEn": "box",
+    "description": "Trứng cút hộp 30 quả phù hợp luộc, kho thịt hoặc kết hợp trong các món súp và món ăn vặt. Quy cách theo hộp thuận tiện chuẩn bị nguyên liệu cho nhiều bữa.",
+    "descriptionEn": "A box of 30 quail eggs for boiling, braising with meat, soups and savoury snacks. Convenient for preparing several meals."
+  },
+  {
+    "id": 37,
+    "name": "Trứng gà hộp 10 quả",
+    "slug": "trung-ga-hop-10-qua-1762276156",
+    "unit": "quả",
+    "unitEn": "piece",
+    "description": "Trứng gà là nguyên liệu dễ kết hợp trong các món chiên, luộc, hấp hoặc làm bánh. Phù hợp chuẩn bị bữa sáng và nhiều món ăn hằng ngày cho gia đình.",
+    "descriptionEn": "Chicken eggs for frying, boiling, steaming and baking. A versatile ingredient for breakfast and everyday family meals."
+  },
+  {
+    "id": 38,
+    "name": "trứng",
+    "slug": "trung-1762276183",
+    "unit": "hộp",
+    "unitEn": "box",
+    "description": "Trứng đóng hộp thuận tiện lựa chọn và sắp xếp nguyên liệu cho bữa ăn. Có thể dùng chế biến món chiên, luộc, hấp hoặc kết hợp trong các công thức làm bánh.",
+    "descriptionEn": "Boxed eggs for convenient meal planning. Suitable for fried, boiled and steamed dishes or for use in baking recipes."
+  },
+  {
+    "id": 39,
+    "name": "Sữa bịch vinamilk",
+    "slug": "sua-bich-vinamilk-1762276218",
+    "unit": "bịch",
+    "unitEn": "pouch",
+    "description": "Sữa Vinamilk dạng bịch gọn nhẹ, thuận tiện dùng cùng bữa sáng hoặc bữa phụ. Có thể uống trực tiếp, pha chế hoặc kết hợp với ngũ cốc theo sở thích.",
+    "descriptionEn": "Vinamilk milk in compact pouches for breakfast or snack time. Suitable for drinking, preparing beverages and serving with cereal."
+  },
+  {
+    "id": 40,
+    "name": "Sữa TH",
+    "slug": "sua-th-1762276260",
+    "unit": "lốc",
+    "unitEn": "multipack",
+    "description": "Sữa TH bán theo lốc, thuận tiện chuẩn bị cho nhu cầu sử dụng hằng ngày. Có thể dùng trong bữa sáng, bữa phụ hoặc kết hợp với ngũ cốc và các món pha chế.",
+    "descriptionEn": "TH milk sold in multipacks for everyday use. Suitable for breakfast, snacks, cereal bowls and beverage recipes."
+  },
+  {
+    "id": 41,
+    "name": "Ức cá BASA",
+    "slug": "uc-ca-basa-1762276304",
+    "unit": "hộp",
+    "unitEn": "box",
+    "description": "Phần thịt cá basa đóng hộp thuận tiện chế biến món kho, chiên hoặc nấu canh. Dễ kết hợp với rau củ, gia vị và các loại sốt cho bữa cơm gia đình.",
+    "descriptionEn": "Boxed basa fish portions for braising, frying and soups. Combine with vegetables, seasonings and sauces for family meals."
+  },
+  {
+    "id": 42,
+    "name": "Cá diêu hồng",
+    "slug": "ca-dieu-hong-1762276339",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Cá diêu hồng phù hợp hấp gừng, chiên hoặc nấu canh chua. Có thể chế biến nguyên con hoặc chia phần theo công thức và số người dùng bữa.",
+    "descriptionEn": "Red tilapia for steaming with ginger, frying or cooking in sour soup. Prepare whole or portion according to your recipe."
+  },
+  {
+    "id": 43,
+    "name": "Cá lóc",
+    "slug": "ca-loc-1762276372",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Cá lóc thường được dùng cho món kho tộ, canh chua hoặc hấp cùng rau gia vị. Là nguyên liệu phù hợp để thay đổi các món cá trong bữa cơm gia đình.",
+    "descriptionEn": "Snakehead fish for clay-pot braises, sour soups and steaming with herbs. A versatile option for Vietnamese-style family meals."
+  },
+  {
+    "id": 44,
+    "name": "Cá BASA cắt khúc",
+    "slug": "ca-basa-cat-khuc-1762276415",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Cá basa cắt khúc thuận tiện chia phần và tẩm ướp trước khi nấu. Phù hợp làm cá kho, chiên hoặc nấu canh với rau củ và các loại gia vị.",
+    "descriptionEn": "Basa fish steaks that are easy to portion and season. Suitable for braising, frying and soups with vegetables and herbs."
+  },
+  {
+    "id": 45,
+    "name": "Cá chim",
+    "slug": "ca-chim-1762276444",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Cá chim phù hợp hấp gừng, chiên hoặc nướng với các loại gia vị. Có thể kết hợp cùng rau, cơm và nước chấm theo khẩu vị của gia đình.",
+    "descriptionEn": "Pomfret for steaming with ginger, frying or grilling with seasonings. Serve with vegetables, rice and your preferred dipping sauce."
+  },
+  {
+    "id": 46,
+    "name": "Cá mó làm sạch",
+    "slug": "ca-mo-lam-sach-1762276468",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Cá mó làm sạch giúp giảm bớt công đoạn sơ chế khi chuẩn bị bữa ăn. Phù hợp chế biến món chiên, kho hoặc nấu canh tùy theo sở thích.",
+    "descriptionEn": "Cleaned parrotfish to reduce preparation work in the kitchen. Suitable for frying, braising and soups."
+  },
+  {
+    "id": 47,
+    "name": "Cá Ngừ làm sạch",
+    "slug": "ca-ngu-lam-sach-1762276520",
+    "unit": "kg",
+    "unitEn": "kg",
+    "description": "Cá ngừ làm sạch thuận tiện chia phần, tẩm ướp và chế biến. Có thể dùng cho món cá kho, áp chảo hoặc nấu canh để làm phong phú thực đơn.",
+    "descriptionEn": "Cleaned tuna for easy portioning and seasoning. Suitable for braises, pan-seared dishes and soups to add variety to your meals."
+  }
+]

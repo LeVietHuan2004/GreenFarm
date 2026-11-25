@@ -1,0 +1,2717 @@
+--- PAGE 1 ---
+ 
+ 
+LÊ VIẾT HUẤN CÔNG NGHỆ THÔNG TIN 
+ 
+BỘ GIÁO DỤC VÀ ĐÀO TẠO 
+ĐẠI HỌC PHENIKAA 
+ 
+ 
+ 
+ 
+ 
+ĐỒ ÁN TỐT NGHIỆP 
+ 
+ 
+XÂY DỰNG HỆ THỐNG THƯƠNG MẠI ĐIỆN 
+TỬ BÁN HÀNG NÔNG SẢN GREENFARM 
+ 
+Sinh viên: Lê Viết Huấn 
+Mã số sinh viên: 22010143 Khóa: Khóa 16 
+Ngành: Công nghệ thông tin  Hệ: Chính quy 
+Giảng viên hướng dẫn: TS. Nguyễn Thế Anh 
+ 
+ 
+ 
+ 
+ 
+Hà Nội – Năm 2026 
+
+--- PAGE 2 ---
+ 
+ 
+BỘ GIÁO DỤC VÀ ĐÀO TẠO 
+ĐẠI HỌC PHENIKAA 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ĐỒ ÁN TỐT NGHIỆP 
+ 
+XÂY DỰNG HỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ BÁN 
+HÀNG NÔNG SẢN GREENFARM 
+ 
+ 
+Sinh viên: Lê Viết Huấn 
+Mã số sinh viên: 22010143  Khoá: K16  
+Ngành: Công nghệ thông tin Hệ: Chính quy  
+Giảng viên hướng dẫn: TS. Nguyễn Thế Anh 
+ 
+ 
+ 
+ 
+ 
+Hà Nội – Năm 2026 
+ 
+--- PAGE 3 ---
+TÓM TẮT ĐỒ ÁN TỐT NGHIỆP 
+Đồ án “Phân tích, thiết kế và xây dựng hệ thống thương mại điện tử nông sản 
+trực tuyến GreenFarm”  xây dựng một nền tảng web hỗ trợ mua bán nông sản và vận 
+hành cửa hàng. Hệ thống cho phép khách hàng tìm kiếm sản phẩm, quản lý giỏ hàng, đặt 
+hàng và theo dõi đơn; đồng thời cung cấp các khu vực dành cho quản trị viên, nhân viên 
+và nhân viên giao hàng. 
+GreenFarm được xây dựng theo mô hình client –server. Frontend sử dụng Next.js, 
+React và TypeScript; backend sử dụng Java Spring Boot; dữ liệu nghiệp vụ được lưu trữ 
+bằng MySQL. Hệ thống sử dụng JWT và Spring Security để xác thực, phân quyền theo vai 
+trò, quyền hạn và phạm vi sở hữu dữ liệu; Flyway quản lý các thay đổi cấu trúc cơ sở dữ 
+liệu. 
+Các chức năng chính bao gồm quản lý tài khoản, catalog, giỏ hàng, địa chỉ, đơn 
+hàng, coupon và điểm thưởng; quản lý nhà cung cấp, tồn kho theo lô và hạn sử dụng; xử 
+lý đơn và giao nhận. Backend kiểm tra giá, ưu đãi và số lượng khả dụng, đồng thời lưu đơn 
+và phân bổ hàng trong giao dịch để bảo đảm tính nhất quán. Hệ thống hỗ trợ COD, tích 
+hợp VNPAY, GHN, email hóa đơn và Cloudinary theo cấu hình. Trợ lý tư vấn tích hợp 
+Gemini sử dụng dữ liệu sản phẩm và chính sách công khai, có cơ chế trả lời dự phòng. 
+Hệ thống được xây dựng và vận hành trong môi trường local với giao diện 
+responsive, phân tách chức năng theo từng nhóm người dùng. Kết quả tạo nền tảng cho 
+việc kiểm thử, đánh giá và tiếp tục hoàn thiện khả năng triển khai thực tế. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+--- PAGE 4 ---
+  
+BỘ GIÁO DỤC VÀ ĐÀO TẠO          CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM 
+       ĐẠI HỌC PHENIKAA                Độc lập – Tự do – Hạnh phúc 
+ 
+LỜI CAM ĐOAN 
+Họ và tên: Lê Viết Huấn 
+Mã sinh viên: 22010143 Lớp: CNTT_3 
+Ngành: Công nghệ thông tin 
+Tôi đã thực hiện đồ án/khóa luận tốt nghiệp với đề tài: 
+Tôi xin cam đoan đây là đề tài nghiên cứu của riêng tôi và được sự hướng dẫn của 
+Ts. Nguyễn Thế Anh. 
+ 
+Các nội dung nghiên cứu, kết quả trong đề tài này là trung thực và chưa được các 
+tác giả khác công bố dưới bất kỳ hình thức nào. Nếu phát hiện có bất kỳ hình thức 
+gian lận nào tôi xin hoàn toàn chịu trách nhiệm trước pháp luật. 
+ 
+ 
+ 
+      Hà Nội, ngày……tháng ….năm 20…… 
+ 
+  GIẢNG VIÊN HƯỚNG DẪN    SINH VIÊN 
+(Ký, ghi rõ họ tên)           (Ký, ghi rõ họ tên) 
+ 
+ 
+ 
+--- PAGE 5 ---
+ 
+LỜI CẢM ƠN 
+ 
+Đồ án tốt nghiệp là cột mốc quan trọng, đánh dấu hành trình bốn năm học tập, 
+rèn luyện và tích lũy tri thức của em tại Đại học Phenikaa. Để hoàn thành được công 
+trình nghiên cứu này, bên cạnh nỗ lực của bản thân, em đã may mắn nhận được sự 
+chỉ dẫn tận tình và tâm huyết từ quý thầy cô. 
+Trước hết, em xin bày tỏ lòng biết ơn chân thành đến Ban giám hiệu cùng tập 
+thể sư phạm Trường Công nghệ Thông tin - Đại học Phenikaa đã trang bị cho em 
+nền tảng kiến thức vững chắc, đồng thời tạo mọi điều kiện thuận lợi nhất để em thực 
+hiện đồ án này. 
+Đặc biệt, em xin gửi lời cảm ơn sâu sắc nhất tới TS. Nguyễn Thế Anh. Thầy 
+đã dành nhiều thời gian, tâm huyết và truyền đạt những tri thức quý báu để định 
+hướng, hướng dẫn em trong suốt quá trình nghiên cứu. Sự chỉ bảo ân cần của thầy 
+chính là nguồn động lực to lớn giúp em vượt qua những bỡ ngỡ và khó khăn ban 
+đầu. 
+Mặc dù đã nghiêm túc học tập và nỗ lực hoàn thiện đề tài, song do hạn chế về 
+mặt kiến thức và kinh nghiệm thực tiễn, đồ án chắc chắn không tránh khỏi những 
+thiếu sót. Em rất mong nhận được những ý kiến đóng góp quý báu từ quý thầy cô 
+trong hội đồng và các bạn để công trình này được hoàn thiện hơn. 
+Cuối cùng, em xin kính chúc quý thầy cô cùng toàn thể cán bộ nhà trường 
+luôn dồi dào sức khỏe, hạnh phúc. Chúc cho sự nghiệp trồng người của quý thầy cô 
+ngày càng phát triển và gặt hái được nhiều thành công rực rỡ. 
+ 
+ 
+--- PAGE 6 ---
+ 
+CHƯƠNG 1 TỔNG QUAN ĐỀ TÀI 
+1.1 Lý do chọn đề tài 
+Trong những năm gần đây, thương mại điện tử tạo điều kiện để người tiêu dùng tìm 
+kiếm và đặt mua hàng hóa qua các nền tảng trực tuyến. Với nông sản, việc cung cấp thông 
+tin sản phẩm rõ ràng, cập nhật tình trạng còn hàng và hỗ trợ quy trình đặt hàng thuận tiện 
+có thể giúp kết nối người bán v ới khách hàng hi ệu quả hơn. Tuy nhiên, ho ạt động kinh 
+doanh nông sản vẫn có những đặc thù như sản phẩm đa dạng, số lượng tồn kho thay đổi và 
+yêu cầu giao nhận phù hợp. 
+Khi quy trình bán hàng được xử lý qua nhiều kênh riêng lẻ, thông tin về sản phẩm, 
+khách hàng, giỏ hàng và đơn hàng có thể bị phân tán. Việc cập nhật dữ liệu thủ công cũng 
+gây khó khăn cho người quản lý trong việc theo dõi danh mục, giá bán và tồn kho. Về phía 
+khách hàng, quá trình tìm kiếm sản phẩm, lưu lựa chọn, cung cấp địa chỉ giao hàng và theo 
+dõi đơn hàng cần được tổ chức liền mạch trên cùng một nền tảng. 
+Từ những nhu c ầu đó, đ ề tài GreenFarm đư ợc thực hiện nhằm xây d ựng một hệ 
+thống web hỗ trợ kinh doanh nông s ản trực tuyến. Hệ thống kết hợp tìm kiếm sản phẩm, 
+giỏ hàng, đặt hàng, thanh toán và theo dõi đơn; đồng thời hỗ trợ cửa hàng quản lý tài khoản, 
+hàng hóa, kho theo lô và quá trình giao nh ận. Các chức năng đánh giá, tích đi ểm, liên hệ 
+và trợ lý tư vấn bổ sung cho trải nghiệm mua hàng. 
+Đề tài cũng là cơ hội vận dụng kiến thức về phân tích và thiết kế hệ thống, phát triển 
+ứng dụng web, cơ sở dữ liệu, xác thực, phân quyền và xử lý giao dịch trong một sản phẩm 
+có quy trình nghiệp vụ thực tế. 
+1.2 Tổng quan về thương mại điện tử nông sản và thực trạng quản lý 
+Thương mại điện tử cho phép người bán giới thiệu sản phẩm và tiếp nhận đơn đặt 
+hàng thông qua môi trường trực tuyến. Đối với nông sản, một nền tảng bán hàng cần trình 
+bày các thông tin cơ bản như tên, danh mục, mô tả, giá, đơn vị tính, hình ảnh và tình trạng 
+tồn kho để khách hàng có cơ sở lựa chọn. 
+Một quy trình mua hàng trực tuyến thường gồm các bước: tìm kiếm sản phẩm, xem 
+chi tiết, thêm sản phẩm vào giỏ, cung cấp địa chỉ nhận hàng, xác nh ận thông tin và theo 
+dõi đơn hàng. Mỗi bước cần sử dụng dữ liệu nhất quán. Chẳng hạn, giá và số lượng hàng 
+phải được kiểm tra lại khi khách hàng đ ặt hàng, thay vì ch ỉ dựa trên thông tin đã hi ển thị 
+trước đó. 
+--- PAGE 7 ---
+Trong hoạt động kinh doanh, nếu dữ liệu sản phẩm và đơn hàng được quản lý bằng 
+các công cụ tách rời, người bán có thể gặp khó khăn khi cập nhật thông tin, kiểm soát tồn 
+kho hoặc tra cứu lịch sử giao dịch. Khách hàng cũng có th ể phải liên hệ nhiều lần để xác 
+nhận tình tr ạng sản phẩm và đơn hàng. Nh ững hạn chế này cho th ấy nhu c ầu về một hệ 
+thống tập trung có khả năng hỗ trợ cả hoạt động mua hàng và quản lý. 
+GreenFarm hướng tới giải quyết những nhu cầu trên bằng một nền tảng web có khu 
+vực dành cho khách hàng, qu ản trị viên, nhân viên và nhân viên giao hàng. H ệ thống tập 
+trung các nghiệp vụ thương mại và kiểm tra dữ liệu quan trọng ở phía máy chủ, đặc biệt 
+khi đặt hàng, cập nhật kho và ghi nhận thanh toán. 
+1.3 Bài toán đặt ra và giải pháp đề xuất 
+Bài toán của đề tài là xây dựng một hệ thống web hỗ trợ quy trình kinh doanh nông 
+sản trực tuyến, trong đó dữ liệu sản phẩm, tài khoản, giỏ hàng, địa chỉ và đơn hàng được 
+quản lý tập trung. Hệ thống cần bảo đảm người dùng chỉ truy cập các chức năng phù hợp 
+với vai trò và các thao tác ảnh hưởng đến tồn kho, giá trị đơn hàng được xử lý nhất quán. 
+Các nhóm người dùng chính gồm: 
+- Khách hàng: tìm kiếm sản phẩm, quản lý giỏ và yêu thích, đặt hàng, theo dõi đơn, 
+đánh giá và sử dụng điểm thưởng. Khách chưa đăng nh ập có thể mua qua phiên 
+khách và tra cứu đơn bằng thông tin xác minh. 
+- Quản trị viên: quản lý tài kho ản, danh mục, sản phẩm, nhà cung c ấp, nhập kho, 
+ưu đãi, đơn hàng và các hoạt động vận hành. 
+- Nhân viên: xử lý đơn, liên hệ hỗ trợ và thao tác kho theo quyền được cấp. 
+- Nhân viên giao hàng: nhận và cập nhật trạng thái các đơn giao nội bộ được phân 
+công. 
+GreenFarm được đề xuất như một ứng dụng web gồm frontend, backend và cơ sở dữ 
+liệu. Frontend cung cấp giao diện cho các nhóm người dùng; backend xử lý nghiệp vụ, xác 
+thực, phân quyền và truy cập dữ liệu; cơ sở dữ liệu lưu trữ thông tin hệ thống. 
+Các nhóm chức năng được xây dựng trong phiên bản local gồm: 
+- Tài khoản: đăng ký, đăng nhập, hồ sơ, đổi và khôi phục mật khẩu, làm mới phiên; 
+JWT, phân quyền và giới hạn đăng nhập sai. 
+- Catalog: danh mục, sản phẩm, ảnh, tìm kiếm, lọc và phân trang; quản trị thông tin 
+và trạng thái bán. 
+- Mua hàng: giỏ và yêu thích theo tài khoản, giỏ khách vãng lai, địa chỉ, xem trước 
+chi phí, tạo và tra cứu đơn. 
+- Thanh toán và ưu đãi: COD, tích hợp VNPAY , coupon, tích và đổi điểm, hóa đơn 
+cùng yêu cầu hoàn tiền theo điều kiện. 
+--- PAGE 8 ---
+- Kho: nhà cung cấp, nhập lô, hạn sử dụng, giữ hàng, xuất theo FEFO và điều chỉnh 
+kho. 
+- Vận hành đơn: xử lý trạng thái, phân công giao nội bộ, nhân viên nhận giao, tích 
+hợp GHN và lưu lịch sử. 
+- Chăm sóc khách hàng: đánh giá, liên h ệ hỗ trợ, thông báo và tr ợ lý tư v ấn từ 
+catalog công khai. 
+Khi tạo đơn, backend ki ểm tra sản phẩm, số lượng khả dụng, thông tin nh ận hàng 
+và ưu đãi; tính lại tiền rồi ghi đơn, phân bổ hàng và cập nhật giỏ trong giao dịch. Thông tin 
+sản phẩm, giá và người nhận được lưu tại thời điểm mua để bảo toàn lịch sử. Các tác động 
+ở dịch vụ ngoài được xử lý theo cơ chế tích hợp riêng. 
+1.4 Mục tiêu nghiên cứu 
+Mục tiêu tổng quát là xây d ựng GreenFarm h ỗ trợ quy trình kinh doanh nông s ản 
+trực tuyến, từ giới thiệu sản phẩm, đặt hàng và thanh toán đến vận hành kho, giao nhận và 
+chăm sóc sau mua. 
+Các mục tiêu cụ thể gồm: 
+- Xây dựng giao diện mua hàng và khu vực vận hành phù hợp từng vai trò. 
+- Quản lý tài khoản, xác thực, phiên và quyền sở hữu dữ liệu. 
+- Cung cấp catalog, giỏ hàng, địa chỉ, đặt hàng và tra c ứu cho khách có tài kho ản 
+hoặc khách vãng lai. 
+- Tính lại giá, phí, ưu đãi và số lượng khả dụng tại backend; bảo toàn thông tin đơn 
+hàng. 
+- Quản lý kho theo lô và hạn sử dụng, ưu tiên phân bổ theo FEFO. 
+- Hỗ trợ thanh toán, xử lý đơn, giao nh ận, hóa đơn và chăm sóc sau mua theo c ấu 
+hình hệ thống. 
+- Tích hợp trợ lý tư vấn chỉ sử dụng dữ liệu công khai. 
+- Tổ chức kiến trúc, dữ liệu và kiểm thử để thuận tiện bảo trì, mở rộng. 
+1.5 Đối tượng và phạm vi nghiên cứu 
+Đối tượng nghiên cứu là quy trình kinh doanh nông s ản trực tuyến và cách tổ chức 
+phần mềm để quản lý sản phẩm, khách hàng, đ ặt hàng, thanh toán, t ồn kho và giao nh ận 
+nhất quán. 
+Đối tượng sử dụng gồm khách vãng lai, khách hàng có tài kho ản, nhân viên, nhân 
+viên giao hàng và quản trị viên. GreenFarm được tổ chức theo mô hình một cửa hàng bán 
+trực tiếp cho người tiêu dùng. 
+--- PAGE 9 ---
+Phạm vi chức năng tập trung vào: 
+- Cửa hàng công khai với catalog, tìm kiếm, lọc và thông tin sản phẩm. 
+- Tài khoản, hồ sơ, giỏ, yêu thích, địa chỉ và mua hàng khách vãng lai. 
+- Checkout, ưu đãi, đơn hàng, thanh toán, hóa đơn và theo dõi trạng thái. 
+- Quản trị tài khoản, hàng hóa, nhà cung cấp, kho, coupon và báo cáo. 
+- Xử lý đơn, phân công giao nội bộ và tích hợp giao nhận bên ngoài. 
+- Đánh giá, điểm thưởng, liên hệ, thông báo và trợ lý tư vấn. 
+Phạm vi công nghệ: 
+- Frontend sử dụng Next.js, React và TypeScript. 
+- Backend cung cấp REST API, được xây dựng bằng Spring Boot và Java. 
+- Cơ s ở dữ liệu s ử dụng MySQL; Flyway đư ợc dùng đ ể quản lý các thay đ ổi 
+schema. 
+- Xác thực và bảo vệ API sử dụng JWT cùng Spring Security. 
+- Docker Compose hỗ trợ khởi chạy môi trường phát triển cục bộ. 
+Phạm vi báo cáo dựa trên phiên bản GreenFarm local hiện tại. Các dịch vụ VNPAY , 
+GHN, SMTP, Cloudinary và Gemini được sử dụng theo cấu hình thực tế; có mã tích h ợp 
+không đồng nghĩa đã đư ợc xác nhận vận hành thương m ại hoặc kiểm thử đầy đủ với nhà 
+cung cấp. VNPAY mặc định dùng sandbox. H ệ thống không thay th ế phần mềm kế toán, 
+kiểm định chất lượng thực phẩm hoặc quản lý chuỗi cung ứng chuyên dụng. 
+1.6 Phương pháp nghiên cứu 
+Đề tài sử dụng các phương pháp chính sau: 
+- Nghiên cứu tài liệu: tìm hiểu kiến thức về thương mại điện tử, phát triển ứng dụng 
+web, cơ sở dữ liệu, xác thực và bảo mật. 
+- Phân tích yêu cầu: xác định vai trò người dùng, chức năng và các quy tắc nghiệp 
+vụ của quy trình mua hàng. 
+- Phân tích và thiết kế hệ thống: tổ chức các thành phần frontend, backend và cơ sở 
+dữ liệu; thiết kế API và luồng xử lý. 
+- Phát triển phần mềm: triển khai theo nhóm tài kho ản, catalog, đ ặt hàng, thanh 
+toán, kho, vận hành đơn và chăm sóc khách hàng. 
+- Kiểm thử và đánh giá: ki ểm tra các ch ức năng và quy t ắc nghiệp vụ, đặc biệt là 
+phân quyền, kiểm tra tồn kho và tính toán đơn hàng. 
+1.7 Ý nghĩa và đóng góp của đề tài 
+--- PAGE 10 ---
+GreenFarm cung cấp nền tảng tập trung cho mua bán nông sản và vận hành cửa hàng. 
+Các đóng góp được xem xét trên chức năng đã xây dựng; hiệu quả sử dụng và kết quả kiểm 
+thử cần được đánh giá bằng các trường hợp cụ thể. 
+Các đóng góp chính của đề tài gồm: 
+- Tổ chức các chức năng xem sản phẩm, giỏ hàng, địa chỉ và đơn hàng trong m ột 
+quy trình thống nhất. 
+- Cung cấp công cụ quản trị tài khoản, catalog, nguồn cung và kho theo lô. 
+- Kết nối xử lý đơn, thanh toán và giao nhận theo quyền; hỗ trợ chăm sóc sau mua 
+và tư vấn thông tin công khai. 
+- Kiểm tra lại tồn kho và tính toán giá trị đơn hàng ở phía máy chủ khi đặt hàng. 
+- Lưu lịch sử đơn hàng cùng thông tin s ản phẩm và người nhận tại thời điểm giao 
+dịch. 
+- Áp dụng xác thực JWT, phân quyền và các ràng bu ộc dữ liệu trong các thao tác 
+nghiệp vụ. 
+- Vận dụng kiến thức về kỹ thuật phần mềm, phát triển web, cơ sở dữ liệu và bảo 
+mật vào một hệ thống có tính ứng dụng thực tế. 
+1.8 Bố cục báo cáo 
+Báo cáo được tổ chức thành sáu chương. Chương 1 trình bày bối cảnh, bài toán, mục 
+tiêu và phạm vi; các chương tiếp theo gồm: 
+- Chương 2 – Cơ sở lý thuyết và công ngh ệ: trình bày ki ến thức nền tảng và các 
+công nghệ được sử dụng để xây dựng GreenFarm. 
+- Chương 3 – Phân tích và thiết kế hệ thống: trình bày yêu cầu, tác nhân, use case, 
+kiến trúc, thiết kế cơ sở dữ liệu, API và giao diện. 
+- Chương 4 – Triển khai hệ thống: mô tả môi trường phát triển và các ch ức năng 
+chính đã xây dựng. 
+- Chương 5 – Kiểm thử và đánh giá: trình bày cách ki ểm tra hệ thống, kết quả và 
+đánh giá mức độ đáp ứng yêu cầu. 
+- Chương 6 – Kết luận và hư ớng phát tri ển: tổng kết kết quả, nêu h ạn chế và đề 
+xuất các hướng mở rộng. 
+Từ bài toán và phạm vi trên, chương 2 trình bày các n ền tảng về thương mại điện tử 
+nông sản, kiến trúc web, giao dịch, bảo mật và AI. Những cơ sở này giải thích các lựa chọn 
+công nghệ và làm tiền đề cho thiết kế hệ thống ở chương 3. 
+  
+--- PAGE 11 ---
+CHƯƠNG 2 CƠ SỞ LÝ THUYẾT VÀ CÔNG NGHỆ 
+ 
+Trên cơ sở bài toán và ph ạm vi đã xác đ ịnh ở chương 1, chương này trình bày n ền 
+tảng về thương mại điện tử nông sản, kiến trúc phần mềm, dữ liệu, bảo mật và trí tuệ nhân 
+tạo. Các công ngh ệ được lựa chọn cho GreenFarm đư ợc giới thiệu gắn với nghiệp vụ và 
+cấu hình local của hệ thống. 
+2.1 Cơ sở lý thuyết về thương mại điện tử nông sản 
+2.1.1 Hệ thống thương mại điện tử 
+Hệ thống thương mại điện tử là hệ thống thông tin hỗ trợ giới thiệu sản phẩm, tiếp 
+nhận yêu cầu mua hàng và t ổ chức các hoạt động liên quan thông qua môi trư ờng mạng. 
+Trong website bán hàng, giao di ện sản phẩm là đi ểm tiếp xúc ban đ ầu; phía sau còn có 
+nghiệp vụ quản lý khách hàng, giỏ hàng, đơn hàng, thanh toán, giao nhận và chăm sóc sau 
+mua. 
+Trong GreenFarm, khách tìm s ản phẩm, chọn số lượng, đặt hàng và theo dõi đơn. 
+Cửa hàng quản lý catalog, nguồn cung, tồn kho, ưu đãi và yêu cầu hỗ trợ. Dữ liệu giữa các 
+khâu cần thống nhất để tránh bán hàng hết tồn hoặc ghi nhận sai thanh toán. 
+GreenFarm là mô hình c ửa hàng bán tr ực tiếp cho người tiêu dùng. Nhà cung c ấp 
+phục vụ quản lý nhập hàng; hệ thống không tổ chức gian hàng và chia doanh thu cho nhiều 
+nhà bán. 
+2.1.2 Đặc điểm của nông sản trong kinh doanh trực tuyến 
+Nông sản có những đặc điểm ảnh hưởng trực tiếp đến thiết kế phần mềm. Sản phẩm 
+có thể được bán theo kilôgam, túi ho ặc hộp; thời gian bảo quản và chất lượng phụ thuộc 
+từng loại hàng. Với các lô có hạn sử dụng, số lượng còn trong kho chưa chắc đã là số lượng 
+có thể tiếp tục bán. 
+Thông tin sản phẩm gồm tên, đơn vị, giá, ảnh, nguồn gốc, chứng nhận và cách bảo 
+quản khi có dữ liệu. Các trường này hỗ trợ người mua lựa chọn; phần mềm không thay thế 
+việc kiểm định chất lượng và xác minh chứng nhận. 
+Bảng 2.1 Đặc điểm nghiệp vụ nông sản và yêu cầu đối với hệ thống 
+Đặc điểm Yêu cầu đối với hệ thống Vận dụng trong GreenFarm 
+Có nhi ều đơn v ị 
+bán 
+Gắn giá và số lượng với đơn vị Hiển thị đơn vị trên catalog và 
+đơn 
+--- PAGE 12 ---
+Đặc điểm Yêu cầu đối với hệ thống Vận dụng trong GreenFarm 
+Hàng có hạn sử 
+dụng 
+Phân biệt t ồn v ật lý và hàng 
+còn bán được 
+Theo dõi h ạn dùng, tr ạng thái 
+lô 
+Nhiều l ần nh ập 
+cùng sản phẩm 
+Ghi nhận riêng từng đợt nhập Quản lý lô và nhà cung cấp 
+Giá, mô t ả có th ể 
+thay đổi 
+Bảo toàn thông tin lúc mua Lưu bản chụp trong đơn 
+Nhiều khách cùng 
+đặt 
+Kiểm soát số lượng đồng thời Khóa dữ liệu trong giao dịch 
+Mua hàng từ xa Cung cấp thông tin và phản hồi Nguồn gốc, đánh giá, liên hệ 
+2.1.3 Giỏ hàng và quy trình đặt hàng 
+Giỏ hàng biểu diễn nhu cầu mua tạm thời. Mỗi dòng giỏ tham chiếu một sản phẩm 
+và số lượng mong muốn. Giỏ chưa phải đơn hàng đã được cửa hàng chấp nhận; giá, trạng 
+thái bán và số lượng khả dụng có thể thay đổi từ khi thêm giỏ đến lúc thanh toán. 
+Checkout kiểm tra lại giá, số lượng, địa chỉ, giao nhận và ưu đãi tại máy chủ. Dù đã 
+có bản xem trước trên giao diện, yêu cầu tạo đơn vẫn phải được xác minh để tránh sử dụng 
+dữ liệu cũ. 
+GreenFarm hỗ trợ khách có tài khoản và khách vãng lai. Phiên khách quản lý giỏ và 
+hỗ trợ gộp giỏ khi đăng nhập. Tra cứu đơn khách cần thông tin xác minh riêng, không ch ỉ 
+dựa vào mã đơn. 
+Tổng thanh toán bằng tiền hàng cộng phí vận chuyển, trừ giảm giá hợp lệ và điểm 
+sử dụng. Backend ki ểm tra gi ới hạn và tính l ại toàn b ộ số tiền, không l ấy tổng do trình 
+duyệt gửi làm kết quả quyết định. 
+--- PAGE 13 ---
+ 
+Hình 2.1 Chu trình nghiệp vụ bán hàng trực tuyến ở mức khái quát 
+Hình 2.1 thể hiện quan hệ giữa mua hàng và vận hành cửa hàng. Thanh toán, trạng 
+thái đơn và giao nhận có liên quan nhưng cần được theo dõi riêng; xác nhận thu tiền không 
+tự động có nghĩa đã giao hàng. 
+2.1.4 Quản lý tồn kho theo lô và nguyên tắc FEFO 
+Quản lý theo lô ghi nh ận riêng từng nhóm hàng nh ập có chung thông tin như th ời 
+điểm nhập, nhà cung c ấp, giá nhập và hạn sử dụng. Một sản phẩm có thể có nhiều lô với 
+thời hạn bảo quản khác nhau. 
+FEFO (First Expired First Out) ưu tiên xuất lô hết hạn sớm nhất để hạn chế hao hụt 
+hàng dễ hỏng. Tiêu chí này khác FIFO, vốn ưu tiên thứ tự nhập hàng; lô nhập trước không 
+nhất thiết hết hạn trước. 
+GreenFarm theo dõi lượng vật lý còn lại và lượng đã giữ cho đơn. Với lô còn hạn, 
+lượng khả dụng bằng lượng còn lại trừ lượng đã giữ. Khi xử lý đơn, hàng giữ chuyển thành 
+hàng xuất; khi hủy, hệ thống giải phóng hoặc hoàn hàng theo trạng thái thực tế. 
+2.1.5 Vòng đời đơn hàng và thanh toán 
+Vòng đời đơn hàng mô tả trạng thái từ khi tiếp nhận đến khi hoàn tất hoặc hủy. Kiểm 
+soát chuyển trạng thái ngăn những thao tác không phù hợp, chẳng hạn đánh dấu giao thành 
+công khi chưa giao hoặc phân công người giao cho đơn chưa sẵn sàng. 
+GreenFarm quản lý các bước tiếp nhận, xử lý, sẵn sàng giao, đang giao, giao thành 
+công và hoàn t ất; đồng thời ghi nhận hủy hoặc giao thất bại. Lịch sử trạng thái cho phép 
+tra cứu diễn biến. Các thay đ ổi tồn kho, coupon và thanh toán ph ải được thực hiện theo 
+điều kiện của từng bước. 
+
+--- PAGE 14 ---
+COD thu tiền khi giao hàng. Thanh toán tr ực tuyến chuyển người mua tới cổng và 
+nhận callback; backend ki ểm tra ch ữ ký, mã giao d ịch và s ố tiền trư ớc khi ghi nh ận. 
+GreenFarm tích hợp VNPAY với cấu hình mặc định sandbox để kiểm thử. 
+2.1.6 Chăm sóc khách hàng và chương trình tích điểm 
+Chăm sóc khách hàng bao gồm cung cấp thông tin trước mua, hỗ trợ theo dõi đơn, 
+tiếp nhận phản hồi và xử lý yêu cầu sau mua. Đánh giá sản phẩm cần gắn với trải nghiệm 
+mua hợp lệ để hạn chế phản hồi không phản ánh giao dịch thực tế. 
+Điểm thưởng có thể đổi thành giảm giá nên cần lịch sử cộng, trừ, hoàn và điều kiện 
+áp dụng. GreenFarm kiểm soát xử lý lặp để một sự kiện xác nhận đơn hoặc đánh giá không 
+cấp điểm nhiều lần. 
+2.2 Cơ sở lý thuyết về kiến trúc phần mềm 
+2.2.1 Mô hình client server 
+Mô hình client server phân chia ứng dụng thành bên cung cấp giao diện và bên xử 
+lý yêu cầu. Trình duyệt đảm nhiệm tương tác; máy chủ kiểm tra dữ liệu, thực hiện nghiệp 
+vụ và đọc ghi dữ liệu. Sự phân chia giúp giao di ện và phần xử lý có thể phát triển, triển 
+khai riêng [1]. 
+GreenFarm sử dụng Next.js và React ở frontend, Spring Boot ở backend. Hai thành 
+phần trao đổi qua API. MySQL được backend truy cập, không công khai trực tiếp để trình 
+duyệt truy vấn. Các dịch vụ thanh toán, lưu ảnh và AI được kết nối theo trách nhi ệm của 
+từng thành phần. 
+Khi frontend và backend ở hai tên mi ền khác nhau, backend c ần cho phép ngu ồn 
+frontend thích hợp qua CORS. CORS là cơ chế kiểm soát truy cập của trình duyệt; không 
+thay thế xác thực và phân quyền tại API. 
+--- PAGE 15 ---
+ 
+Hình 2.2 Mô hình giao tiếp giữa các thành phần GreenFarm 
+2.2.2 Kết xuất giao diện và tương tác trong ứng dụng web 
+Ứng dụng web hiện đại có thể kết hợp nội dung kết xuất phía máy ch ủ với tương 
+tác phía trình duyệt. Trong Next.js App Router, Server Components và Client Components 
+có vai trò khác nhau; thành phần cần trạng thái tương tác, sự kiện hoặc API của trình duyệt 
+được đặt ở phía client phù hợp [2]. 
+GreenFarm kết hợp các cơ chế kết xuất của Next.js với component tương tác, thay 
+vì chỉ có SPA thuần phía trình duyệt. Các thao tác liên quan tiền, quyền và kho luôn được 
+kiểm tra tại backend. 
+2.2.3 Kiến trúc REST và giao tiếp HTTP 
+REST là phong cách kiến trúc cho hệ thống phân tán được Roy Fielding trình bày. 
+Phân tách client server, yêu c ầu tự chứa thông tin cần để xử lý và giao diện thống nhất là 
+những nền tảng để tổ chức trao đổi tài nguyên trên Web [1]. 
+Trong API theo hướng REST, tài nguyên được định danh bằng URI và phương thức 
+HTTP diễn đạt thao tác. GreenFarm có các nhóm sản phẩm, giỏ, đơn và tài khoản. Dữ liệu 
+chủ yếu ở dạng JSON; ph ản hồi kèm mã HTTP giúp giao di ện phân biệt thành công, l ỗi 
+đầu vào, thiếu xác thực hoặc không đủ quyền. 
+
+--- PAGE 16 ---
+Bảng 2.2 Phương thức HTTP và ví dụ trong GreenFarm 
+Phương 
+thức 
+Ý nghĩa thường dùng Ví dụ trong dự án 
+GET Đọc tài nguyên /api/orders 
+POST Tạo tài nguyên ho ặc th ực 
+hiện nghiệp vụ 
+/api/orders 
+PUT Cập nhật theo hợp đồng API /api/shipping-addresses/{id} 
+PATCH Cập nh ật m ột ph ần ho ặc 
+trạng thái 
+/api/admin/orders/{id}/status 
+DELETE Xóa tài nguyên đư ợc phép 
+xóa 
+/api/shipping-addresses/{id} 
+Kiểm tra JSON và ki ểm tra nghiệp vụ là hai bư ớc riêng. Yêu cầu đúng đ ịnh dạng 
+vẫn bị từ chối nếu sai quyền sở hữu hoặc thiếu hàng. Tạo đơn bằng POST cần cơ chế chống 
+lặp theo nghiệp vụ. 
+2.2.4 Kiến trúc phân lớp 
+Backend GreenFarm t ổ chức Controller ti ếp nh ận HTTP và chuy ển d ữ liệu t ới 
+Service; Service xử lý điều kiện nghiệp vụ và điều phối giao dịch; Repository đọc ghi qua 
+JPA. Entity ánh xạ đối tượng tới bảng, còn DTO mô tả dữ liệu đầu vào và đầu ra API. 
+Khi tạo đơn, Controller nhận lựa chọn; Service kiểm tra địa chỉ, hàng, kho và ưu đãi 
+rồi phối hợp Repository lưu dữ liệu. Quy tắc chung được tập trung ở service để hạn chế sai 
+lệch giữa các luồng mua hàng. 
+2.2.5 Quản lý trạng thái phía client 
+Trạng thái client gồm giao diện, biểu mẫu, phiên và dữ liệu máy chủ. Trạng thái giao 
+diện có tab hoặc hộp thoại đang mở; biểu mẫu có giá trị đang nhập. Sản phẩm, giỏ và đơn 
+thuộc trạng thái máy chủ vì có thể được thay đổi bởi người khác hoặc tiến trình backend. 
+TanStack Query hỗ trợ lấy, lưu đệm và đồng bộ dữ liệu máy chủ. Sau một thay đổi 
+thành công, ứng dụng có th ể làm mất hiệu lực truy v ấn liên quan đ ể lấy lại dữ liệu [3]. 
+GreenFarm kết hợp thư viện này với Zustand cho trạng thái dùng chung, React Hook Form 
+và Zod cho biểu mẫu. 
+2.3 Cơ sở lý thuyết về dữ liệu và bảo mật 
+2.3.1 Cơ sở dữ liệu quan hệ 
+--- PAGE 17 ---
+Cơ sở dữ liệu quan hệ tổ chức dữ liệu thành bảng, mỗi dòng là một bản ghi và mỗi 
+cột mô tả thuộc tính. Khóa chính xác định bản ghi, khóa ngoại liên kết bảng, còn ràng buộc 
+duy nhất ngăn trùng lặp ở những trường cần bảo đảm tính duy nhất. 
+GreenFarm có nhiều quan hệ rõ ràng: một người dùng có nhiều địa chỉ và đơn; một 
+đơn có nhiều dòng sản phẩm; một sản phẩm có nhiều ảnh và lô nhập; một vai trò có nhiều 
+quyền. Mô hình quan hệ phù hợp để biểu diễn liên kết và truy vấn tổng hợp phục vụ quản 
+trị. 
+MySQL lưu dữ liệu nghiệp vụ. Với bảng InnoDB, giao d ịch và khóa h ỗ trợ xử lý 
+đồng thời [4]. Ch ỉ mục được xây d ựng theo nhu c ầu tra c ứu như l ọc trạng thái ho ặc tìm 
+đơn theo người dùng; việc thêm chỉ mục cũng phát sinh chi phí ghi và dung lượng. 
+2.3.2 Giao dịch và tính nhất quán 
+Giao dịch là tập hợp thao tác d ữ liệu được xử lý như một đơn vị công việc. ACID 
+gồm tính nguyên tử, nhất quán, cô lập và bền vững. Tính nguyên tử yêu cầu các bước liên 
+quan cùng xác nhận hoặc hủy khi có lỗi; tính cô lập hỗ trợ kiểm soát tác động giữa các thao 
+tác đồng thời [4]. 
+Khi tạo đơn, hệ thống phải ghi đơn hàng, các dòng s ản phẩm, phân bổ kho, thông 
+tin thanh toán và lượt dùng ưu đãi. Nếu lưu được đơn nhưng không giữ được hàng, dữ liệu 
+không phản ánh đúng cam k ết bán. Spring cung c ấp quản lý giao d ịch khai báo đ ể nhóm 
+các thao tác theo ranh giới nghiệp vụ [5]. 
+Khóa dữ liệu điều phối truy cập đồng thời. Hai khách cùng mua số hàng cuối không 
+thể chỉ đọc tồn độc lập rồi cùng ghi giảm. GreenFarm kiểm tra và điều phối tồn trong giao 
+dịch để hạn chế bán vượt số lượng khả dụng. Tính đúng đắn còn phụ thuộc cách đặt ranh 
+giới giao dịch và truy cập dữ liệu. 
+Giao dịch database không tự bao phủ dịch vụ ngoài. Email thất bại cần gửi lại riêng; 
+rollback MySQL không tự hủy tác động đã phát sinh tại cổng thanh toán. 
+2.3.3 Bản chụp dữ liệu và xử lý lặp 
+Bản chụp dữ liệu, thường gọi là snapshot, lưu giá trị tại thời điểm phát sinh nghiệp 
+vụ. Với đơn hàng, tên s ản phẩm, đơn v ị, đơn giá và thông tin ngư ời nhận cần được bảo 
+toàn để thay đổi catalog hoặc địa chỉ sau này không làm đổi nội dung đơn cũ. 
+Idempotency bảo đảm xử lý lặp không tạo tác động nghiệp vụ bổ sung. GreenFarm 
+dùng khóa checkout cho khách vãng lai và kiểm soát callback để hạn chế tạo đơn, trừ kho 
+hoặc ghi nhận thanh toán hai lần. 
+2.3.4 Xác thực bằng JWT và quản lý phiên 
+--- PAGE 18 ---
+Xác thực xác định danh tính người gửi yêu cầu. JWT biểu diễn tập claim theo RFC 
+7519; dạng có chữ ký thường gồm header, payload và signature. Ch ữ ký hỗ trợ phát hiện 
+sửa đổi; payload được mã hóa biểu diễn không có nghĩa đã được mã hóa bảo mật [6]. 
+Backend kiểm tra mật khẩu, trạng thái tài khoản và cổng đăng nhập, rồi cấp access 
+token cùng refresh token. Các yêu c ầu đư ợc b ảo v ệ gửi access token trong header 
+Authorization dạng Bearer để backend xác minh. 
+Access token có th ời hạn; refresh token ph ục vụ làm mới phiên. GreenFarm xoay 
+refresh token và thu hồi phiên khi đăng xuất hoặc đổi mật khẩu, kết hợp kiểm tra trạng thái 
+tài khoản. 
+ 
+Hình 2.3 Luồng xác thực và kiểm tra quyền ở mức khái quát 
+2.3.5 Phân quyền theo vai trò và quyền sở hữu 
+Phân quy ền theo vai trò, hay RBAC, g ắn nhóm trách nhi ệm v ới t ập quy ền. 
+GreenFarm có customer, staff, delivery_staff và admin. Khách chưa đăng nh ập dùng các 
+chức năng công khai trong phạm vi phiên khách, không được coi là có quyền của tài khoản 
+khách hàng. 
+Bảng 2.3 Vai trò và phạm vi trách nhiệm khái quát 
+Vai trò Trách nhiệm Giới hạn cần kiểm tra 
+Khách vãng lai Xem hàng, dùng giỏ khách, đặt 
+và tra cứu đơn khách 
+Phiên khách và thông tin xác 
+minh 
+customer Mua hàng, qu ản lý h ồ sơ, địa 
+chỉ, đơn, đánh giá, điểm 
+Dữ liệu thuộc tài khoản 
+
+--- PAGE 19 ---
+Vai trò Trách nhiệm Giới hạn cần kiểm tra 
+staff Xử lý đơn, liên hệ, thao tác kho 
+được cấp 
+Quyền và điều kiện nghiệp vụ 
+delivery_staff Nhận và cập nhật giao nội bộ Đơn được phân công 
+admin Quản lý người dùng, hàng hóa, 
+kho, vận hành 
+Quyền từng API và lịch sử thay 
+đổi 
+Quyền sở hữu bổ sung cho vai trò. Hai khách hàng cùng vai trò không đư ợc xem 
+đơn của nhau. Người giao chỉ được nhận và cập nhật đơn phân công cho mình. Phân quyền 
+phải kết hợp danh tính, nhóm quyền và quan hệ giữa tài khoản với dữ liệu. 
+2.3.6 Bảo vệ dữ liệu và thông tin nhạy cảm 
+Dữ liệu nhạy cảm gồm mật khẩu, token, thông tin nhận hàng, khóa dịch vụ và giao 
+dịch. Mật khẩu cần lưu dạng băm một chiều thích hợp để đối chiếu, thay vì lưu nguyên văn 
+hoặc thiết kế chức năng giải mã. Spring Security cung cấp PasswordEncoder; GreenFarm 
+cấu hình BCrypt cho mục đích này [7]. 
+Khóa JWT, thông tin MySQL, bí mật thanh toán và khóa Gemini được tách khỏi mã 
+nguồn bằng biến môi trường. Cấu hình đưa vào JavaScript phía trình duyệt phải được xem 
+là công khai; chỉ các giá trị như địa chỉ API mới phù hợp để công bố ở frontend. 
+Bảo vệ dữ liệu còn g ồm giới hạn đăng nh ập sai, ki ểm tra đ ầu vào, quy ền sở hữu, 
+kiểm soát tệp tải và không trả dấu vết lỗi nội bộ. Khi triển khai Internet cần HTTPS. Lưu 
+token trong trình duyệt cũng đặt ra yêu cầu hạn chế XSS; có token không tự làm ứng dụng 
+an toàn. 
+2.3.7 Quản lý phiên bản cấu trúc dữ liệu 
+GreenFarm dùng migration SQL có phiên b ản do Flyway qu ản lý. Database m ới 
+khởi tạo từ schema nền rồi áp dụng thay đổi theo thứ tự. Database tồn tại có thể baseline 
+phù hợp để không tạo lại bảng cũ. Migration đã ch ạy cần giữ ổn định; thay đổi tiếp theo 
+được viết thành phiên bản mới. 
+2.4 Cơ sở lý thuyết về trí tuệ nhân tạo trong tư vấn mua hàng 
+2.4.1 Trí tuệ nhân tạo tạo sinh và mô hình ngôn ngữ 
+Trí tuệ nhân tạo tạo sinh tạo nội dung từ đầu vào. Với trợ lý văn bản, mô hình ngôn 
+ngữ tiếp nhận câu hỏi cùng ngữ cảnh và sinh phản hồi theo yêu cầu. Gemini API cung cấp 
+khả năng sinh văn bản, được GreenFarm sử dụng cho hội thoại tư vấn [8]. 
+--- PAGE 20 ---
+Diễn đạt tự nhiên phù hợp với hỏi loại rau, giá hoặc chính sách mua hàng. Tuy nhiên, 
+đầu ra mô hình không t ự có quy ền xác nh ận giao d ịch hay thay đ ổi d ữ liệu. AI trong 
+GreenFarm hỗ trợ tư vấn; đặt hàng, tính tiền và kiểm tra quyền vẫn do mã chương trình xử 
+lý. 
+Đề tài tích hợp mô hình có s ẵn qua API, tập trung vào điều phối câu hỏi, lựa chọn 
+ngữ cảnh và kiểm soát phản hồi; không tự huấn luyện mô hình ngôn ngữ. 
+2.4.2 Prompt và ngữ cảnh nghiệp vụ 
+Prompt là hướng dẫn gửi tới mô hình để xác định nhiệm vụ và cách trả lời. Với trợ 
+lý mua sắm, prompt cần xác định vai trò, phạm vi tư vấn, dữ liệu được dùng và cách phản 
+hồi khi thiếu thông tin. 
+Ngữ cảnh phải được tạo từ dữ liệu đáng tin cậy. Nếu chỉ gửi câu hỏi mà không có 
+catalog, mô hình có th ể trả thông tin không kh ớp hàng hóa. GreenFarm t ạo ngữ cảnh ở 
+backend từ sản phẩm công khai và chính sách; frontend không tự khai báo giá hay tồn kho 
+làm căn cứ tư vấn. 
+2.4.3 Tư vấn dựa trên dữ liệu công khai 
+Phạm vi dữ liệu đưa vào mô hình được giới hạn ở thông tin được phép hiển thị công 
+khai. Với GreenFarm, đó là sản phẩm đang hiển thị, giá, tồn kho và chính sách. Tài khoản, 
+đơn riêng, doanh thu, nhân sự và cấu hình nội bộ không thuộc phạm vi tư vấn. 
+Lịch sử hội thoại giúp hiểu câu hỏi tiếp nối nhưng cần giới hạn và tách theo chủ thể. 
+GreenFarm phân bi ệt lịch sử tài khoản với phiên khách. Backend lưu giá tr ị băm token 
+phiên chat khách để hạn chế lưu token thô trong database. 
+--- PAGE 21 ---
+ 
+Hình 2.4 Luồng cung cấp ngữ cảnh và phản hồi của trợ lý GreenFarm 
+2.4.4 Bảo vệ dữ liệu khi tích hợp AI 
+Câu hỏi có thể chứa email, số điện thoại hoặc thông tin thanh toán. Trư ớc khi lưu 
+và gửi AI, hệ thống cần giảm dữ liệu không cần thiết. GreenFarm che m ột số mẫu thông 
+tin cá nhân trong hội thoại và lọc lại lịch sử khi tạo ngữ cảnh. 
+Yêu cầu tiết lộ cấu hình hoặc dữ liệu cá nhân phải bị từ chối. Lọc nội dung và hướng 
+dẫn mô hình giúp giảm rủi ro prompt injection nhưng không bảo đảm loại bỏ mọi cách khai 
+thác. 
+Khóa AI chỉ đặt ở backend. Phản hồi được kiểm soát khi hiển thị; thẻ sản phẩm được 
+đối chiếu catalog, không mặc nhiên tin mọi nội dung mô hình tạo ra. 
+2.4.5 Hạn chế và cơ chế dự phòng 
+Chất lượng phản hồi có thể thay đổi theo cách hỏi, ngữ cảnh và phiên bản mô hình. 
+Mô hình có th ể suy diễn sai ho ặc tạo thông tin thi ếu căn c ứ. API ngoài có th ể lỗi, chậm 
+hoặc không sẵn sàng, ảnh hưởng trải nghiệm tư vấn. 
+GreenFarm trả lời dự phòng bằng catalog và chính sách khi chưa có khóa Gemini 
+hoặc dịch vụ lỗi. Cách này duy trì h ỗ trợ cơ bản, nhưng không b ảo đảm linh hoạt tương 
+đương mô hình ngôn ngữ. 
+AI chỉ hỗ trợ tư vấn, không quyết định tiền, quyền hay trạng thái giao dịch. Độ chính 
+xác cần được đánh giá bằng bộ câu hỏi và tiêu chí cụ thể. 
+
+--- PAGE 22 ---
+2.5 Các công nghệ sử dụng 
+2.5.1 Tổng quan công nghệ 
+Các công nghệ theo cấu hình GreenFarm local được tổng hợp trong Bảng 2.4. Phiên 
+bản là khai báo trong dự án; những phụ thuộc theo dải được quản lý thêm bằng tệp lock. 
+Bảng 2.4 Các công nghệ chính sử dụng trong GreenFarm 
+Nhóm Công nghệ và phiên bản khai 
+báo 
+Vai trò 
+Giao diện Next.js 16.3.3, React 19.2.4 Trang, điều hướng, 
+component 
+Ngôn ngữ 
+frontend 
+TypeScript 5.9.3 Kiểm tra kiểu dữ liệu 
+Định dạng giao 
+diện 
+Tailwind CSS 4.3.3 Giao diện responsive 
+Dữ liệu frontend TanStack Query 5.102.3, Axios 
+1.19.0 
+Truy cập và đồng bộ API 
+Trạng thái, biểu 
+mẫu 
+Zustand 5.0.15, React Hook 
+Form 7.86.0, Zod 4.4.3 
+Trạng thái và kiểm tra đầu 
+vào 
+Backend Java 21, Spring Boot 4.1.0 API và nghiệp vụ 
+Bảo mật Spring Security, JJWT 0.12.6, 
+BCrypt 
+Xác thực, kiểm tra quyền 
+Dữ liệu MySQL 8.0.44 trong Compose, 
+Spring Data JPA 
+Lưu trữ và truy cập dữ liệu 
+Migration Flyway, SQL có phiên bản Quản lý thay đổi schema 
+Hình ảnh Cloudinary SDK 2.4.0 hoặc thư 
+mục upload 
+Ảnh sản phẩm, danh mục, 
+avatar 
+Dịch vụ nghiệp 
+vụ 
+VNPAY, GHN, SMTP Thanh toán, giao nhận, email 
+Trợ lý tư vấn Gemini API Phản hồi theo dữ liệu công 
+khai 
+Kiểm thử, hợp 
+đồng 
+Spring Boot Test, Testcontainers 
+1.20.6, OpenAPI 
+Kiểm thử và mô tả API 
+Môi trường local Docker, Docker Compose, 
+Node.js 
+Chạy backend, MySQL và 
+frontend local 
+2.5.2 Công nghệ frontend 
+--- PAGE 23 ---
+Next.js tổ chức trang, layout và đi ều hướng trên nền React. GreenFarm dùng App 
+Router, chia các khu vực khách hàng, quản trị, nhân viên và giao hàng theo tuy ến đường. 
+React hỗ trợ component tái sử dụng; TypeScript kiểm tra kiểu dữ liệu. 
+Tailwind CSS định dạng giao diện responsive; Axios và TanStack Query truy c ập, 
+đồng bộ API; Zustand quản lý trạng thái chung. React Hook Form và Zod hỗ trợ biểu mẫu. 
+Kiểm tra phía client cải thiện trải nghiệm, không thay thế xác minh tại backend. 
+2.5.3 Công nghệ backend 
+Java 21 và Spring Boot 4.1.0 xây dựng backend với Web MVC, validation, JPA, bảo 
+mật và email. Controller, Service, Repository tách trách nhiệm; nghiệp vụ tạo đơn và phân 
+bổ kho được điều phối tại service. 
+Spring Security kết hợp bộ lọc JWT với kiểm tra quyền. Spring Data JPA ánh xạ và 
+truy cập dữ liệu; springdoc cung cấp hợp đồng OpenAPI cùng Swagger. Lombok giảm mã 
+lặp trong lớp Java. 
+2.5.4 Công nghệ dữ liệu và lưu trữ 
+MySQL lưu dữ liệu nghiệp vụ; Flyway qu ản lý migration và JPA h ỗ trợ truy cập. 
+Ràng buộc SQL bảo vệ toàn vẹn dữ liệu. 
+Ảnh được lưu trên Cloudinary khi có c ấu hình ho ặc trong thư m ục upload local; 
+database giữ đường dẫn. Docker Compose có volume cho MySQL và upload đ ể dữ liệu 
+tồn tại khi tạo lại container. V olume vẫn cần sao lưu độc lập. 
+2.5.5 Công nghệ tích hợp dịch vụ ngoài 
+VNPAY hỗ trợ thanh toán trực tuyến, backend xác minh ch ữ ký callback; sandbox 
+phục vụ kiểm thử. GHN hỗ trợ giao nhận bên ngoài, tách v ới luồng phân công nhân viên 
+giao nội bộ. 
+SMTP gửi hóa đơn và h ỗ trợ retry; Gemini ph ục vụ tư vấn, Cloudinary lưu ảnh. 
+Thông tin xác thực đặt tại backend, các chức năng hoạt động theo cấu hình dịch vụ thực tế. 
+2.5.6 Công nghệ kiểm thử và công cụ phát triển 
+Spring Boot Test và Testcontainers hỗ trợ kiểm thử backend, gồm những tình huống 
+cần MySQL thật. Frontend dùng ESLint và build Next.js đ ể kiểm tra mã và cấu hình; các 
+bước này không thay thế kiểm thử chức năng đầu cuối. 
+Git quản lý mã nguồn, npm quản lý frontend và Maven build backend. Các ca kiểm 
+thử và kết quả thực tế được trình bày tại chương 5. 
+--- PAGE 24 ---
+2.5.7 Công nghệ đóng gói và môi trường local 
+Docker đóng gói ứng d ụng cùng môi trư ờng ch ạy trong image và th ực thi b ằng 
+container [9]. Dockerfile GreenFarm có nhiều giai đoạn: Maven xây dựng ứng dụng, JRE 
+chạy JAR. Compose tổ chức backend, MySQL và volume cho local. 
+Trong môi trư ờng local, frontend ch ạy b ằng Node.js t ại c ổng m ặc đ ịnh 3000; 
+backend cung cấp API tại cổng 8080. MySQL trong mạng Docker dùng cổng 3306 và được 
+ánh xạ ra cổng 3307 c ủa máy host theo c ấu hình mặc định. Địa chỉ và cổng có thể được 
+thay đổi qua cấu hình dự án. 
+Frontend mặc định gọi http://localhost:8080/api để lấy dữ liệu backend và MySQL 
+local. VNPAY , GHN, SMTP, Cloudinary và Gemini hoạt động theo cấu hình dịch vụ thực 
+tế. 
+Những cơ sở trong chương xác lập cách xử lý giao dịch, tổ chức dữ liệu, phân quyền 
+và tích hợp dịch vụ. Chương tiếp theo cụ thể hóa thành yêu c ầu, tác nhân, use case, thi ết 
+kế dữ liệu, API và giao diện. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+--- PAGE 25 ---
+CHƯƠNG 3 PHÂN TÍCH THIẾT KẾ HỆ THỐNG 
+Chương này xác định yêu cầu và thiết kế hệ thống kinh doanh nông sản trực tuyến 
+GreenFarm. Nội dung được tổ chức từ phạm vi, tác nhân và quy tắc nghiệp vụ đến use 
+case, kiến trúc, cơ sở dữ liệu, API và giao diện. Thiết kế tập trung vào tính nhất quán giữa 
+đơn hàng, thanh toán và tồn kho; đồng thời hỗ trợ khách vãng lai, khách hàng có tài khoản 
+và các bộ phận vận hành. 
+3.1 Phạm vi và tác nhân của hệ thống 
+3.1.1 Phạm vi hệ thống 
+GreenFarm phục vụ hoạt động bán hàng của một đơn vị kinh doanh nông sản. Khách có 
+thể tìm sản phẩm, đặt hàng và theo dõi đơn; bộ phận vận hành quản lý hàng hóa, kho, giao 
+nhận và chăm sóc khách hàng. Hệ thống không tổ chức gian hàng cho nhiều nhà bán độc 
+lập. 
+Bảng 3.1. Phạm vi của hệ thống GreenFarm 
+Khía cạnh Nội dung trong phạm vi Giới hạn 
+Mua sắm 
+Danh mục, tìm kiếm, bộ lọc, chi tiết, 
+nguồn gốc, chứng nhận và bảo quản; 
+giỏ hàng, yêu thích 
+Không có sàn nhiều nhà bán hoặc 
+đấu giá 
+Tài khoản Đăng ký, đăng nhập theo vai trò, hồ sơ, avatar, đổi và khôi phục mật khẩu Chưa có đăng nhập Google hoặc quy trình xác minh email 
+Đơn hàng 
+Địa chỉ, xem trước tiền, đặt hàng tài 
+khoản/khách, hóa đơn, lịch sử, hủy 
+và yêu cầu hoàn tiền 
+Khách vãng lai không có đầy đủ 
+quyền lợi tài khoản 
+Thanh toán COD, VNPAY, xác minh callback, hết hạn và hoàn tiền VNPAY sử dụng cấu hình sandbox của đề tài 
+Kho và nguồn cung 
+Nhà cung cấp, nhập lô, hạn dùng, giữ 
+hàng, xuất FEFO, điều chỉnh và lịch 
+sử 
+Không có quản lý nhiều kho hoặc 
+kế toán giá vốn đầy đủ 
+Giao nhận Phân công giao nội bộ; báo phí, vận đơn, sự kiện và đối soát COD GHN GHN staging; một kiện ước tính và chỉ hàng đủ điều kiện 
+--- PAGE 26 ---
+Khía cạnh Nội dung trong phạm vi Giới hạn 
+Khuyến mại Coupon đơn/sản phẩm/danh mục, miễn phí vận chuyển, điểm thưởng Không có ví tiền hoặc quy đổi điểm thành tiền mặt 
+Hỗ trợ và quản trị Đánh giá, liên hệ, thông báo SSE, báo cáo/CSV và chatbot Gemini Chatbot chỉ tư vấn dữ liệu công khai, không thao tác giao dịch 
+Triển khai 
+Frontend trên Vercel; backend và 
+MySQL trên Railway; ảnh trên 
+Cloudinary 
+Mô hình triển khai đích của báo 
+cáo; không đặt ra số liệu SLA chưa 
+đo 
+3.1.2 Các tác nhân của hệ thống 
+Các tác nhân nghiệp vụ gồm năm nhóm người dùng. Dịch vụ ngoài đóng vai trò tác nhân 
+hỗ trợ; MySQL là thành phần lưu trữ bên trong kiến trúc, không phải người dùng của use 
+case. 
+Bảng 3.2. Các tác nhân của hệ thống 
+Mã Tác nhân Vai trò và phạm vi truy cập 
+ACT-01 Khách vãng lai Xem nội dung công khai, giỏ theo phiên, đặt COD/VNPAY, tra cứu đơn bằng thông tin xác minh, gửi liên hệ và chat 
+ACT-02 Khách hàng Vai trò customer; sử dụng mua sắm, quản lý dữ liệu cá nhân, đánh giá, điểm và yêu cầu hoàn tiền 
+ACT-03 Nhân viên Vai trò staff; xử lý đơn, phân công giao nội bộ, sản phẩm theo quyền, liên hệ và điều chỉnh kho được phép 
+ACT-04 Nhân viên giao hàng Vai trò delivery_staff; chỉ nhận và cập nhật đơn nội bộ được phân công 
+ACT-05 Quản trị viên Vai trò admin; quản lý tài khoản, catalog, coupon, nguồn cung, kho, đơn, vận đơn, hoàn tiền và báo cáo 
+ACT-06 VNPAY Tiếp nhận thanh toán, gửi Return/IPN và xử lý yêu cầu hoàn tiền có chữ ký 
+ACT-07 GHN Báo phí, tạo/tra cứu/hủy/in vận đơn; gửi sự kiện giao hàng và chuyển tiền COD 
+ACT-08 Dịch vụ hỗ trợ SMTP gửi email; Cloudinary lưu ảnh; Gemini cung cấp phản hồi tư vấn 
+3.1.3 Sơ đồ ngữ cảnh 
+Hình ngữ cảnh thể hiện GreenFarm là đầu mối xử lý nghiệp vụ. Trình duyệt gọi API của 
+hệ thống; khóa VNPAY, GHN, SMTP, Cloudinary và Gemini được sử dụng tại backend. 
+--- PAGE 27 ---
+ 
+Hình 3.1. Sơ đồ ngữ cảnh hệ thống GreenFarm 
+3.2 Phân tích yêu cầu hệ thống 
+3.2.1 Yêu cầu chức năng 
+Các yêu cầu được nhóm theo mục tiêu sử dụng. Mức ưu tiên Cao dành cho chức năng 
+hình thành giao dịch và bảo vệ dữ liệu; mức Trung bình dành cho chức năng hỗ trợ trải 
+nghiệm và quản trị. 
+Bảng 3.3. Yêu cầu chức năng của GreenFarm 
+Mã Yêu cầu Tác nhân Xử lý và kết quả chính Ưu tiên 
+FR-01 Tài khoản và phiên Khách, mọi vai trò Đăng ký customer; đăng nhập đúng cổng; refresh xoay vòng; đăng xuất thu hồi phiên Cao 
+FR-02 Hồ sơ và mật khẩu Người đã đăng nhập Cập nhật hồ sơ/ảnh; đổi mật khẩu; khôi phục qua email bằng token dùng một lần Cao 
+FR-03 Catalog Mọi khách Tìm/lọc/phân trang; xem danh mục, ảnh, giá, đơn vị, nguồn gốc, chứng nhận và bảo quản Cao 
+
+--- PAGE 28 ---
+Mã Yêu cầu Tác nhân Xử lý và kết quả chính Ưu tiên 
+FR-04 Giỏ và yêu thích Khách, khách hàng Giỏ tài khoản hoặc phiên khách; kiểm tra số lượng/tồn; yêu thích dành cho customer Cao 
+FR-05 Gộp giỏ khách Khách hàng Gộp sau đăng nhập; khóa và kiểm tra cả giỏ; không cộng lặp cùng phiên Cao 
+FR-06 Địa chỉ và báo phí Khách, khách hàng Địa chỉ mặc định; chọn giao nội bộ/GHN; kiểm tra tuyến và điều kiện vận chuyển Cao 
+FR-07 Checkout và đặt hàng Khách, khách hàng Tính tiền tại server; giữ kho/coupon; lưu đơn, dòng hàng, thanh toán và lịch sử Cao 
+FR-08 Thanh toán 
+Khách, 
+khách hàng, 
+VNPAY 
+COD hoặc URL VNPAY; xác minh chữ ký/mã/số 
+tiền; xử lý lặp và hết hạn Cao 
+FR-09 Theo dõi và hóa đơn Khách, khách hàng Xem đơn đã xác thực; trạng thái, lịch sử, vận đơn; xem/in hóa đơn và gửi email Cao 
+FR-10 Hủy và hoàn tiền Khách hàng, admin Hủy đơn chờ chưa trả tiền; gửi/duyệt yêu cầu; hoàn COD hoặc qua VNPAY Cao 
+FR-11 Vận hành đơn Staff, admin Xác nhận, chuẩn bị, sẵn sàng giao, giao lại; kiểm tra chuyển trạng thái Cao 
+FR-12 Giao hàng nội bộ Staff, admin, giao hàng Phân công người đang hoạt động; nhận đơn; giao thành công/thất bại và ghi lý do Cao 
+FR-13 Vận đơn GHN Admin, GHN Tạo, đồng bộ, hủy, in; nhận webhook; đối soát COD; chặn sự kiện cũ/lặp Cao 
+FR-14 Catalog quản trị Admin, staff theo quyền Quản lý danh mục/sản phẩm/ảnh; trạng thái bán, xuất xứ và thông số gói hàng Cao 
+FR-15 Nguồn cung và nhập kho Admin Quản lý nhà cung cấp; nhập lô có hạn dùng, giá nhập và người thực hiện Cao 
+FR-16 Vận hành kho Admin, staff Xem tồn/lô; FEFO; điều chỉnh, hư hỏng, hết hạn, trả hàng và lịch sử Cao 
+FR-17 Coupon và miễn phí giao Admin, người mua Thời hạn, phạm vi, lượt dùng, mức tối thiểu/tối đa; giữ/dùng/trả lượt theo đơn Cao 
+FR-18 
+Điểm 
+GreenFarm 
+Rewards 
+Khách hàng Xem số dư/lịch sử; nhận điểm đơn/đánh giá; dùng điểm và hoàn/điều chỉnh theo giao dịch Trung bình 
+FR-19 Đánh giá sản phẩm Khách hàng Chỉ sản phẩm đã nhận; 1–5 sao; một đánh giá mỗi tài khoản/sản phẩm, có thể sửa Trung bình 
+FR-20 Liên hệ và thông báo Mọi khách, vận hành Gửi/phản hồi/đóng liên hệ; thông báo riêng, số chưa đọc và SSE Trung bình 
+FR-21 Tư vấn AI Mọi khách, Gemini Hội thoại theo tài khoản/phiên; catalog công khai; che dữ liệu; có trả lời dự phòng Trung bình 
+--- PAGE 29 ---
+Mã Yêu cầu Tác nhân Xử lý và kết quả chính Ưu tiên 
+FR-22 Quản trị người dùng Admin Tìm/lọc, đổi vai trò/trạng thái; xem quyền; bảo vệ tài khoản admin đang thao tác Cao 
+FR-23 Báo cáo kinh doanh Admin Doanh thu, đơn, khách mới, hàng bán chạy, tồn thấp, coupon; lọc ngày và xuất CSV Trung bình 
+3.2.2 Yêu cầu phi chức năng 
+Các tiêu chí dưới đây là yêu cầu thiết kế và kiểm chứng, không được dùng thay cho kết 
+quả đo hiệu năng hoặc nghiệm thu triển khai. 
+Bảng 3.4. Yêu cầu phi chức năng 
+Mã Nhóm Yêu cầu và tiêu chí kiểm chứng Ưu tiên 
+NFR-01 Xác thực JWT hợp lệ, trạng thái tài khoản và phiên bản thông tin xác thực được kiểm tra; thiếu/sai token trả 401 Cao 
+NFR-02 Phân quyền Kiểm tra role/permission tại backend; kiểm tra chủ sở hữu đơn, địa chỉ, giỏ và thông báo; trái quyền bị từ chối Cao 
+NFR-03 Bảo vệ bí mật BCrypt cho mật khẩu; hash token nhạy cảm; khóa dịch vụ chỉ ở backend; không trả bí mật trong lỗi Cao 
+NFR-04 Toàn vẹn giao dịch Đặt/hủy đơn đồng bộ kho, coupon, điểm và payment bằng transaction; lỗi giữa chừng phải rollback Cao 
+NFR-05 Đồng thời và chống lặp Khóa tài nguyên quan trọng, unique nghiệp vụ, khóa checkout khách và callback idempotent Cao 
+NFR-06 Tính đúng tiền Tính bằng BigDecimal tại backend; kiểm tra tiền VNPAY; không dùng tổng tiền client làm nguồn quyết định Cao 
+NFR-07 Khả năng phục hồi Email có retry; AI có fallback; thông báo được lưu để tải lại khi SSE gián đoạn Trung bình 
+NFR-08 Hiệu năng Phân trang danh sách, chỉ mục tìm kiếm/quan hệ, cache dữ liệu frontend; đo tải trước khi kết luận tốc độ Trung bình 
+NFR-09 Giao diện Responsive; có loading, rỗng, lỗi và phản hồi thao tác; không khóa luồng khi thiếu cấu hình dịch vụ tùy chọn Trung bình 
+NFR-10 Bảo trì Controller–Service–Repository, DTO/validation, lỗi chuẩn hóa và Flyway cho thay đổi schema Trung bình 
+NFR-11 Vận hành HTTPS, biến môi trường, log và health endpoint; dữ liệu MySQL dùng lưu trữ bền vững; quy trình sao lưu/khôi phục Cao 
+NFR-12 Giới hạn AI Không truy xuất dữ liệu cá nhân hoặc thực hiện đặt hàng/thanh toán; phản hồi sản phẩm đối chiếu catalog Cao 
+--- PAGE 30 ---
+3.2.3 Quy tắc nghiệp vụ 
+Bảng 3.5. Các quy tắc nghiệp vụ trọng tâm 
+Mã Quy tắc 
+BR-01 Tài khoản đăng ký nhận role customer. Sai mật khẩu 5 lần liên tiếp khóa tạm 15 phút theo mặc định; đăng nhập khác cổng vai trò bị từ chối. 
+BR-02 
+Refresh token mặc định 30 ngày và xoay vòng. Token khôi phục mật khẩu 
+hết hạn sau 30 phút, dùng một lần; đổi/đặt lại mật khẩu làm mất hiệu lực 
+thông tin xác thực cũ. 
+BR-03 Giá và trạng thái bán được đọc lại khi checkout. Sản phẩm ẩn không được phục vụ qua catalog công khai; không sửa trực tiếp tồn bằng API sản phẩm. 
+BR-04 
+Tồn khả dụng của một sản phẩm bằng tổng remaining_quantity − 
+reserved_quantity của lô chưa hết hạn. Ngày hết hạn bằng ngày hiện tại vẫn 
+hợp lệ; lô cũ chưa biết hạn được xử lý riêng. 
+BR-05 Đặt hàng giữ lô theo FEFO; chuyển processing mới xuất kho. Nếu lô giữ đã hết hạn thì phân bổ lại; hủy giải phóng/hoàn đúng lô một lần. 
+BR-06 
+Tồn thấp là 1–10 đơn vị khả dụng. Cảnh báo gần hạn mặc định 3 ngày; tác vụ 
+định kỳ đồng bộ tồn khi lô hết hạn. Điều chỉnh không được làm âm tồn hoặc 
+xâm phạm phần đang giữ. 
+BR-07 
+Mỗi đơn dùng tối đa một coupon ORDER_DISCOUNT và một FREESHIP, 
+có thể kết hợp điểm. Phạm vi ALL/CATEGORY/PRODUCT và hạn mức 
+được kiểm tra lại khi tạo đơn. 
+BR-08 
+Tiền thanh toán = tạm tính − giảm hàng − giảm điểm + phí giao − giảm phí 
+giao. Các khoản giảm được giới hạn theo điều kiện để không tạo tổng tiền 
+âm. 
+BR-09 
+Mỗi 10.000 đồng giá trị đơn hợp lệ nhận 1 điểm; 1 điểm đổi 100 đồng. Mức 
+đổi tối đa 50% tạm tính sau coupon hàng hóa, chưa cộng phí giao; điểm đánh 
+giá không được cộng lặp. 
+BR-10 
+VNPAY chờ thanh toán tối đa 15 phút; chỉ chấp nhận kết quả khớp chữ ký, 
+mã tham chiếu và số tiền. Đơn trực tuyến chưa thanh toán không được xác 
+nhận xử lý. 
+BR-11 
+Giao nội bộ chỉ dành cho nhân viên đang hoạt động được phân công; phải 
+nhận đơn trước khi đi giao. Giao thất bại cần lý do và có thể chuẩn bị giao 
+lại. 
+BR-12 
+GHN chỉ áp dụng khi toàn bộ giỏ đủ điều kiện; không tự gán khả năng vận 
+chuyển cho hàng tươi/sống/đông lạnh. Mã khách hàng GF-<orderId> dùng để 
+tránh tạo vận đơn trùng. 
+--- PAGE 31 ---
+Mã Quy tắc 
+BR-13 
+Giao thành công nội bộ xác nhận COD; GHN delivered chưa đồng nghĩa đã 
+chuyển tiền COD. Chỉ ghi thanh toán GHN khi thông tin chuyển tiền và số 
+tiền phù hợp. 
+BR-14 Khách hàng chỉ tự hủy đơn pending chưa thanh toán. Đơn đã thanh toán cần quy trình hoàn tiền; yêu cầu hoàn tiền đang xử lý không được tạo lặp. 
+BR-15 
+Chỉ khách đã nhận sản phẩm được đánh giá; mỗi cặp tài khoản–sản phẩm có 
+một đánh giá. Khách vãng lai không nhận điểm, không đánh giá hoặc tự gửi 
+yêu cầu hoàn tiền theo API tài khoản. 
+BR-16 
+Doanh thu báo cáo dựa vào payment completed và paid_at trong kỳ; đơn 
+hoàn tiền toàn phần không còn tính doanh thu. Doanh số sản phẩm là giá 
+dòng hàng trước phân bổ ưu đãi, không đồng nhất với doanh thu thuần. 
+BR-17 
+Giao nội bộ tiêu chuẩn thu 30.000 đồng, miễn phí khi tạm tính từ 500.000 
+đồng. Luồng khách có thêm express 50.000 đồng; miễn phí theo ngưỡng áp 
+dụng cho standard. Phí GHN lấy từ báo giá, không dùng biểu phí nội bộ. 
+BR-18 
+GHN ước tính một kiện, tối đa 50 kg và 200 cm mỗi chiều; tiền VND 
+nguyên, COD tối đa 50 triệu đồng. Chưa hỗ trợ chia kiện hoặc thay tiền COD 
+sau đặt. 
+3.3 Phân tích use case 
+3.3.1 Sơ đồ use case tổng quát 
+Use case mô tả mục tiêu của từng tác nhân; xác thực và quyền sở hữu là tiền điều kiện 
+của chức năng bảo vệ. Sơ đồ không gắn quan hệ include vào mọi use case để tránh che 
+khuất các mục tiêu nghiệp vụ. Các bước tính tiền, giữ kho và xác minh thanh toán được thể 
+hiện chi tiết trong đặc tả và biểu đồ tuần tự. 
+--- PAGE 32 ---
+ 
+Hình 3.2. Sơ đồ use case tổng quát của GreenFarm 
+3.3.2 Use case mua sắm và vận hành 
+Khách vãng lai có thể hoàn thành giao dịch bằng phiên khách; khách hàng có thêm dữ 
+liệu cá nhân, điểm và quyền hậu mãi. Staff xử lý đơn và kho trong phạm vi cho phép, còn 
+quản trị viên quản lý cấu hình nghiệp vụ và quyết định hoàn tiền. Nhân viên giao hàng chỉ 
+thao tác trên các đơn nội bộ được giao cho mình. 
+
+--- PAGE 33 ---
+ 
+Hình 3.3. Sơ đồ use case của khách vãng lai và khách hàng 
+ 
+Hình 3.4. Sơ đồ use case của quản trị và nhân viên vận hành 
+
+--- PAGE 34 ---
+3.3.3 Danh sách use case 
+Bảng 3.6. Danh sách use case và yêu cầu liên quan 
+Mã Tên use case Yêu cầu 
+UC-01 Đăng ký tài khoản FR-01 
+UC-02 Đăng nhập đăng xuất và làm mới phiên FR-01 
+UC-03 Quản lý hồ sơ và khôi phục mật khẩu FR-02 
+UC-04 Tra cứu catalog và chi tiết sản phẩm FR-03 
+UC-05 Quản lý giỏ hàng và yêu thích FR-04 
+UC-06 Gộp giỏ khách vào tài khoản FR-05 
+UC-07 Quản lý địa chỉ và đặt hàng tài khoản FR-06, FR-07, FR-17, FR-18 
+UC-08 Đặt và tra cứu đơn không cần tài khoản FR-06, FR-07, FR-09 
+UC-09 Thanh toán và nhận hóa đơn FR-08, FR-09 
+UC-10 Hủy đơn và xử lý hoàn tiền FR-10 
+UC-11 Tiếp nhận và chuẩn bị đơn hàng FR-11 
+UC-12 Phân công nhận và cập nhật giao nội bộ FR-12 
+UC-13 Quản lý vận đơn và sự kiện GHN FR-13 
+UC-14 Quản lý danh mục sản phẩm và ảnh FR-14 
+UC-15 Quản lý nhà cung cấp và nhập lô FR-15 
+UC-16 Theo dõi điều chỉnh và phân bổ kho FR-16 
+UC-17 Quản lý và sử dụng coupon FR-17 
+UC-18 Đánh giá sản phẩm và điểm thưởng FR-18, FR-19 
+UC-19 Liên hệ hỗ trợ và nhận thông báo FR-20 
+UC-20 Tư vấn mua sắm bằng chatbot FR-21 
+UC-21 Quản lý tài khoản vai trò và trạng thái FR-22 
+UC-22 Xem báo cáo và xuất dữ liệu kinh doanh FR-23 
+3.3.4 Đặc tả các use case 
+Các đặc tả dưới đây dùng cùng biểu mẫu Thuộc tính–Nội dung của báo cáo tham chiếu. 
+Những thao tác cùng mục tiêu như thêm/sửa/xóa hoặc tải lại dữ liệu được gộp trong một 
+--- PAGE 35 ---
+use case; các giao dịch có quy tắc riêng vẫn được tách để thể hiện điều kiện, luồng thay thế 
+và ngoại lệ. 
+3.3.4.1 UC-01 Đăng ký tài khoản 
+Bảng 3.7. Đặc tả use case UC-01 
+Thuộc tính Nội dung 
+Mã và tên UC-01 — Đăng ký tài khoản 
+Tác nhân và ưu tiên Khách vãng lai; ưu tiên cao. FR-01. 
+Kích hoạt và tiền điều 
+kiện 
+Khách chọn Đăng ký; họ tên, email và mật khẩu hợp lệ; email chưa 
+được sử dụng. 
+Điều kiện sau Tài khoản customer hoạt động và phiên đăng nhập được tạo. 
+Luồng chính 
+1. Nhập thông tin. 2. Frontend gửi đăng ký. 3. Backend validate và kiểm 
+tra email. 4. Băm BCrypt, lưu user với role customer. 5. Cấp token và 
+trả hồ sơ. 
+Luồng thay thế Khách đã có tài khoản chuyển sang đăng nhập. 
+Ngoại lệ Email trùng hoặc dữ liệu sai: trả lỗi, không tạo tài khoản trùng. 
+3.3.4.2 UC-02 Đăng nhập đăng xuất và làm mới phiên 
+Bảng 3.8. Đặc tả use case UC-02 
+Thuộc tính Nội dung 
+Mã và tên UC-02 — Đăng nhập đăng xuất và làm mới phiên 
+Tác nhân và ưu tiên Mọi vai trò; ưu tiên cao. FR-01. 
+Kích hoạt và tiền điều 
+kiện 
+Người dùng mở cổng tương ứng; tài khoản tồn tại, hoạt động và không 
+bị khóa tạm. 
+Điều kiện sau Có phiên hợp lệ; refresh được xoay vòng hoặc thu hồi khi đăng xuất. 
+Luồng chính 
+1. Gửi email, mật khẩu, vai trò cổng. 2. Kiểm tra mật khẩu/khóa/role. 3. 
+Cấp JWT và refresh, lưu hash refresh. 4. Client dùng Bearer token. 5. 
+Khi cần, đổi refresh lấy cặp mới. 
+Luồng thay thế Đăng xuất thu hồi refresh của phiên. Phát hiện dùng lại refresh đã thay thế thì thu hồi các phiên tài khoản. 
+Ngoại lệ Sai mật khẩu tăng bộ đếm; mặc định sai 5 lần khóa 15 phút. Sai cổng, tài khoản khóa hoặc refresh không hợp lệ bị từ chối. 
+--- PAGE 36 ---
+ 
+Hình 3.5. Biểu đồ tuần tự xác thực và làm mới phiên 
+3.3.4.3 UC-03 Quản lý hồ sơ và khôi phục mật khẩu 
+Bảng 3.9. Đặc tả use case UC-03 
+Thuộc tính Nội dung 
+Mã và tên UC-03 — Quản lý hồ sơ và khôi phục mật khẩu 
+Tác nhân và ưu tiên Người dùng; SMTP; ưu tiên cao. FR-02. 
+Kích hoạt và tiền điều 
+kiện 
+Người dùng mở hồ sơ hoặc chọn Quên mật khẩu; sửa hồ sơ yêu cầu xác 
+thực. 
+Điều kiện sau Hồ sơ/ảnh được cập nhật hoặc mật khẩu mới được lưu; phiên cũ mất hiệu lực khi đổi mật khẩu. 
+Luồng chính 
+1. Tải hồ sơ của principal. 2. Sửa trường được phép hoặc tải ảnh. 3. 
+Backend validate và lưu. 4. Với quên mật khẩu, tạo token hash và gửi 
+liên kết email. 5. Xác minh token rồi băm/lưu mật khẩu mới. 
+Luồng thay thế Đổi mật khẩu trong tài khoản phải xác minh mật khẩu hiện tại. Reset dùng token một lần, hạn 30 phút. 
+Ngoại lệ Ảnh sai loại/quá 5 MB, token hết hạn/đã dùng, dữ liệu sai: từ chối. Yêu cầu quên mật khẩu không tiết lộ email có tài khoản. 
+
+--- PAGE 37 ---
+3.3.4.4 UC-04 Tra cứu catalog và chi tiết sản phẩm 
+Bảng 3.10. Đặc tả use case UC-04 
+Thuộc tính Nội dung 
+Mã và tên UC-04 — Tra cứu catalog và chi tiết sản phẩm 
+Tác nhân và ưu tiên Khách; khách hàng; ưu tiên cao. FR-03. 
+Kích hoạt và tiền điều 
+kiện 
+Người dùng truy cập cửa hàng, nhập từ khóa hoặc chọn danh mục/bộ 
+lọc. 
+Điều kiện sau Nhận danh sách phân trang hoặc chi tiết sản phẩm công khai. 
+Luồng chính 
+1. Nhập tìm kiếm, danh mục, giá hoặc tình trạng hàng. 2. Backend lọc 
+dữ liệu được công khai. 3. Trả ảnh, giá và tồn. 4. Mở chi tiết theo slug 
+để xem mô tả, nguồn gốc, chứng nhận, bảo quản và đánh giá. 
+Luồng thay thế Không có kết quả hiển thị trạng thái rỗng và cho thay bộ lọc. 
+Ngoại lệ Slug không tồn tại hoặc sản phẩm bị ẩn: không trả chi tiết công khai; lỗi tải dữ liệu cho phép thử lại. 
+3.3.4.5 UC-05 Quản lý giỏ hàng và yêu thích 
+Bảng 3.11. Đặc tả use case UC-05 
+Thuộc tính Nội dung 
+Mã và tên UC-05 — Quản lý giỏ hàng và yêu thích 
+Tác nhân và ưu tiên Khách; khách hàng; ưu tiên cao. FR-04. 
+Kích hoạt và tiền điều 
+kiện 
+Khách có phiên guest hợp lệ hoặc customer đã đăng nhập; sản phẩm còn 
+được bán. 
+Điều kiện sau Giỏ lưu tại server; yêu thích lưu theo tài khoản. 
+Luồng chính 
+1. Thêm sản phẩm/số lượng. 2. Xác định chủ giỏ từ JWT hoặc guest 
+token. 3. Kiểm tra sản phẩm, số lượng và tồn. 4. Lưu/cập nhật dòng. 5. 
+Trả giỏ với giá hiện tại. 
+Luồng thay thế Sửa số lượng, xóa một dòng hoặc xóa giỏ. Customer thêm/xóa sản phẩm yêu thích. 
+Ngoại lệ Vượt tồn, sản phẩm ẩn/ngừng bán, phiên hết hạn hoặc dòng khác chủ: từ chối; giỏ không đồng nghĩa hàng đã được giữ. 
+--- PAGE 38 ---
+3.3.4.6 UC-06 Gộp giỏ khách vào tài khoản 
+Bảng 3.12. Đặc tả use case UC-06 
+Thuộc tính Nội dung 
+Mã và tên UC-06 — Gộp giỏ khách vào tài khoản 
+Tác nhân và ưu tiên Khách hàng; ưu tiên cao. FR-05. 
+Kích hoạt và tiền điều 
+kiện Đăng nhập/đăng ký xong; có guest token và giỏ khách còn hợp lệ. 
+Điều kiện sau Giỏ tài khoản chứa lượng hợp lệ đã gộp; phiên guest không được gộp lần hai. 
+Luồng chính 
+1. Client gửi token khách với JWT. 2. Backend khóa user/guest session. 
+3. Tổng hợp giỏ hai phía. 4. Kiểm tra toàn bộ sản phẩm và tổng số 
+lượng. 5. Lưu giỏ, đánh dấu phiên đã gộp trong một transaction. 
+Luồng thay thế Gửi lại phiên đã gộp không cộng số lượng lần nữa. 
+Ngoại lệ Bất kỳ dòng vượt tồn hoặc không bán: rollback toàn bộ; người dùng chỉnh giỏ trước khi thử lại. 
+3.3.4.7 UC-07 Quản lý địa chỉ và đặt hàng tài khoản 
+Bảng 3.13. Đặc tả use case UC-07 
+Thuộc tính Nội dung 
+Mã và tên UC-07 — Quản lý địa chỉ và đặt hàng tài khoản 
+Tác nhân và ưu tiên Khách hàng; ưu tiên cao. FR-06, FR-07, FR-17, FR-18. 
+Kích hoạt và tiền điều 
+kiện 
+Customer có giỏ hợp lệ và địa chỉ của mình; chọn phương thức thanh 
+toán/giao nhận khả dụng. 
+Điều kiện sau Đơn, dòng snapshot, payment và lịch sử được lưu; kho/coupon được giữ, điểm được ghi nhận sử dụng. 
+Luồng chính 
+1. Chọn/tạo địa chỉ, coupon và điểm. 2. Gọi preview để đọc lại giá/phí. 
+3. Xác nhận đặt. 4. Backend khóa tài nguyên và kiểm tra lại. 5. Giữ lô 
+FEFO, coupon, trừ điểm, lưu đơn/payment. 6. Trả kết quả COD hoặc 
+URL VNPAY. 
+Luồng thay thế Địa chỉ có thể đặt mặc định. GHN chỉ chọn khi sản phẩm/địa chỉ và báo phí hợp lệ. 
+Ngoại lệ Giá/tổng thay đổi, thiếu tồn/điểm, coupon sai hoặc báo phí lỗi: trả lỗi; không lưu giao dịch dở dang. 
+--- PAGE 39 ---
+ 
+Hình 3.6. Biểu đồ tuần tự đặt hàng và giữ tồn kho 
+3.3.4.8 UC-08 Đặt và tra cứu đơn không cần tài khoản 
+Bảng 3.14. Đặc tả use case UC-08 
+Thuộc tính Nội dung 
+Mã và tên UC-08 — Đặt và tra cứu đơn không cần tài khoản 
+Tác nhân và ưu tiên Khách vãng lai; ưu tiên cao. FR-06, FR-07, FR-09. 
+Kích hoạt và tiền điều 
+kiện Có guest session/giỏ hợp lệ; nhập liên hệ, địa chỉ và idempotencyKey. 
+Điều kiện sau Tạo đơn guest không tạo user; có lookupToken để xem đơn và hóa đơn. 
+Luồng chính 
+1. Nhập thông tin và preview. 2. Gửi đặt với token/khóa checkout. 3. 
+Backend kiểm tra, giữ lô/coupon và lưu đơn. 4. Trả order, lookupToken, 
+paymentUrl và replayed. 5. Tra cứu bằng mã đơn, email và 
+lookupToken. 
+Luồng thay thế Gửi lại cùng token/khóa trả đơn cũ; recovery lấy kết quả đã commit. Sau thành công giỏ/phiên checkout được vô hiệu hóa. 
+Ngoại lệ Sai token/khóa hoặc thông tin tra cứu: không trả đơn. Mất mã xác minh cần liên hệ hỗ trợ; không tự cấp lại qua OTP. 
+
+--- PAGE 40 ---
+ 
+Hình 3.7. Biểu đồ tuần tự đặt hàng khách và khôi phục kết quả 
+3.3.4.9 UC-09 Thanh toán và nhận hóa đơn 
+Bảng 3.15. Đặc tả use case UC-09 
+Thuộc tính Nội dung 
+Mã và tên UC-09 — Thanh toán và nhận hóa đơn 
+Tác nhân và ưu tiên Người mua; VNPAY; SMTP; ưu tiên cao. FR-08, FR-09. 
+Kích hoạt và tiền điều 
+kiện Đơn đã được tạo; VNPAY có cấu hình hợp lệ nếu chọn trực tuyến. 
+Điều kiện sau Payment phản ánh kết quả xác minh; hóa đơn xem/in được; email được gửi hoặc chờ retry. 
+Luồng chính 
+1. COD tạo payment pending; VNPAY tạo URL ký. 2. Khách thanh 
+toán. 3. Backend nhận Return/IPN, kiểm tra HMAC, tham chiếu và số 
+tiền. 4. Cập nhật kết quả một lần. 5. Hiển thị hóa đơn và gửi email theo 
+điều kiện. 
+Luồng thay thế COD gửi hóa đơn sau tạo đơn; VNPAY sau xác nhận thành công. SMTP lỗi được lưu để retry, không rollback đơn đã xác nhận. 
+Ngoại lệ Chữ ký/số tiền sai không ghi nhận thành công. VNPAY hết 15 phút hoặc thất bại kích hoạt hủy, trả kho/coupon/điểm theo nghiệp vụ. 
+
+--- PAGE 41 ---
+ 
+Hình 3.8. Biểu đồ tuần tự xác minh thanh toán VNPAY 
+3.3.4.10 UC-10 Hủy đơn và xử lý hoàn tiền 
+Bảng 3.16. Đặc tả use case UC-10 
+Thuộc tính Nội dung 
+Mã và tên UC-10 — Hủy đơn và xử lý hoàn tiền 
+Tác nhân và ưu tiên Khách hàng; quản trị viên; VNPAY; ưu tiên cao. FR-10. 
+Kích hoạt và tiền điều 
+kiện 
+Khách là chủ đơn. Tự hủy chỉ khi pending chưa trả tiền; yêu cầu hoàn 
+tiền cần payment completed và đơn chưa hủy. 
+Điều kiện sau Đơn được hủy hợp lệ hoặc yêu cầu hoàn có quyết định; thay đổi tiền/kho/điểm có lịch sử. 
+Luồng chính 
+1. Khách hủy hoặc gửi lý do hoàn tiền. 2. Backend kiểm tra/khóa đơn. 
+3. Admin xét yêu cầu. 4. Nếu duyệt, hoàn COD nội bộ hoặc gọi refund 
+VNPAY. 5. Chỉ khi đủ điều kiện mới xác nhận hoàn và hủy; thông báo 
+khách. 
+Luồng thay thế Admin có API hoàn một phần VNPAY; yêu cầu khách mặc định xử lý hoàn toàn phần. Hoàn một phần không tự hủy toàn bộ đơn. 
+Ngoại lệ 
+Không tạo hai yêu cầu đang chờ. Gateway còn processing không được 
+báo hoàn tất; lỗi chữ ký/kết quả không xác nhận thì giữ trạng thái phù 
+hợp. 
+
+--- PAGE 42 ---
+ 
+Hình 3.9. Biểu đồ tuần tự yêu cầu và xác nhận hoàn tiền 
+3.3.4.11 UC-11 Tiếp nhận và chuẩn bị đơn hàng 
+Bảng 3.17. Đặc tả use case UC-11 
+Thuộc tính Nội dung 
+Mã và tên UC-11 — Tiếp nhận và chuẩn bị đơn hàng 
+Tác nhân và ưu tiên Nhân viên; quản trị viên; ưu tiên cao. FR-11. 
+Kích hoạt và tiền điều 
+kiện 
+Có quyền xử lý đơn; đơn ở trạng thái cho phép; VNPAY phải thanh 
+toán thành công. 
+Điều kiện sau Đơn chuyển trạng thái hợp lệ; processing xuất đúng lô; có lịch sử/thông báo. 
+Luồng chính 
+1. Mở danh sách theo trạng thái. 2. Kiểm tra chi tiết/thanh toán. 3. Xác 
+nhận processing. 4. Backend xuất lô đã giữ, kiểm tra lại hạn dùng. 5. 
+Chuẩn bị và chuyển ready_for_delivery. 
+Luồng thay thế Từ chối/hủy khi nghiệp vụ cho phép. Đơn giao nội bộ thất bại có thể đưa về hàng chờ để giao lại. 
+Ngoại lệ Không bỏ bước trạng thái; đơn đã trả tiền phải hoàn trước khi hủy. Thiếu lô hợp lệ khi xuất thì dừng xử lý và trả lỗi. 
+
+--- PAGE 43 ---
+3.3.4.12 UC-12 Phân công nhận và cập nhật giao nội bộ 
+Bảng 3.18. Đặc tả use case UC-12 
+Thuộc tính Nội dung 
+Mã và tên UC-12 — Phân công nhận và cập nhật giao nội bộ 
+Tác nhân và ưu tiên Staff; admin; nhân viên giao hàng; ưu tiên cao. FR-12. 
+Kích hoạt và tiền điều 
+kiện 
+Đơn internal ở ready_for_delivery; người được giao có role 
+delivery_staff và đang hoạt động. 
+Điều kiện sau Lưu người phân công, thời điểm nhận/giao và kết quả; COD nội bộ hoàn tất khi giao thành công. 
+Luồng chính 
+1. Staff/admin phân công. 2. Người được phân công xem và nhận đơn. 
+3. Chuyển out_for_delivery. 4. Giao thành công hoặc ghi thất bại và lý 
+do. 5. Backend cập nhật lịch sử, payment COD, điểm và thông báo theo 
+kết quả. 
+Luồng thay thế Nhận lại cùng đơn không ghi trùng. Giao lại xóa thông tin nhận/phân công cũ trước lần phân công mới. 
+Ngoại lệ Người khác, đơn chưa được nhận hoặc đơn GHN không được cập nhật bằng luồng giao nội bộ. 
+ 
+Hình 3.10. Biểu đồ tuần tự vận hành và giao hàng nội bộ 
+
+--- PAGE 44 ---
+Các trạng thái dưới đây là trạng thái đơn GreenFarm; trạng thái vận đơn GHN được ánh 
+xạ riêng. Nhánh hoàn tiền là nghiệp vụ có điều kiện, không phải đường hủy tự do từ mọi 
+trạng thái. 
+ 
+Hình 3.11. Sơ đồ trạng thái vòng đời đơn hàng 
+
+--- PAGE 45 ---
+3.3.4.13 UC-13 Quản lý vận đơn và sự kiện GHN 
+Bảng 3.19. Đặc tả use case UC-13 
+Thuộc tính Nội dung 
+Mã và tên UC-13 — Quản lý vận đơn và sự kiện GHN 
+Tác nhân và ưu tiên Quản trị viên; GHN; ưu tiên cao. FR-13. 
+Kích hoạt và tiền điều 
+kiện 
+GHN staging được bật; sản phẩm đủ điều kiện; đơn ready_for_delivery; 
+VNPAY đã trả nếu áp dụng. 
+Điều kiện sau Có vận đơn và lịch sử sự kiện; trạng thái/COD chỉ cập nhật sau xác minh phù hợp. 
+Luồng chính 
+1. Admin yêu cầu tạo. 2. Tra theo GF-<orderId> và kiểm tra lại phí. 3. 
+Tạo hoặc khôi phục vận đơn. 4. Nhận webhook/đồng bộ. 5. Xác minh 
+secret, shop, mã đơn, chống lặp/cũ. 6. Cập nhật giao nhận và đối soát 
+COD. 
+Luồng thay thế Admin lấy phiếu in, sync thủ công hoặc hủy khi GHN cho phép. Timeout tạo phải tra cứu lại trước tạo mới. 
+Ngoại lệ 
+Phí đổi, hàng không đủ điều kiện, webhook sai hoặc COD chưa khớp: 
+không xác nhận tương ứng. Phải hủy vận đơn GHN trước khi hủy đơn 
+có vận đơn còn hiệu lực. 
+--- PAGE 46 ---
+ 
+Hình 3.12. Biểu đồ tuần tự tạo vận đơn và nhận sự kiện GHN 
+3.3.4.14 UC-14 Quản lý danh mục sản phẩm và ảnh 
+Bảng 3.20. Đặc tả use case UC-14 
+Thuộc tính Nội dung 
+Mã và tên UC-14 — Quản lý danh mục sản phẩm và ảnh 
+Tác nhân và ưu tiên Admin; staff theo quyền; ưu tiên cao. FR-14. 
+Kích hoạt và tiền điều 
+kiện 
+Đã xác thực và có manage_categories hoặc manage_products theo tài 
+nguyên. 
+Điều kiện sau Catalog lưu dữ liệu hợp lệ; ảnh có URL; thay đổi không làm sửa snapshot đơn cũ. 
+Luồng chính 
+1. Xem danh sách/tìm sản phẩm. 2. Nhập tên, giá, đơn vị, danh mục, mô 
+tả và nguồn gốc. 3. Tải ảnh hoặc khai báo URL. 4. Kiểm tra slug/quan 
+hệ. 5. Lưu và chọn trạng thái bán. 
+Luồng thay thế Admin cấu hình khả năng GHN và kích thước/khối lượng khi đã xác minh hàng được vận chuyển. Có thể ẩn sản phẩm. 
+Ngoại lệ Dữ liệu sai, slug trùng, ảnh sai loại/kích thước hoặc danh mục có ràng buộc: trả lỗi. Không cập nhật stock trực tiếp. 
+
+--- PAGE 47 ---
+3.3.4.15 UC-15 Quản lý nhà cung cấp và nhập lô 
+Bảng 3.21. Đặc tả use case UC-15 
+Thuộc tính Nội dung 
+Mã và tên UC-15 — Quản lý nhà cung cấp và nhập lô 
+Tác nhân và ưu tiên Quản trị viên; ưu tiên cao. FR-15. 
+Kích hoạt và tiền điều 
+kiện 
+Role admin; sản phẩm tồn tại; lượng/giá nhập hợp lệ và lô mới có hạn 
+dùng. 
+Điều kiện sau Nhà cung cấp/lô được lưu; tồn khả dụng và lịch sử nhập cập nhật. 
+Luồng chính 
+1. Thêm/chọn nhà cung cấp. 2. Nhập sản phẩm, số lượng, giá, ngày và 
+ghi chú. 3. Backend kiểm tra ngày và nhà cung cấp. 4. Tạo mã lô duy 
+nhất. 5. Ghi lịch sử/người nhập và đồng bộ stock. 
+Luồng thay thế Có thể nhập không gắn nhà cung cấp. Nhà cung cấp đã có liên kết được ngừng sử dụng theo điều kiện nghiệp vụ. 
+Ngoại lệ Nhập lô quá hạn, lượng không dương hoặc dữ liệu tham chiếu sai bị từ chối. Staff không được gọi API nhập lô admin. 
+3.3.4.16 UC-16 Theo dõi điều chỉnh và phân bổ kho 
+Bảng 3.22. Đặc tả use case UC-16 
+Thuộc tính Nội dung 
+Mã và tên UC-16 — Theo dõi điều chỉnh và phân bổ kho 
+Tác nhân và ưu tiên Admin; staff; ưu tiên cao. FR-16. 
+Kích hoạt và tiền điều 
+kiện Dùng endpoint đúng vai trò; lô tồn tại; điều chỉnh có loại và lý do. 
+Điều kiện sau Tồn/giữ và lịch sử thống nhất; không xuất hàng quá hạn hoặc hoàn lặp. 
+Luồng chính 
+1. Xem sản phẩm, lô, hạn dùng và lịch sử. 2. Chọn lô để kiểm kê/hư 
+hỏng/hết hạn/trả hàng. 3. Khóa dữ liệu và kiểm tra số khả dụng. 4. Ghi 
+trước/sau và người thực hiện. 5. Đồng bộ stock. 
+Luồng thay thế Tạo đơn tự giữ lô FEFO; processing tự xuất; hủy tự giải phóng/hoàn. Scheduler cập nhật khả dụng khi lô hết hạn. 
+Ngoại lệ Không cho số còn âm hoặc thấp hơn phần giữ. DAMAGED/EXPIRED chỉ giảm, RETURN chỉ tăng; lô quá hạn không tham gia bán mới. 
+--- PAGE 48 ---
+ 
+Hình 3.13. Biểu đồ tuần tự giữ xuất và hoàn kho theo lô 
+3.3.4.17 UC-17 Quản lý và sử dụng coupon 
+Bảng 3.23. Đặc tả use case UC-17 
+Thuộc tính Nội dung 
+Mã và tên UC-17 — Quản lý và sử dụng coupon 
+Tác nhân và ưu tiên Admin; người mua; ưu tiên cao. FR-17. 
+Kích hoạt và tiền điều 
+kiện 
+Admin có manage_coupons; người mua có giỏ và coupon thỏa điều 
+kiện. 
+Điều kiện sau Ưu đãi áp dụng đúng phạm vi; lượt dùng có vòng đời và không vượt hạn mức. 
+Luồng chính 
+1. Admin tạo mã, loại, mức giảm, phạm vi/thời hạn/giới hạn. 2. Người 
+mua chọn mã và preview. 3. Khi đặt, backend khóa coupon, kiểm tra lại 
+và giữ lượt RESERVED. 4. Thanh toán/xử lý đánh USED; hủy đủ điều 
+kiện RELEASED. 
+Luồng thay thế Kết hợp một giảm hàng và một miễn phí vận chuyển; dùng cùng điểm. Admin tạm dừng mã hoặc xem lịch sử. 
+Ngoại lệ 
+Mã hết hạn/hết lượt/sai phạm vi bị từ chối. Sau có lịch sử không sửa 
+điều kiện làm thay đổi quyền lợi đã ghi nhận; hoàn sau hoàn tất không 
+tự phát lại mã. 
+
+--- PAGE 49 ---
+3.3.4.18 UC-18 Đánh giá sản phẩm và điểm thưởng 
+Bảng 3.24. Đặc tả use case UC-18 
+Thuộc tính Nội dung 
+Mã và tên UC-18 — Đánh giá sản phẩm và điểm thưởng 
+Tác nhân và ưu tiên Khách hàng; ưu tiên trung bình. FR-18, FR-19. 
+Kích hoạt và tiền điều 
+kiện 
+Customer đã nhận sản phẩm; dùng điểm cần số dư đủ và checkout hợp 
+lệ. 
+Điều kiện sau Lưu đánh giá duy nhất; số dư và lịch sử điểm có căn cứ, không cộng/trừ lặp. 
+Luồng chính 
+1. Xem đơn đã giao và chọn sản phẩm. 2. Gửi 1–5 sao/nội dung. 3. 
+Backend kiểm tra đã mua và chủ đánh giá. 4. Lưu/tính thưởng hợp lệ. 5. 
+Khách xem điểm và chọn số dùng khi checkout. 
+Luồng thay thế Sửa đánh giá không nhận thưởng lần nữa. Đơn giao thành công thưởng theo quy tắc; hủy/hoàn điều chỉnh theo lịch sử điểm. 
+Ngoại lệ Chưa mua/chưa nhận, sửa đánh giá người khác hoặc vượt số dư bị từ chối. Mức đổi được chặn ở 50% tạm tính sau coupon hàng. 
+3.3.4.19 UC-19 Liên hệ hỗ trợ và nhận thông báo 
+Bảng 3.25. Đặc tả use case UC-19 
+Thuộc tính Nội dung 
+Mã và tên UC-19 — Liên hệ hỗ trợ và nhận thông báo 
+Tác nhân và ưu tiên Khách; người dùng; staff; admin; ưu tiên trung bình. FR-20. 
+Kích hoạt và tiền điều 
+kiện 
+Gửi liên hệ công khai; xem lịch sử/thông báo cần tài khoản; xử lý hỗ trợ 
+cần manage_contacts. 
+Điều kiện sau Yêu cầu có trạng thái open/replied/resolved; thông báo lưu đúng người nhận. 
+Luồng chính 
+1. Khách gửi họ tên, email, điện thoại và nội dung. 2. Lưu và báo bộ 
+phận vận hành. 3. Staff/admin phản hồi hoặc đóng. 4. Khách có tài 
+khoản xem lịch sử. 5. Sự kiện được phát SSE và hiển thị số chưa đọc. 
+Luồng thay thế Người dùng đánh dấu một/tất cả đã đọc; khi mất kết nối tải lại từ dữ liệu lưu. 
+Ngoại lệ 
+Liên hệ khách không gắn tài khoản không có trang lịch sử riêng. Không 
+được đọc/đánh dấu thông báo người khác; nội dung sai validation bị từ 
+chối. 
+--- PAGE 50 ---
+3.3.4.20 UC-20 Tư vấn mua sắm bằng chatbot 
+Bảng 3.26. Đặc tả use case UC-20 
+Thuộc tính Nội dung 
+Mã và tên UC-20 — Tư vấn mua sắm bằng chatbot 
+Tác nhân và ưu tiên Khách; khách hàng; Gemini; ưu tiên trung bình. FR-21. 
+Kích hoạt và tiền điều 
+kiện 
+Người dùng gửi câu hỏi; phiên chat tách theo tài khoản hoặc token 
+khách. 
+Điều kiện sau Trả tư vấn trong phạm vi công khai; lưu hội thoại đã lọc, không thay đổi giao dịch. 
+Luồng chính 
+1. Nhận câu hỏi/phiên. 2. Che mẫu dữ liệu nhạy cảm, kiểm tra phạm vi. 
+3. Đọc catalog/chính sách và lịch sử giới hạn. 4. Gọi Gemini với prompt 
+backend. 5. Kiểm tra phản hồi/sản phẩm và trả client. 
+Luồng thay thế Thiếu khóa hoặc API lỗi dùng bộ trả lời dự phòng. Câu hỏi tiếp nối dùng lịch sử cùng chủ thể. 
+Ngoại lệ Yêu cầu hồ sơ riêng, đơn cá nhân, doanh thu, bí mật hoặc thao tác thanh toán bị từ chối; không tin giá/tồn do client đưa vào prompt. 
+ 
+Hình 3.14. Biểu đồ tuần tự tư vấn bằng chatbot 
+
+--- PAGE 51 ---
+3.3.4.21 UC-21 Quản lý tài khoản vai trò và trạng thái 
+Bảng 3.27. Đặc tả use case UC-21 
+Thuộc tính Nội dung 
+Mã và tên UC-21 — Quản lý tài khoản vai trò và trạng thái 
+Tác nhân và ưu tiên Quản trị viên; ưu tiên cao. FR-22. 
+Kích hoạt và tiền điều 
+kiện Tài khoản có manage_users và truy cập khu vực quản trị. 
+Điều kiện sau Lưu role/trạng thái hợp lệ; người dùng bị kiểm soát theo cấu hình mới. 
+Luồng chính 
+1. Tìm/lọc người dùng. 2. Xem role/permission hiện có. 3. Chọn vai trò 
+hoặc trạng thái. 4. Backend kiểm tra tự bảo vệ và dữ liệu. 5. Lưu, tải lại 
+danh sách. 
+Luồng thay thế Không tạo mô hình role/permission tùy ý ngoài chức năng hiện có; sử dụng các role được seed. 
+Ngoại lệ Admin không tự đổi role/trạng thái của chính mình qua API này. Thiếu quyền hoặc role không hợp lệ bị từ chối. 
+3.3.4.22 UC-22 Xem báo cáo và xuất dữ liệu kinh doanh 
+Bảng 3.28. Đặc tả use case UC-22 
+Thuộc tính Nội dung 
+Mã và tên UC-22 — Xem báo cáo và xuất dữ liệu kinh doanh 
+Tác nhân và ưu tiên Quản trị viên; ưu tiên trung bình. FR-23. 
+Kích hoạt và tiền điều 
+kiện Role admin; khoảng ngày hợp lệ, tối đa hai năm. 
+Điều kiện sau Trả các chỉ số và CSV cùng kỳ, cùng quy tắc tổng hợp. 
+Luồng chính 
+1. Chọn kỳ 7/30/90 ngày hoặc nhập ngày. 2. Backend tổng hợp payment 
+completed theo paid_at. 3. Lấy đơn theo trạng thái, sản phẩm, khách 
+mới, tồn thấp và coupon. 4. Hiển thị dashboard. 5. Xuất CSV UTF-8 khi 
+yêu cầu. 
+Luồng thay thế Không truyền ngày dùng 30 ngày gần nhất tính cả hôm nay. Không có dữ liệu trả tập rỗng/chỉ số phù hợp. 
+Ngoại lệ Khoảng ngày đảo hoặc quá giới hạn bị từ chối; không cộng đơn chỉ mới tạo vào doanh thu đã thu. 
+--- PAGE 52 ---
+3.4 Thiết kế kiến trúc hệ thống 
+3.4.1 Lựa chọn mô hình kiến trúc 
+GreenFarm sử dụng mô hình web client –server, frontend Next.js và backend Spring 
+Boot cung cấp REST API. Backend là một ứng dụng nguyên khối được tổ chức theo các 
+lớp và dịch vụ nghiệp vụ, cùng đóng gói trong một JAR. Lựa chọn này giúp đặt đơn, giữ 
+kho, ghi coupon và trừ điểm trong cùng giao dịch dữ liệu. 
+Bảng 3.29. Quyết định kiến trúc và đánh đổi 
+Quyết định Căn cứ và lợi ích Đánh đổi 
+Next.js tách Spring 
+Boot 
+Phát triển giao diện và API riêng; tổ chức 
+trang theo vai trò 
+Cần quản lý token, CORS, 
+cache và địa chỉ API 
+Backend nguyên khối 
+phân lớp 
+Nghiệp vụ liên kết chặt; transaction tập 
+trung, dễ triển khai đồ án 
+Các dịch vụ cùng tiến trình 
+và phiên bản triển khai 
+MySQL, JPA và 
+Flyway 
+Quan hệ rõ, khóa/ràng buộc, truy cập ORM 
+và migration có phiên bản 
+Phải đồng bộ entity với SQL, 
+kiểm soát truy vấn và khóa 
+Snapshot đơn hàng Giữ tên, giá, đơn vị, ảnh, địa chỉ và gói hàng lúc mua Lặp một phần dữ liệu để bảo toàn lịch sử 
+SSE và tác vụ định kỳ Thông báo một chiều, retry email và quét hết hạn phù hợp một backend Luồng SSE trong bộ nhớ cần thiết kế thêm khi chạy nhiều replica 
+Tích hợp tại backend Giữ bí mật và tập trung xác minh dữ liệu dịch vụ ngoài Phải xử lý timeout, callback lặp và trạng thái chưa xác định 
+Vercel và Railway Tách nơi phục vụ frontend với tiến trình Java và MySQL Cần thống nhất domain, biến môi trường và cấu hình callback 
+3.4.2 Kiến trúc tổng thể và thành phần 
+Trình duyệt tải giao diện Next.js, gửi yêu cầu HTTPS đến Spring Boot. 
+JwtAuthenticationFilter xác minh access token và tạo principal; Spring Security cùng kiểm 
+tra tại phương thức quyết định quyền truy cập. Controller nhận DTO hợp lệ, Service xử lý 
+nghiệp vụ, Repository đọc/ghi MySQL qua JPA. GlobalExceptionHandler và các bộ xử lý 
+bảo mật chuẩn hóa lỗi. 
+--- PAGE 53 ---
+ 
+Hình 3.15. Kiến trúc tổng thể của hệ thống GreenFarm 
+Bảng 3.30. Trách nhiệm các thành phần 
+Thành phần Trách nhiệm 
+Trang và 
+component Next.js 
+Cửa hàng, tài khoản, portal admin/staff/giao hàng; biểu mẫu và trạng thái 
+tương tác 
+Axios, TanStack 
+Query, Zustand Gọi API, quản lý dữ liệu/cache, làm mới phiên và trạng thái dùng chung 
+Security và 
+AuthService JWT, BCrypt, phiên refresh, khóa đăng nhập, khôi phục mật khẩu và quyền 
+Catalog, Cart, 
+GuestCommerce Dữ liệu công khai, giỏ tài khoản/khách, gộp giỏ và đặt hàng khách 
+OrderService, 
+OrderLifecycleServ
+ice 
+Báo giá, snapshot, tạo đơn, chuyển trạng thái và phối hợp thanh toán–kho–
+điểm 
+Inventory, Supplier Lô, FEFO, giữ/xuất/hoàn hàng, kiểm kê, hạn dùng và nhà cung cấp 
+CouponEngine, 
+Loyalty Kiểm tra ưu đãi, vòng đời lượt dùng, số dư và lịch sử điểm 
+
+--- PAGE 54 ---
+Thành phần Trách nhiệm 
+Payment, 
+VnpayRefund, 
+RefundRequest 
+Callback, hết hạn thanh toán, yêu cầu/ghi nhận hoàn tiền 
+GhnShipment, 
+GhnWebhook Tính phí, vận đơn, xác minh sự kiện, đồng bộ trạng thái và đối soát COD 
+Review, Contact, 
+Notification Đánh giá đã mua, hỗ trợ, thông báo lưu bền và luồng SSE 
+Chatbot, 
+ImageStorage, 
+InvoiceEmail 
+Tư vấn công khai, lưu ảnh, gửi hóa đơn và retry email 
+BusinessReport và 
+scheduler Tổng hợp/CSV; quét payment/lô hết hạn và gửi lại email 
+ 
+Một đơn hàng không được cập nhật trực tiếp từ giao diện bằng cách ghi cơ sở dữ liệu. 
+Mọi thay đổi trạng thái đi qua nghiệp vụ kiểm tra điều kiện và ghi lịch sử. Các lời gọi ngoài 
+có thể thành công dù kết nối trả kết quả bị gián đoạn; mã yêu cầu, mã tham chiếu và thao 
+tác tra cứu lại giúp hạn chế xử lý trùng. 
+3.4.3 Mô hình triển khai trên Railway và Vercel 
+Trong mô hình triển khai của đề tài, frontend được triển khai trên Vercel, backend Spring 
+Boot được đóng gói Docker và chạy trên Railway. MySQL được tổ chức thành dịch vụ dữ 
+liệu riêng trong Railway với volume bền vững; ảnh mới được lưu trên Cloudinary. Cách 
+bố trí này tách giao diện, tiến trình nghiệp vụ và dữ liệu, đồng thời cho phép backend nhận 
+Return/IPN và webhook qua địa chỉ HTTPS công khai. 
+--- PAGE 55 ---
+ 
+Hình 3.16. Sơ đồ triển khai GreenFarm trên Vercel và Railway 
+Frontend sử dụng thư mục gốc frontend, cài đặt theo package-lock.json và build Next.js. 
+NEXT_PUBLIC_API_BASE_URL trỏ tới URL backend kèm /api. Biến có tiền tố 
+NEXT_PUBLIC_ có thể xuất hiện trong mã gửi xuống trình duyệt, vì vậy chỉ chứa địa chỉ 
+công khai. Việc thay biến build của frontend được áp dụng qua bản triển khai mới theo cơ 
+chế Vercel [1]. 
+Backend được build từ Dockerfile tại gốc repository; server.port đọc PORT do nền tảng 
+cung cấp. railway.json khai báo healthcheck /api/health, thời gian chờ 300 giây và khởi 
+động lại khi lỗi tối đa 10 lần. Healthcheck hỗ trợ quyết định đưa bản triển khai v ào phục 
+vụ, không thay thế giám sát liên tục hoặc kiểm tra toàn bộ nghiệp vụ [2]. 
+Bảng 3.31. Cấu hình các thành phần triển khai 
+Thành phần Cấu hình chính Mục đích 
+Vercel Root frontend; framework Next.js; npm run build; NEXT_PUBLIC_API_BASE_URL Phục vụ web và trỏ tới REST API công khai 
+
+--- PAGE 56 ---
+Thành phần Cấu hình chính Mục đích 
+Railway backend Dockerfile; PORT; /api/health; restart ON_FAILURE Chạy JVM, scheduler và endpoint HTTPS 
+Railway MySQL 
+MySQL tương thích schema; volume 
+/var/lib/mysql; DB_URL hoặc 
+DB_HOST/PORT/NAME 
+Lưu dữ liệu nghiệp vụ bền 
+vững, kết nối từ backend 
+Spring Security 
+APP_CORS_ALLOWED_ORIGINS chứa 
+origin Vercel hợp lệ; JWT_SECRET và tham 
+số phiên 
+Cho phép frontend đã xác 
+định, bảo vệ API 
+Flyway FLYWAY_ENABLED; migration V1–V25; backup trước nâng cấp Quản lý cấu trúc và kiểm soát thay đổi dữ liệu 
+Email và ảnh MAIL_*; INVOICE_EMAIL_*; STOREFRONT_URL; CLOUDINARY_* Hóa đơn, khôi phục mật khẩu và tài nguyên ảnh 
+VNPAY 
+Merchant/secret; VNPAY_RETURN_URL; 
+URL trang kết quả frontend; đăng ký IPN 
+backend 
+Callback đúng môi trường và 
+xác minh thanh toán 
+GHN GHN_ENABLED; token/shop/secret staging; webhook backend Báo phí, vận đơn và nhận sự kiện được xác thực 
+Gemini GEMINI_API_KEY; GEMINI_CHAT_MODEL tại backend Tư vấn theo catalog mà không lộ khóa 
+ 
+MySQL không được truy cập trực tiếp từ trình duyệt. Các URL frontend/backend ở cấu 
+hình email và thanh toán phải đồng nhất với bản triển khai. Nếu tiếp tục dùng ảnh local cũ, 
+backend cần volume cho UPLOAD_DIRECTORY; hệ thống tệp tạm của container không 
+được coi là nơi lưu bền. Với mô hình chọn Cloudinary, URL ảnh được lưu trong MySQL 
+để giao diện tải tài nguyên trực tiếp. 
+Thông báo SSE kết nối đến backend Railway và gửi kèm xác thực theo cách client đang 
+sử dụng. Phương án một backend phù hợp cơ chế phát thông báo trong bộ nhớ hiện tại; khi 
+chạy nhiều replica cần bổ sung cơ chế chia sẻ sự kiện. Việc sao lưu MySQL, thử khôi phục, 
+kiểm tra callback và theo dõi log là các công việc vận hành riêng, không suy ra từ 
+healthcheck thành công. 
+--- PAGE 57 ---
+3.4.4 Thiết kế trợ lý tư vấn AI 
+Chatbot tiếp nhận câu hỏi và lấy lịch sử theo user_id hoặc hash token phiên khách. 
+Backend che các mẫu email, số điện thoại và chuỗi số nhạy cảm trước khi lưu/gửi; giới hạn 
+ngữ cảnh vào sản phẩm công khai, giá, tồn và chính sách mua hàng. Câu hỏi yêu cầu d ữ 
+liệu cá nhân, doanh thu hoặc cấu hình nội bộ bị từ chối. 
+ 
+Hình 3.17. Luồng xử lý và kiểm soát dữ liệu của chatbot 
+ChatbotService tạo prompt tại backend, gọi Gemini khi có cấu hình và xử lý phản hồi 
+trước khi trả giao diện. Thẻ sản phẩm được đối chiếu catalog. Khi không có khóa hoặc dịch 
+vụ lỗi, bộ trả lời dự phòng sử dụng dữ liệu công khai. Cơ chế này hỗ trợ tư vấn nh ưng 
+không bảo đảm loại bỏ mọi sai sót của mô hình. AI không được quyết định giá, trừ kho, 
+tạo đơn hoặc xác nhận thanh toán. 
+
+--- PAGE 58 ---
+3.5 Thiết kế cơ sở dữ liệu 
+3.5.1 Mô hình dữ liệu khái niệm 
+Mô hình xoay quanh sản phẩm, người mua và đơn hàng. Danh mục phân loại sản phẩm; 
+mỗi sản phẩm có nhiều ảnh và nhiều lô kho. Người mua có thể là tài khoản hoặc phiên 
+khách. Đơn lưu các dòng hàng, lịch sử, giao dịch thanh toán và thông tin giao nhận; phân 
+bổ kho nối từng dòng hàng với các lô thực tế. 
+ 
+Hình 3.18. Sơ đồ thực thể liên kết mức khái quát 
+3.5.2 Tổng quan lược đồ quan hệ 
+Các migration V1–V25 khai báo 36 tên bảng khác nhau, gồm 35 bảng phục vụ mô hình 
+hiện tại và bảng password_reset_tokens kế thừa. Chức năng khôi phục mật khẩu hiện dùng 
+greenfarm_password_reset_tokens. flyway_schema_history là bảng kỹ thuật do Flyway 
+quản lý, không tính vào 36 bảng này. 
+Bảng 3.32. Phân nhóm các bảng dữ liệu 
+Nhóm Số bảng Các bảng 
+Tài khoản và địa chỉ 8 
+users, roles, permissions, role_permissions, refresh_tokens, 
+greenfarm_password_reset_tokens, password_reset_tokens, 
+shipping_addresses 
+Catalog 3 categories, products, product_images 
+
+--- PAGE 59 ---
+Nhóm Số bảng Các bảng 
+Giỏ và phiên khách 4 cart_items, wishlists, guest_sessions, guest_cart_items 
+Đơn và thanh toán 6 orders, order_items, order_status_history, payments, refund_requests, vnpay_refunds 
+Ưu đãi 4 coupons, coupon_categories, coupon_products, coupon_usages 
+Kho và nguồn cung 4 suppliers, inventory_batches, order_inventory_allocations, inventory_transactions 
+Giao nhận GHN 2 shipments, shipment_events 
+Tương tác và điểm 5 reviews, contacts, notifications, loyalty_point_transactions, chat_messages 
+Tổng 36 Không bao gồm bảng metadata của Flyway 
+Các bảng nghiệp vụ thường dùng khóa số tự tăng, khóa ngoại và thời điểm tạo/cập nhật. 
+role_permissions và các bảng nối phạm vi coupon dùng cặp khóa liên kết. Bảng 
+password_reset_tokens cũ được giữ để tương thích dữ liệu, không đại diện cho một quy 
+trình khôi phục đang hoạt động khác. 
+3.5.3 Quan hệ và ràng buộc toàn vẹn 
+Bảng 3.33. Quan hệ chính và ràng buộc nghiệp vụ 
+Quan hệ hoặc tài 
+nguyên Ràng buộc thiết kế 
+roles–users; roles–
+permissions 
+Một role có nhiều users; role và permission N–N qua role_permissions; mỗi 
+user hiện gắn một role 
+categories–
+products–
+product_images 
+Danh mục 1–N sản phẩm; sản phẩm 1–N ảnh; slug sản phẩm/danh mục duy 
+nhất 
+Giỏ và yêu thích Mỗi cặp user–product hoặc guest_session–product là một dòng; số lượng phải dương 
+Chủ đơn user_id được phép rỗng với khách; guest_session_id và snapshot liên hệ xác định ngữ cảnh mua; kiểm tra chủ sở hữu ở service 
+orders–
+order_items/history 
+Một đơn có nhiều dòng và mốc lịch sử; dòng giữ snapshot giá/tên/đơn 
+vị/ảnh/gói hàng 
+orders–
+payments/shipment
+s 
+Luồng hiện tại tạo một payment cho đơn nhưng SQL chưa unique 
+payments.order_id; shipments.order_id có unique nên tối đa một hồ sơ vận 
+chuyển mỗi đơn 
+--- PAGE 60 ---
+Quan hệ hoặc tài 
+nguyên Ràng buộc thiết kế 
+coupon_usages Unique (coupon_id, order_id); khóa coupon trước kiểm tra hạn mức; vòng đời RESERVED/USED/RELEASED 
+Lô và phân bổ Một sản phẩm có nhiều lô; một dòng đơn phân bổ nhiều lô; không âm tồn/giữ và không hoàn một phân bổ hai lần 
+reviews và điểm Unique user–product; đánh giá kiểm tra đã mua; chỉ mục/khóa nghiệp vụ chống thưởng, dùng và hoàn điểm lặp 
+Vận đơn và sự kiện order_id, client_order_code, provider_order_code duy nhất; event_key duy nhất trong một shipment 
+Token nhạy cảm Refresh, phiên khách, tra cứu đơn, chat khách và reset dùng hash trong lưu trữ; thời hạn/trạng thái dùng được kiểm tra 
+Hoàn tiền Lưu request ID duy nhất và trạng thái gateway; không gửi yêu cầu mới khi yêu cầu trước còn chờ xử lý 
+Các quan hệ khai báo trong database bảo vệ tham chiếu; điều kiện như vai trò nhân viên 
+giao, chủ đơn, hạn coupon hoặc đã mua sản phẩm được kiểm tra trong service. Không coi 
+mọi điều kiện nghiệp vụ đều là CHECK constraint của MySQL. 
+3.5.4 Sơ đồ thực thể liên kết theo nhóm 
+Các ERD dưới đây giữ tên bảng và trường tham chiếu theo mã nguồn, lược bớt trường 
+mô tả và thời gian để dễ đọc. PK là khóa chính, FK là khóa ngoại; số lượng 0..1 và 0..N 
+thể hiện liên kết tùy chọn. Những thực thể xuất hiện ở nhiều hình là điểm nối giữa các 
+nhóm. 
+--- PAGE 61 ---
+ 
+Hình 3.19. ERD nhóm tài khoản phiên và giỏ hàng 
+ 
+Hình 3.20. ERD nhóm catalog đơn hàng và thanh toán 
+
+--- PAGE 62 ---
+ 
+Hình 3.21. ERD nhóm nhà cung cấp kho và phân bổ lô 
+ 
+Hình 3.22. ERD nhóm ưu đãi điểm tương tác và giao nhận 
+
+--- PAGE 63 ---
+3.5.5 Từ điển dữ liệu trọng tâm 
+Từ điển tập trung vào trường nhận diện, quan hệ và dữ liệu quyết định nghiệp vụ; các 
+cột mô tả phụ, created_at và updated_at được lược khi không ảnh hưởng cách hiểu. Kiểu 
+ghi theo SQL migration; cột trạng thái có thể là ENUM hoặc chuỗi được chuyển đổi từ 
+enum Java tùy bảng. 
+Bảng 3.34. Từ điển dữ liệu tài khoản và phiên 
+Bảng Trường trọng tâm Kiểu chính Ý nghĩa và ràng buộc 
+users id; role_id; email; password BIGINT; VARCHAR 
+PK; FK roles; email unique; 
+password BCrypt. Có status, 
+credential_version, bộ đếm 
+khóa và 
+loyalty_points_balance. 
+roles; permissions id; name BIGINT; VARCHAR 
+PK; tên role/permission duy 
+nhất; 
+role_permissions(role_id, 
+permission_id) là bảng nối N–
+N. 
+refresh_tokens 
+id; user_id; token_hash; 
+expires_at; revoked_at; 
+replaced_by_hash 
+BIGINT; 
+CHAR(64); 
+TIMESTAMP 
+Lưu hash duy nhất, hạn và 
+quan hệ xoay vòng; không lưu 
+refresh token thô. 
+greenfarm_passw
+ord_reset_tokens 
+id; user_id; token_hash; 
+credential_version; expires_at; 
+used_at 
+BIGINT; 
+CHAR(64); 
+INT; 
+DATETIME 
+Token reset hiện tại; hash 
+unique; kiểm tra hạn, phiên 
+bản và thời điểm đã dùng. 
+password_reset_to
+kens email; token; created_at VARCHAR; TIMESTAMP Bảng kế thừa từ baseline; email là khóa chính, không dùng cho luồng reset hiện tại. 
+shipping_addresse
+s 
+id; user_id; full_name; phone; 
+address; city; default 
+BIGINT; 
+VARCHAR; 
+BOOLEAN 
+Địa chỉ theo user; cột default 
+xác định mặc định; có 
+ghn_province_id/name và 
+ghn_ward_id/name cho GHN. 
+Bảng 3.35. Từ điển dữ liệu catalog giỏ và phiên khách 
+Bảng Trường trọng tâm Kiểu chính Ý nghĩa và ràng buộc 
+categories id; name; slug; description; image BIGINT; VARCHAR; TEXT Tên/slug unique; ảnh URL. Có trường tên/mô tả tiếng Anh trong schema. 
+--- PAGE 64 ---
+Bảng Trường trọng tâm Kiểu chính Ý nghĩa và ràng buộc 
+products id; category_id; slug; price; stock; status; unit 
+BIGINT; 
+VARCHAR; 
+DECIMAL; 
+INT; ENUM 
+FK danh mục; stock là tồn khả 
+dụng đồng bộ; có origin, 
+certification, 
+storage_instructions. 
+products 
+ghn_eligible; 
+package_weight_g; 
+package_length_cm/width_cm/
+height_cm 
+BOOLEAN; 
+INT 
+Điều kiện GHN và gói hàng; 
+thông số không tự chứng minh 
+hàng được nhận vận chuyển. 
+product_images id; product_id; image BIGINT; VARCHAR Ảnh 1–N theo sản phẩm; lưu đường dẫn, không lưu nhị phân ảnh. 
+cart_items; 
+wishlists 
+id; user_id; product_id; 
+quantity (giỏ) BIGINT; INT 
+Unique user–product từng 
+bảng; chỉ giỏ có quantity 
+dương. 
+guest_sessions id; token_hash; expires_at; consumed_at; merged_user_id BIGINT; CHAR(64); TIMESTAMP Hash unique, thời hạn, mốc tiêu thụ và tài khoản gộp; không tự tạo user. 
+guest_cart_items id; guest_session_id; product_id; quantity BIGINT; INT FK phiên/sản phẩm; unique cặp phiên–sản phẩm; quantity dương. 
+Bảng 3.36. Từ điển dữ liệu đơn hàng và thanh toán 
+Bảng Trường trọng tâm Kiểu chính Ý nghĩa và ràng buộc 
+orders 
+id; user_id; guest_session_id; 
+delivery_staff_id; 
+shipping_address_id 
+BIGINT 
+PK và các FK; user/địa chỉ tài 
+khoản có thể rỗng với đơn 
+khách. 
+orders 
+subtotal; discount_amount; 
+loyalty_discount_amount; 
+shipping_fee; 
+shipping_discount_amount; 
+total_price 
+DECIMAL 
+Các thành phần tiền được tính 
+tại backend; có 
+loyalty_points_used và 
+snapshot mã coupon. 
+orders 
+status; recipient_name/phone; 
+shipping_address_line/city; 
+shipping_provider 
+ENUM; 
+VARCHAR 
+Trạng thái và snapshot giao 
+nhận; có tỉnh/phường GHN, 
+mốc nhận/giao, lý do thất bại. 
+orders guest_lookup_token_hash; guest_checkout_key CHAR(64); VARCHAR(64) Xác minh tra cứu và chống đặt lặp; khóa checkout gắn ngữ cảnh guest session. 
+order_items 
+id; order_id; product_id; 
+product_name/unit/image; 
+quantity; price 
+BIGINT; 
+VARCHAR; 
+INT; DECIMAL 
+FK đơn/sản phẩm; snapshot 
+giá/tên/ảnh/đơn vị và thông số 
+gói hàng. 
+--- PAGE 65 ---
+Bảng Trường trọng tâm Kiểu chính Ý nghĩa và ràng buộc 
+order_status_histo
+ry 
+id; order_id; status; 
+changed_at; note 
+BIGINT; 
+ENUM; 
+TIMESTAMP; 
+TEXT 
+Dòng lịch sử theo đơn, trạng 
+thái và thời điểm; note ghi 
+ngữ cảnh thao tác. 
+payments 
+id; order_id; payment_method; 
+amount; status; reference_code; 
+transaction_id 
+BIGINT; 
+ENUM; 
+DECIMAL; 
+VARCHAR 
+Mã reference_code unique; 
+order_id có index nhưng chưa 
+unique; nghiệp vụ hiện dùng 
+một payment cho đơn. 
+payments 
+invoice_email_sent_at; 
+invoice_email_attempts; 
+invoice_email_next_retry_at; 
+invoice_email_last_error 
+TIMESTAMP; 
+INT; 
+VARCHAR(500
+) 
+Theo dõi gửi hóa đơn và retry; 
+gateway_payload lưu dữ liệu 
+phục vụ đối chiếu. 
+refund_requests 
+id; order_id; reason; details; 
+status; reviewed_by; 
+reviewed_at; admin_note 
+BIGINT; 
+VARCHAR; 
+DATETIME 
+Lý do khách, trạng thái và 
+quyết định admin; không thay 
+thế bản ghi gateway. 
+vnpay_refunds 
+id; payment_id; request_id; 
+refund_amount; 
+transaction_type; status 
+BIGINT; 
+VARCHAR; 
+DECIMAL 
+request_id unique; lưu mã 
+phản hồi/trạng thái giao dịch 
+và response_payload. 
+Bảng 3.37. Từ điển dữ liệu coupon và điểm thưởng 
+Bảng Trường trọng tâm Kiểu chính Ý nghĩa và ràng buộc 
+coupons id; code; coupon_type; discount_type; scope_type BIGINT; VARCHAR 
+Mã unique; loại giảm 
+hàng/miễn giao, cách giảm và 
+phạm vi 
+ALL/CATEGORY/PRODUC
+T. 
+coupons 
+discount_percentage; 
+discount_amount; 
+max_discount_amount; 
+minimum_order_amount 
+INT; DECIMAL 
+Giá trị, trần giảm và tối thiểu; 
+có starts_at, expires_at, 
+is_active và giới hạn lượt. 
+coupon_categories
+; coupon_products 
+coupon_id; category_id hoặc 
+product_id BIGINT PK ghép và FK; định nghĩa phạm vi áp dụng coupon. 
+coupon_usages 
+id; coupon_id; order_id; 
+user_id; guest_session_id; 
+discount_amount; status 
+BIGINT; 
+DECIMAL; 
+VARCHAR 
+Unique coupon–order; chủ tài 
+khoản hoặc khách; 
+RESERVED/USED/RELEAS
+ED và các mốc thời gian. 
+loyalty_point_tran
+sactions 
+id; user_id; order_id; 
+review_id; product_id; type; 
+points; description 
+BIGINT; 
+VARCHAR; 
+INT 
+Điểm có dấu; truy vết thưởng, 
+đổi, hoàn/điều chỉnh; khóa 
+nghiệp vụ chống xử lý lặp. 
+--- PAGE 66 ---
+Bảng 3.38. Từ điển dữ liệu kho và nguồn cung 
+Bảng Trường trọng tâm Kiểu chính Ý nghĩa và ràng buộc 
+suppliers 
+id; supplier_code; name; 
+phone; email; address; status; 
+note 
+BIGINT; 
+VARCHAR 
+supplier_code unique; thông 
+tin nguồn cung, liên hệ và 
+trạng thái sử dụng. 
+inventory_batches 
+id; batch_code; product_id; 
+supplier_id; quantity; 
+remaining_quantity; 
+reserved_quantity 
+BIGINT; 
+VARCHAR(64); 
+INT 
+Mã lô unique; số nhập, còn 
+vật lý và đang giữ; tham chiếu 
+sản phẩm/nhà cung cấp. 
+inventory_batches 
+import_price; 
+manufacture_date; expiry_date; 
+imported_at; created_by 
+DECIMAL; 
+DATE; 
+DATETIME; 
+BIGINT 
+Giá nhập, ngày sản xuất/hạn, 
+thời điểm và người nhập; lô 
+mới yêu cầu hạn dùng. 
+order_inventory_a
+llocations 
+id; order_item_id; batch_id; 
+quantity; status; exported_at; 
+restored_at 
+BIGINT; INT; 
+VARCHAR; 
+DATETIME 
+Nối dòng đơn với lô; trạng 
+thái giữ/xuất/hoàn và mốc 
+chống hoàn lặp. 
+inventory_transact
+ions 
+id; product_id; batch_id; type; 
+quantity; quantity_before/after; 
+reserved_before/after 
+BIGINT; 
+VARCHAR; 
+INT 
+Nhật ký biến động lô và phần 
+giữ; có created_by, 
+reference_id, reason và 
+created_at. 
+Bảng 3.39. Từ điển dữ liệu giao nhận và tương tác 
+Bảng Trường trọng tâm Kiểu chính Ý nghĩa và ràng buộc 
+shipments 
+id; order_id; provider; 
+provider_order_code; 
+client_order_code; shop_id 
+BIGINT; 
+VARCHAR; 
+INT 
+Unique order/mã khách/mã 
+GHN; liên kết một hồ sơ vận 
+chuyển theo đơn. 
+shipments 
+customer_shipping_fee; 
+carrier_shipping_fee; 
+cod_amount; shipping_status; 
+last_event_at; 
+cod_transferred_at 
+DECIMAL; 
+VARCHAR; 
+DATETIME 
+Phí khách/phí hãng, COD, 
+trạng thái và mốc sự 
+kiện/chuyển tiền; có 
+last_error. 
+shipment_events 
+id; shipment_id; event_key; 
+event_type; shipping_status; 
+event_at 
+BIGINT; 
+VARCHAR; 
+DATETIME 
+Unique shipment–event_key; 
+lịch sử webhook/sync và mô 
+tả. 
+reviews id; user_id; product_id; rating; comment BIGINT; INT; TEXT Unique user–product; rating 1–5; được service kiểm tra đã mua/nhận. 
+contacts 
+id; user_id; full_name; email; 
+phone_number; message; 
+status; response; 
+responded_by/at 
+BIGINT; 
+VARCHAR; 
+TEXT; 
+TIMESTAMP 
+Khách có thể không có 
+user_id; dữ liệu phản hồi và 
+người xử lý. 
+--- PAGE 67 ---
+Bảng Trường trọng tâm Kiểu chính Ý nghĩa và ràng buộc 
+notifications id; user_id; type; message; link; is_read 
+BIGINT; 
+VARCHAR; 
+TEXT; 
+BOOLEAN 
+Thông báo riêng theo user; 
+link dẫn tới tài nguyên liên 
+quan. 
+chat_messages id; user_id; guest_token_hash; sender; message; created_at 
+BIGINT; 
+CHAR(64); 
+ENUM; TEXT; 
+TIMESTAMP 
+Tách lịch sử user/guest hash; 
+nội dung được lọc trước 
+lưu/gửi AI. 
+3.5.6 Chỉ mục lưu trữ và quản lý thay đổi 
+Chỉ mục ưu tiên email/slug/mã duy nhất, cột khóa ngoại, trạng thái và thời gian dùng 
+trong danh sách. Các bảng lịch sử theo đơn, token theo hash, lô theo sản phẩm/hạn dùng 
+và sự kiện theo shipment hỗ trợ truy vấn nghiệp vụ tương ứng. Sản phẩm.stock là giá trị 
+đồng bộ để catalog đọc nhanh; nguồn quyết định khả dụng là các lô còn hạn và phần đang 
+giữ. 
+Flyway thực hiện thay đổi có thứ tự, Hibernate không tự sinh schema ở cấu hình hiện 
+tại. Khi bổ sung nghiệp vụ, tạo migration mới và kiểm tra tương thích dữ liệu đang có. 
+Trước thay đổi cấu trúc hoặc nhập dữ liệu lên Railway cần có bản sao lưu; volume bền 
+vững không thay thế bản sao lưu độc lập. 
+3.6 Thiết kế API 
+3.6.1 Quy ước thiết kế và phản hồi 
+API đặt dưới tiền tố /api, trao đổi JSON UTF -8, tách đường dẫn công khai, tài khoản, 
+vận hành và quản trị. Tên biến {id}, {productId} hoặc {orderId} biểu diễn định danh tài 
+nguyên tương ứng. Các endpoint trong bảng giữ đúng đường dẫn đang được controller khai 
+báo; tham số tìm kiếm/phân trang được truyền qua query khi chức năng hỗ trợ. 
+Bảng 3.40. Quy ước API 
+Nội dung Quy ước 
+Phương thức GET đọc; POST tạo/thao tác nghiệp vụ; PUT thay dữ liệu; PATCH cập nhật từng phần/trạng thái; DELETE xóa khi được phép 
+--- PAGE 68 ---
+Nội dung Quy ước 
+Xác thực Authorization: Bearer <access-token>; principal quyết định user_id, role và permission 
+Khách vãng lai X-Guest-Token cho giỏ/checkout/recovery; tra cứu đơn gửi orderId, email và lookupToken trong body 
+Thành công ApiResponse gồm success, message, data, timestamp; tạo mới có thể trả HTTP 201 
+Lỗi ApiError gồm timestamp, status, error, code, message, path và fieldErrors 
+Phân trang page, size, sort theo Spring Pageable; PageResponse chứa nội dung và metadata phân trang 
+File và dòng sự 
+kiện 
+Ảnh dùng multipart/form-data; xuất báo cáo text/csv; SSE dùng text/event-
+stream 
+Ngoại lệ hợp đồng VNPAY IPN trả RspCode/Message theo gateway; Return chuyển hướng; webhook GHN hợp lệ trả 204 
+Kiểm tra đầu vào Bean Validation tại DTO và quy tắc tại service; backend đọc lại giá, tồn và quyền 
+Bảng 3.41. Nhóm mã lỗi tiêu biểu 
+HTTP Mã nghiệp vụ ví dụ Ý nghĩa 
+400 VALIDATION_ERROR, INVALID_ORDER_STATUS Dữ liệu đầu vào hoặc giá trị trạng thái không hợp lệ 
+401 INVALID_CREDENTIALS Chưa xác thực, thông tin đăng nhập/token không hợp lệ; thông báo cụ thể theo endpoint 
+403 ACCESS_DENIED, ROLE_MISMATCH Thiếu quyền hoặc đăng nhập sai cổng vai trò 
+404 ORDER_NOT_FOUND, PRODUCT_NOT_FOUND Không có tài nguyên trong phạm vi truy cập của người dùng 
+409 EMAIL_EXISTS, INVALID_ORDER_TRANSITION Xung đột dữ liệu hoặc điều kiện trạng thái nghiệp vụ 
+409 PAYMENT_NOT_COMPLETED, PAYMENT_REFUND_REQUIRED Chưa xác nhận thanh toán hoặc phải hoàn tiền trước khi hủy 
+409 
+REFUND_REQUEST_EXISTS, 
+LOYALTY_INSUFFICIENT_POIN
+TS 
+Có yêu cầu hoàn tiền đang xử lý hoặc thiếu điểm 
+409 GHN_STATUS_SYNC_ONLY, GHN_PAYMENT_PENDING Trạng thái phải lấy từ GHN hoặc chưa đối soát thanh toán 
+--- PAGE 69 ---
+HTTP Mã nghiệp vụ ví dụ Ý nghĩa 
+423 ACCOUNT_LOCKED Tài khoản tạm khóa do vượt giới hạn đăng nhập sai 
+HTTP cụ thể của một lỗi phụ thuộc nơi phát sinh; bảng không thay thế hợp đồng trả lỗi 
+của từng endpoint. Chi tiết trường sai nằm trong fieldErrors; không trả stack trace hoặc 
+khóa kết nối cho client. 
+3.6.2 Danh mục API theo phân hệ 
+Để bao quát chức năng mà không lặp đặc tả CRUD, các đường dẫn cùng tài nguyên 
+được nhóm trong một dòng. Dấu {id} là tham số đường dẫn, không phải query. Toàn bộ 
+thao tác vẫn chịu kiểm tra quyền ở backend kể cả khi frontend đã ẩn nút. 
+Các hậu tố trong cột API được nối vào đường dẫn gốc ở đầu ô; dấu / đứng riêng nghĩa 
+là chính đường dẫn gốc, không thêm một cấp tài nguyên. 
+Bảng 3.42. API công khai và xác thực 
+Nhóm chức năng Đường dẫn gốc và phương thức theo hậu tố Use case 
+Xác thực và phiên 
+/api/auth 
+POST /forgot-password; POST /reset-password; POST /register; 
+POST /login; POST /refresh; POST /logout 
+UC-01–03 
+Danh mục công khai /api/public/categories GET /; GET /{slug} UC-04 
+Hội thoại tư vấn /api/public/chat/messages GET/POST / UC-20 
+Gửi liên hệ /api/public/contacts POST / UC-19 
+Gợi ý coupon /api/public/coupons GET / UC-17 
+Trạng thái và địa chỉ 
+GHN 
+/api/public/ghn 
+GET /status; GET /provinces; GET /wards UC-07,13 
+Webhook GHN /api/webhooks/ghn/orders POST / UC-13 
+Phiên giỏ và đơn 
+khách 
+/api/public/guest 
+POST /sessions; GET /payment-methods; GET/DELETE /cart; 
+POST /cart/items; PATCH/DELETE /cart/items/{id}; POST 
+/checkout/preview; POST /orders; GET /orders/recovery; POST 
+/orders/lookup 
+UC-05,08 
+--- PAGE 70 ---
+Nhóm chức năng Đường dẫn gốc và phương thức theo hậu tố Use case 
+Health backend /api/health GET / Vận hành 
+Sản phẩm công khai /api/public/products GET /; GET /{slug} UC-04 
+Đánh giá công khai /api/public/products/{productId}/reviews GET / UC-04,18 
+Bảng 3.43. API tài khoản và mua sắm 
+Nhóm chức năng Đường dẫn gốc và phương thức theo hậu tố Use case 
+Giỏ và gộp giỏ 
+/api/cart 
+POST /merge-guest; GET/DELETE /; POST /items; 
+PATCH/DELETE /items/{itemId}; POST /merge 
+UC-05,06 
+Preview checkout /api/checkout/preview POST / UC-07 
+Liên hệ của tài 
+khoản 
+/api/contacts/mine 
+GET / UC-19 
+Điểm thưởng /api/loyalty GET / UC-18 
+Thông báo và SSE 
+/api/notifications 
+GET /stream; GET /; GET /unread-count; PATCH /{id}/read; 
+PATCH /read-all 
+UC-19 
+Đơn và hậu mãi 
+khách 
+/api/orders 
+POST/GET /; GET /{id}; PATCH /{id}/cancel; POST 
+/{id}/refund-requests; GET /{id}/refund-request 
+UC-07,09,10 
+Thanh toán và 
+callback 
+/api/payments 
+GET /methods; GET /vnpay/return; GET /vnpay/ipn UC-09 
+Đánh giá đã mua /api/reviews GET /eligibility/{productId}; POST /; PUT /{id} UC-18 
+Địa chỉ /api/shipping-addresses GET/POST /; PUT/DELETE /{id}; PATCH /{id}/default UC-07 
+Hồ sơ và mật khẩu /api/users/me POST /avatar; GET/PATCH /; PUT /password UC-03 
+Yêu thích /api/wishlist GET /; POST /items; DELETE /items/{productId} UC-05 
+--- PAGE 71 ---
+Bảng 3.44. API quản trị 
+Nhóm chức năng Đường dẫn gốc và phương thức theo hậu tố Use case 
+Báo cáo/CSV /api/admin/reports GET /; GET /export.csv UC-22 
+Quản lý danh mục /api/admin/categories GET/POST /; PUT/DELETE /{categoryId} UC-14 
+Quản lý coupon 
+/api/admin/coupons 
+GET/POST /; GET/PUT/DELETE /{id}; GET /{id}/usages; 
+PATCH /{id}/active 
+UC-17 
+Vận đơn GHN 
+/api/admin/orders/{orderId} 
+POST /ghn/create; POST /ghn/sync; POST /ghn/cancel; GET 
+/ghn/print; GET /ghn/events 
+UC-13 
+Kho admin 
+/api/admin/inventory 
+GET /summary; GET /; GET /batches; GET /transactions; GET 
+/{productId}; POST /import; POST /adjust 
+UC-15,16 
+Đơn và hoàn tiền 
+admin 
+/api/admin/orders 
+GET /; GET /{id}; PATCH /{id}/status; PATCH /{id}/refund-
+confirmation; PATCH /{id}/delivery-staff 
+UC-10–12 
+Quản lý sản 
+phẩm/ảnh 
+/api/admin/products 
+POST /{productId}/images/upload; GET/POST /; PUT 
+/{productId}; PATCH /{productId}/status; POST 
+/{productId}/images; DELETE /{productId}/images/{imageId} 
+UC-14 
+Xét yêu cầu hoàn 
+tiền 
+/api/admin/refund-requests 
+GET /; PATCH /{id}/approve; PATCH /{id}/reject UC-10 
+Danh sách 
+role/quyền 
+/api/roles 
+GET / UC-21 
+Danh sách giao nhận /api/admin/shipments GET / UC-13 
+Nhà cung cấp /api/admin/suppliers GET/POST /; GET/PUT/DELETE /{id} UC-15 
+Upload ảnh dùng 
+chung 
+/api/admin/uploads/images 
+POST / UC-14 
+Quản lý người dùng /api/admin/users GET /; PATCH /{userId} UC-21 
+Bảng 3.45. API vận hành và giao hàng 
+Nhóm chức năng Đường dẫn gốc và phương thức theo hậu tố Use case 
+Giao hàng nội bộ /api/delivery/orders GET /; POST /{id}/claim; PATCH /{id}/status UC-12 
+--- PAGE 72 ---
+Nhóm chức năng Đường dẫn gốc và phương thức theo hậu tố Use case 
+Liên hệ vận hành /api/operations/contacts GET /; PATCH /{id}/reply; PATCH /{id}/resolve UC-19 
+Kho staff /api/staff/inventory GET /; GET /{productId}; POST /adjust UC-16 
+Xử lý/phân công 
+đơn 
+/api/staff/orders 
+GET /delivery-staff; PATCH /{id}/delivery-staff; GET /; 
+PATCH /{id}/status 
+UC-11,12 
+3.6.3 Đặc tả các giao dịch API trọng tâm 
+Bảng 3.46. Hợp đồng dữ liệu của các giao dịch trọng tâm 
+API Đầu vào chính Kết quả và điều kiện 
+POST /api/auth/login email, password, role tùy chọn Access/refresh token và hồ sơ; kiểm tra khóa, trạng thái và vai trò cổng 
+POST 
+/api/checkout/preview 
+shippingAddressId, 
+shippingMethod/provider, 
+mã coupon, điểm 
+Breakdown giá/giảm/phí/tổng; chưa giữ 
+kho hoặc lượt coupon 
+POST /api/orders 
+Dữ liệu checkout, 
+paymentMethod, 
+expectedTotal khi áp dụng 
+Order/payment và URL VNPAY nếu 
+chọn; giữ lô, coupon, trừ điểm trong 
+transaction 
+POST 
+/api/public/guest/orders 
+Token header; liên hệ, địa 
+chỉ, coupon, payment, 
+idempotencyKey 
+order, lookupToken, replayed, 
+paymentUrl; gửi lại cùng khóa trả đơn cũ 
+POST 
+/api/public/guest/orders/l
+ookup 
+orderId, email, lookupToken Chi tiết đơn khi cả thông tin xác minh hợp lệ; không đưa lookupToken lên URL 
+GET 
+/api/payments/vnpay/ipn 
+Tham số VNPAY và 
+vnp_SecureHash 
+Kiểm tra chữ ký/tham chiếu/số tiền; cập 
+nhật một lần và trả mã gateway 
+POST 
+/api/admin/inventory/im
+port 
+productId, quantity, 
+importPrice, 
+manufactureDate, 
+expiryDate, supplierId, note 
+Lô mới, tồn và lịch sử nhập; hạn dùng 
+bắt buộc với lô mới 
+POST 
+/api/staff/inventory/adjus
+t 
+batchId, quantityChange, 
+type, reason 
+Điều chỉnh có lịch sử người thực hiện; 
+không xâm phạm phần giữ 
+POST 
+/api/webhooks/ghn/order
+s 
+Header secret và payload sự 
+kiện GHN 
+Xác minh shop/vận 
+đơn/ClientOrderCode; chống cũ/lặp; 204 
+nếu được tiếp nhận 
+--- PAGE 73 ---
+API Đầu vào chính Kết quả và điều kiện 
+POST 
+/api/public/chat/message
+s 
+message, guestToken tùy 
+chọn; JWT nếu có 
+Phản hồi, sản phẩm phù hợp và định 
+danh phiên; fallback khi Gemini lỗi 
+3.6.4 Ma trận vai trò và quyền truy cập 
+Bảng 3.47. Ma trận truy cập nghiệp vụ 
+Nhóm chức năng Khách Customer Staff Delivery Admin 
+Catalog, liên hệ công khai, chat Có Có Công khai Công khai Có 
+Giỏ và đặt hàng guest Phiên khách Khi dùng phiên guest — — — 
+Giỏ/yêu thích/địa chỉ/đơn tài 
+khoản — Của mình — — — 
+Đánh giá, điểm, yêu cầu hoàn tiền — 
+Của mình, 
+đủ điều 
+kiện 
+— — Duyệt hoàn tiền 
+Hồ sơ và thông báo — Của mình Của mình Của mình Của mình 
+Quản lý sản phẩm — — manage_products — Có 
+Quản lý danh mục/coupon/tài 
+khoản — — — — Quyền tương ứng 
+Xử lý và phân công đơn nội bộ — — manage_orders — Có 
+Nhận/cập nhật giao nội bộ — — — Đơn được giao Quản lý/phân công 
+Xem/điều chỉnh kho — — Endpoint staff — Có 
+Nhập kho và nhà cung cấp — — — — Có 
+Liên hệ vận hành — — manage_contacts — Có 
+GHN, báo cáo, duyệt hoàn tiền — — — — Có 
+Các quyền hiện có gồm manage_users, manage_products, manage_orders, 
+manage_categories, manage_contacts, manage_deliveries và manage_coupons. Một số 
+API như kho, vận đơn, báo cáo và hoàn tiền yêu cầu role ADMIN trực tiếp; không thể suy 
+ra quyền chỉ từ tiền tố /admin. Khách đọc đơn guest bằng bộ thông tin xác minh, không 
+nhận quyền tài khoản. Khóa quản trị không được cấp từ dữ liệu role do client tự gửi. 
+--- PAGE 74 ---
+3.7 Thiết kế giao diện 
+3.7.1 Nguyên tắc và sơ đồ điều hướng 
+Giao diện tổ chức thành cửa hàng và ba portal vận hành. Cửa hàng ưu tiên tìm sản phẩm, 
+kiểm tra giỏ và thanh toán; portal dùng menu theo nhiệm vụ. Biểu mẫu hiển thị lỗi tại 
+trường và phản hồi từ API. Khi một dịch vụ thanh toán/giao hàng không khả dụng, giao 
+diện thể hiện trạng thái thay vì cho người dùng lựa chọn một phương án không thực hiện 
+được. 
+ 
+Hình 3.23. Sơ đồ điều hướng giao diện GreenFarm 
+3.7.2 Danh sách màn hình theo use case 
+Các màn hình động dùng [id] hoặc [slug] theo App Router. Modal/khung chat và thông 
+báo là thành phần dùng chung, không được tính như tuyến trang độc lập. 
+
+--- PAGE 75 ---
+Bảng 3.48. Danh sách màn hình và chức năng tương ứng 
+Nhóm màn hình Tuyến giao diện Use case Dữ liệu và thao tác 
+Cửa hàng /, /store, /products, /categories/[slug], /products/[slug] UC-04 Catalog công khai, danh mục, ảnh và đánh giá 
+Xác thực khách /login, /register, /forgot-password, /reset-password UC-01–03 Đăng ký/đăng nhập/khôi phục; auth API 
+Hồ sơ cá nhân /profile UC-03 Hồ sơ, avatar, mật khẩu 
+Giỏ và yêu thích /cart, /wishlist UC-05,06 Giỏ guest hoặc tài khoản; gộp và yêu thích 
+Địa chỉ và 
+checkout /addresses, /checkout UC-07,08,17,18 Địa chỉ, preview, coupon/điểm, provider và payment 
+Đơn tài khoản /orders, /orders/[id], /orders/[id]/invoice UC-09,10,18 Chi tiết, lịch sử, hủy/hoàn, đánh giá và in hóa đơn 
+Đơn khách và kết 
+quả trả tiền 
+/guest-orders, /guest-
+orders/[id]/invoice, /payment-result UC-08,09 Xác minh tra cứu, hóa đơn khách và kết quả backend 
+Điểm và hỗ trợ /points, /contact UC-18,19 Số dư/lịch sử điểm, gửi và xem liên hệ 
+Cổng admin /admin/login, /admin, /admin/profile UC-02,03,22 Đăng nhập, dashboard/báo cáo và hồ sơ 
+Catalog và tài 
+khoản admin 
+/admin/categories, /admin/products, 
+/admin/users UC-14,21 Quản lý danh mục/sản phẩm/ảnh và người dùng 
+Đơn và giao nhận 
+admin 
+/admin/orders, /admin/orders/[id], 
+/admin/delivery UC-10–13 
+Vận hành đơn, hoàn tiền, 
+phân công và vận đơn 
+GHN 
+Kho ưu đãi hỗ trợ 
+admin 
+/admin/inventory, /admin/coupons, 
+/admin/contacts UC-15–17,19 Lô/nhà cung cấp, coupon và liên hệ 
+Portal staff /staff/login, /staff, /staff/inventory, /staff/contacts UC-02,11,12,16,19 Xử lý đơn, phân công, kiểm kê và hỗ trợ 
+Portal giao hàng /delivery/login, /delivery UC-02,12 Đơn được giao, nhận và cập nhật kết quả 
+Khung chatbot và menu thông báo có mặt trên các layout phù hợp, tương ứng UC-20 và 
+UC-19; báo cáo nằm ở dashboard admin, quản lý nhà cung cấp nằm trong khu vực kho, 
+không tạo thêm tuyến trang không có trong mã nguồn. 
+--- PAGE 76 ---
+3.7.3 Bố cục các màn hình trọng tâm 
+Trang catalog đặt tìm kiếm và bộ lọc cạnh danh sách sản phẩm; thẻ thể hiện ảnh, tên, 
+giá, đơn vị và khả dụng. Chi tiết bổ sung nguồn gốc, chứng nhận, bảo quản, đánh giá và 
+lựa chọn thêm giỏ. Nội dung phụ thuộc điều kiện được ẩn hoặc thông báo phù hợp khi chưa 
+có dữ liệu. 
+ 
+Hình 3.24. Thiết kế bố cục trang mua sắm và checkout 
+Checkout chia vùng địa chỉ/phương thức với vùng tổng tiền. Tạm tính, giảm hàng, điểm, 
+phí và giảm phí được tách để khách hiểu số thanh toán. Mọi thay đổi địa chỉ, coupon, điểm 
+hoặc nhà vận chuyển phải gọi preview lại. Nút đặt hàng phản ánh trạng thái đang gửi; khóa 
+checkout khách được giữ để khôi phục kết quả khi mất phản hồi. 
+Portal quản trị dùng sidebar và vùng nội dung chính. Màn hình đơn hiển thị nhóm trạng 
+thái, bộ lọc và thao tác theo điều kiện; chi tiết tập hợp dòng hàng, payment, vận chuyển, 
+lịch sử và hoàn tiền. Màn kho ưu tiên tồn khả dụng, phần giữ, lô gần/hết hạn và lịch sử để 
+tránh hiểu nhầm stock với số lượng vật lý. 
+
+--- PAGE 77 ---
+ 
+Hình 3.25. Thiết kế bố cục portal quản trị và màn kho 
+3.7.4 Thiết kế tương tác và phản hồi 
+Bảng 3.49. Tương tác của các màn hình trọng tâm 
+Màn hình hoặc 
+thao tác Cách tương tác và xử lý lỗi 
+Đăng nhập/khôi 
+phục mật khẩu 
+Hiển thị lỗi đúng trường; thông báo khóa/sai cổng; yêu cầu quên mật khẩu 
+dùng thông điệp chung để không lộ email có tài khoản 
+Catalog/giỏ Loading, không có kết quả, hết hàng; đọc lại giỏ từ server; khi đổi tài khoản làm mới dữ liệu liên quan 
+Checkout Kiểm tra bắt buộc, preview lại giá, chặn gửi trùng tại UI; lỗi tồn/coupon/phí yêu cầu rà soát trước khi đặt lại 
+Kết quả VNPAY Hiển thị theo dữ liệu backend; không coi query hoặc thông báo thành công ở trình duyệt là căn cứ thanh toán 
+Tra cứu đơn guest Nhập mã đơn, email và mã xác minh; không đặt mã bí mật trong URL; thiết bị lưu tối đa các đơn theo cơ chế hiện tại 
+Xử lý/giao đơn Chỉ hiện bước hợp lệ; phân công người đang hoạt động; yêu cầu nhận đơn và lý do giao thất bại 
+
+--- PAGE 78 ---
+Màn hình hoặc 
+thao tác Cách tương tác và xử lý lỗi 
+Kho/coupon/hoàn 
+tiền 
+Hiển thị lý do bị từ chối từ backend; xác nhận thao tác ảnh hưởng nghiệp vụ; 
+khóa gửi khi đang xử lý 
+Thông báo/hỗ trợ Đếm chưa đọc, đánh dấu đọc, tải lại danh sách khi cần; khách theo dõi phản hồi liên hệ của mình 
+Chatbot Trạng thái đang trả lời, gợi ý/thẻ sản phẩm; nội dung tư vấn không được thể hiện như xác nhận đơn hoặc thanh toán 
+Các thiết kế trên là cơ sở triển khai và kiểm thử ở các chương sau. Phần nghiệm thu cần 
+đối chiếu giao diện thực tế, dữ liệu vận hành và kết quả kiểm thử; không lấy sơ đồ thiết kế 
+thay cho bằng chứng chạy thành công. 
+Tài liệu đối chiếu cho nội dung triển khai 
+[1] Vercel. Environment variables và Next.js on Vercel. 
+https://vercel.com/docs/environment-variables ; https://vercel.com/docs/frameworks/full -
+stack/nextjs . Truy cập ngày 06/11/2026. 
+[2] Railway. Healthchecks. https://docs.railway.com/deployments/healthchecks . Truy 
+cập ngày 06/11/2026. 
+ 
+ 
+ 
+--- PAGE 79 ---
+CHƯƠNG 4 KẾT QUẢ TRIỂN KHAI HỆ THỐNG 
+Chương này trình bày kết quả xây dựng website GreenFarm theo các chức năng đã phân 
+tích ở Chương 3. Nội dung tập trung vào quá trình mua hàng, xử lý đơn, quản lý kho và 
+các màn hình vận hành dành cho từng vai trò. 
+4.1 Môi trường triển khai 
+GreenFarm được triển khai công khai tại https://green -farm-rosy.vercel.app. Giao diện 
+được phục vụ trên Vercel; backend Spring Boot được đóng gói bằng Docker để triển khai 
+trên Railway. Frontend gọi API để lấy dữ liệu và thực hiện nghiệp vụ; dữ liệu tài khoản, 
+sản phẩm, đơn hàng và kho được lưu trong MySQL. 
+Bảng 4.1. Các thành phần triển khai GreenFarm 
+Thành phần Công nghệ và cách sử dụng 
+Frontend Next.js 16, React 19 và TypeScript; triển khai trên Vercel, hỗ trợ giao diện máy tính và thiết bị di động. 
+Backend Java 21, Spring Boot 4, Spring Security và JPA; Dockerfile đóng gói ứng dụng, Railway kiểm tra /api/health. 
+Cơ sở dữ liệu MySQL; Flyway cập nhật cấu trúc dữ liệu theo phiên bản migration khi khởi động backend. 
+Ảnh và email Ảnh hỗ trợ Cloudinary hoặc lưu local theo cấu hình. Hóa đơn hỗ trợ SMTP hoặc Resend qua HTTPS; khôi phục mật khẩu dùng SMTP. 
+Dịch vụ tích hợp VNPAY hỗ trợ thanh toán trực tuyến; GHN hiện giới hạn staging. Chatbot dùng Gemini và có bộ trả lời dự phòng. 
+Các khóa dịch vụ được đặt trong cấu hình phía máy chủ. Việc hiển thị lựa chọn VNPAY 
+và GHN phụ thuộc trạng thái cấu hình mà backend cung cấp; riêng GHN còn kiểm tra điều 
+kiện sản phẩm và địa chỉ trước khi báo phí. 
+--- PAGE 80 ---
+4.2 Giao diện cửa hàng và thông tin sản phẩm 
+4.2.1 Trang chủ và danh sách sản phẩm 
+Trang chủ giới thiệu GreenFarm, hiển thị nhóm danh mục, sản phẩm và liên kết đến khu 
+vực mua sắm. Thanh điều hướng giúp truy cập sản phẩm, giỏ hàng, yêu thích, tài khoản và 
+các chức năng hỗ trợ. Dữ liệu danh mục và sản phẩm được tải từ API thay vì cố định trong 
+giao diện. 
+[Chèn ảnh kết quả tại đây] 
+Hình 4.1. Giao diện trang chủ GreenFarm 
+Trang sản phẩm cho phép tìm theo từ khóa, lọc theo danh mục, khoảng giá và tình trạng 
+còn hàng; đồng thời hỗ trợ sắp xếp và phân trang. Mỗi thẻ sản phẩm thể hiện ảnh, tên, giá 
+và đơn vị bán. Khi không có sản phẩm phù hợp hoặc không tải được dữ liệu, giao diện hiển 
+thị thông báo tương ứng. 
+[Chèn ảnh kết quả tại đây] 
+Hình 4.2. Giao diện danh sách sản phẩm và bộ lọc 
+4.2.2 Chi tiết sản phẩm 
+Trang chi tiết hiển thị bộ ảnh, giá, số lượng khả dụng, mô tả và đánh giá của sản phẩm. 
+Thông tin nguồn gốc, chứng nhận và hướng dẫn bảo quản chỉ xuất hiện khi đã được cập 
+nhật. Khách chọn số lượng để thêm vào giỏ; backend tiếp tục kiểm tra trạng thái bán và số 
+lượng trước khi chấp nhận. 
+[Chèn ảnh kết quả tại đây] 
+Hình 4.3. Giao diện chi tiết sản phẩm 
+4.3 Tài khoản giỏ hàng và địa chỉ 
+4.3.1 Đăng ký đăng nhập và hồ sơ 
+Khách hàng đăng ký bằng thông tin cá nhân, email và mật khẩu. Hệ thống có cổng đăng 
+nhập riêng cho khách hàng, nhân viên, nhân viên giao hàng và quản trị viên; backend từ 
+chối tài khoản đăng nhập sai cổng. Sau năm lần nhập sai liên tiếp, tài khoản bị khóa đăng 
+--- PAGE 81 ---
+nhập trong 15 phút. Giao diện cũng có chức năng yêu cầu khôi phục và đặt lại mật khẩu 
+qua email khi dịch vụ gửi thư được cấu hình. 
+Trong trang hồ sơ, người dùng xem và sửa thông tin được phép, cập nhật ảnh đại diện 
+và đổi mật khẩu. Khi đổi mật khẩu, các phiên đăng nhập cũ được thu hồi để người dùng 
+xác thực lại. 
+[Chèn ảnh kết quả tại đây] 
+Hình 4.4. Giao diện đăng nhập và hồ sơ người dùng 
+4.3.2 Giỏ hàng và sản phẩm yêu thích 
+Giỏ hàng hiển thị sản phẩm, đơn giá, số lượng và thành tiền; cho phép tăng giảm số 
+lượng hoặc xóa sản phẩm. Khách chưa đăng nhập vẫn có thể sử dụng giỏ và đặt hàng theo 
+phiên khách. Sau khi đăng nhập, giỏ khách được gộp vào giỏ tài khoản khi các dòng hàng 
+thỏa điều kiện tồn kho. Danh sách yêu thích dành cho tài khoản khách hàng giúp lưu và 
+xem lại sản phẩm quan tâm. 
+[Chèn ảnh kết quả tại đây] 
+Hình 4.5. Giao diện giỏ hàng và danh sách yêu thích 
+4.3.3 Quản lý địa chỉ nhận hàng 
+Khách hàng có thể thêm, sửa, xóa và chọn địa chỉ mặc định. Địa chỉ được sử dụng tại 
+bước thanh toán để xác định nơi nhận và phương án giao hàng. Với GHN, người mua chọn 
+tỉnh thành và phường xã theo danh mục mà dịch vụ cung cấp, kết hợp nhập địa chỉ chi tiết. 
+[Chèn ảnh kết quả tại đây] 
+Hình 4.6. Giao diện quản lý địa chỉ nhận hàng 
+4.4 Đặt hàng thanh toán và theo dõi đơn 
+4.4.1 Checkout và áp dụng ưu đãi 
+Checkout tập hợp địa chỉ, phương thức vận chuyển, phương thức thanh toán và bảng 
+tổng tiền. Khách có thể áp dụng voucher giảm tiền hàng hoặc phí giao hàng; tài khoản 
+--- PAGE 82 ---
+khách hàng còn có thể sử dụng điểm thưởng. Backend tính lại tạm tính, giảm giá, phí giao 
+hàng và tổng thanh toán mỗi khi thông tin liên quan thay đổi. 
+Khi đặt đơn, hệ thống kiểm tra lại sản phẩm, lượng hàng khả dụng và điều kiện ưu đãi; 
+sau đó giữ hàng theo lô trong cùng giao dịch lưu đơn. Checkout dành cho khách chưa đăng 
+nhập yêu cầu thêm họ tên, email và số điện thoại; khóa chống tạo trùng giúp lấy lại kết quả 
+nếu phản hồi đặt hàng bị gián đoạn. 
+[Chèn ảnh kết quả tại đây] 
+Hình 4.7. Giao diện checkout và tổng tiền sau ưu đãi 
+4.4.2 Thanh toán và hóa đơn 
+GreenFarm hỗ trợ COD và VNPAY. Với COD, đơn được tạo ở trạng thái chờ thanh 
+toán; với VNPAY, khách được chuyển đến cổng thanh toán khi phương thức này sẵn sàng. 
+Trang kết quả đọc trạng thái đã được backend xác minh, không dùng thông báo trên trình 
+duyệt làm căn cứ xác nhận đã thu tiền. 
+Trang hóa đơn hiển thị thông tin đơn, sản phẩm, các khoản giảm, phí giao hàng và số 
+tiền cần thanh toán. Người mua có thể in hoặc lưu PDF bằng trình duyệt. Email hóa đơn 
+được gửi theo trạng thái đơn và thanh toán khi dịch vụ email được bật; trạng thái gửi phản 
+ánh việc dịch vụ tiếp nhận thư. 
+[Chèn ảnh kết quả tại đây] 
+Hình 4.8. Giao diện kết quả thanh toán và hóa đơn 
+4.4.3 Lịch sử đơn hàng và tra cứu đơn khách 
+Tài khoản khách hàng xem danh sách đơn, chi tiết sản phẩm, trạng thái thanh toán, giao 
+nhận và lịch sử xử lý. Giao diện cung cấp thao tác hủy hoặc yêu cầu hoàn tiền khi đơn đáp 
+ứng điều kiện. Đơn dùng GHN hiển thị mã vận đơn và thông tin theo dõi đã được đồng bộ. 
+Khách đặt hàng không cần tài khoản tra cứu bằng mã đơn, email và mã xác minh. 
+Backend chỉ trả thông tin khi các dữ liệu xác minh phù hợp. Sau khi xác minh, khách có 
+thể mở hóa đơn của đơn đó; mã xác minh không được đưa lên đường dẫn trình duyệt. 
+--- PAGE 83 ---
+[Chèn ảnh kết quả tại đây] 
+Hình 4.9. Giao diện chi tiết đơn hàng và tra cứu đơn khách 
+4.5 Đánh giá điểm thưởng và hỗ trợ khách hàng 
+Sau khi nhận hàng, khách có thể đánh giá sản phẩm ngay trong chi tiết đơn; mỗi tài 
+khoản có một đánh giá cho mỗi sản phẩm và được sửa nội dung. Điểm thưởng phát sinh từ 
+đơn giao thành công và đánh giá hợp lệ được lưu theo lịch sử. Trang GreenFarm Rewards 
+cho biết số dư và quy tắc đổi điểm: một điểm giảm 100 đồng, mức giảm tối đa bằng 50% 
+tiền hàng sau voucher, chưa cộng phí giao hàng. 
+[Chèn ảnh kết quả tại đây] 
+Hình 4.10. Giao diện đánh giá sản phẩm và điểm thưởng 
+Trang liên hệ tiếp nhận yêu cầu hỗ trợ; người đã đăng nhập có thể xem lịch sử yêu cầu 
+và phản hồi. Menu thông báo giúp theo dõi sự kiện liên quan đến đơn hàng, giao nhận và 
+liên hệ, đồng thời đánh dấu đã đọc. 
+Khung chatbot tư vấn sản phẩm, giá, tình trạng còn hàng và chính sách công khai. Câu 
+trả lời có thể kèm sản phẩm phù hợp để khách mở chi tiết. Chatbot không tra cứu đơn cá 
+nhân, tài khoản hoặc dữ liệu quản trị; khi Gemini không khả dụng, hệ thống dùng bộ t rả 
+lời dự phòng từ dữ liệu công khai. 
+[Chèn ảnh kết quả tại đây] 
+Hình 4.11. Giao diện liên hệ thông báo và chatbot 
+4.6 Giao diện quản trị 
+4.6.1 Tổng quan và báo cáo kinh doanh 
+Dashboard quản trị tổng hợp doanh thu thực nhận, đơn đã thanh toán, giá trị đơn trung 
+bình, doanh thu theo ngày và sản phẩm bán chạy. Quản trị viên chọn kỳ báo cáo và xuất 
+CSV; màn hình còn thể hiện đơn theo trạng thái, khách hàng mới, tồn kho thấp và hiệu quả 
+voucher. Doanh thu căn cứ vào giao dịch đã thanh toán, vì vậy không đồng nhất với tổng 
+giá trị mọi đơn được tạo. 
+--- PAGE 84 ---
+[Chèn ảnh kết quả tại đây] 
+Hình 4.12. Giao diện dashboard và báo cáo kinh doanh 
+4.6.2 Quản lý tài khoản catalog và voucher 
+Quản trị viên tìm kiếm người dùng, cập nhật vai trò và trạng thái tài khoản. Màn hình 
+danh mục và sản phẩm hỗ trợ thêm, sửa, quản lý ảnh và trạng thái hiển thị; sản phẩm có 
+thể bổ sung nguồn gốc, chứng nhận và cách bảo quản. Số tồn được quản lý qua nghiệp vụ 
+kho, không sửa tùy ý trong biểu mẫu sản phẩm. 
+[Chèn ảnh kết quả tại đây] 
+Hình 4.13. Giao diện quản lý sản phẩm danh mục và người dùng 
+Màn hình voucher cho phép tạo ưu đãi theo phần trăm, số tiền hoặc giảm phí vận chuyển; 
+thiết lập phạm vi toàn cửa hàng, danh mục hoặc sản phẩm, thời gian và giới hạn sử dụng. 
+Voucher có lịch sử sử dụng bị hạn chế sửa các thuộc tính ảnh hưởng đến quyền lợi đã ghi 
+nhận; quản trị viên có thể tạm dừng phát hành. 
+[Chèn ảnh kết quả tại đây] 
+Hình 4.14. Giao diện quản lý voucher 
+4.6.3 Quản lý kho và nhà cung cấp 
+Khu vực kho hiển thị tồn theo sản phẩm, các lô hàng, phần giữ cho đơn và lịch sử biến 
+động. Quản trị viên quản lý nhà cung cấp, nhập lô mới kèm số lượng, giá nhập và hạn sử 
+dụng; điều chỉnh phải có lý do. Màn hình phân biệt lượng hàng vật lý với lượng có thể bán, 
+đồng thời cảnh báo hàng ít, lô gần hạn và lô hết hạn. 
+Hàng được giữ theo nguyên tắc ưu tiên lô hết hạn trước (FEFO); lô đã hết hạn không 
+được tính vào lượng khả dụng. Khi đơn được xác nhận xử lý, hệ thống xuất từ các lô đã 
+phân bổ. Nếu đơn được hủy hợp lệ, lượng giữ hoặc lượng đã xuất được xử lý hoàn lại theo 
+lịch sử phân bổ. 
+[Chèn ảnh kết quả tại đây] 
+Hình 4.15. Giao diện tồn kho lô hàng và nhà cung cấp 
+--- PAGE 85 ---
+4.6.4 Quản lý đơn giao nhận và hoàn tiền 
+Màn hình đơn có bộ lọc trạng thái và nhóm đơn đang xử lý hoặc lịch sử. Chi tiết đơn tập 
+hợp hàng hóa, thanh toán, người giao, lịch sử và yêu cầu hoàn tiền. Quản trị viên chỉ chuyển 
+sang trạng thái được phép, phân công nhân viên giao hàng đang hoạt động cho đơn nội bộ 
+sẵn sàng giao và xử lý hoàn tiền theo phương thức thanh toán. 
+Với đơn chọn GHN, chi tiết đơn có thao tác tạo vận đơn, đồng bộ, in phiếu và hủy theo 
+điều kiện. Tích hợp GHN hiện dùng staging; chức năng này phục vụ thử nghiệm, chưa 
+tương đương vận chuyển thương mại thực tế. 
+[Chèn ảnh kết quả tại đây] 
+Hình 4.16. Giao diện quản lý đơn và chi tiết vận chuyển 
+4.7 Giao diện nhân viên và nhân viên giao hàng 
+Cổng nhân viên tập trung vào xác nhận hoặc từ chối đơn, chuẩn bị hàng, đưa đơn về 
+trạng thái sẵn sàng giao và phân công giao nội bộ. Nhân viên còn có khu vực xem kho, ghi 
+nhận kiểm kê, hư hỏng, hết hạn hoặc trả hàng và xử lý yêu cầu liên hệ theo quyền được  
+cấp. Quản lý nhà cung cấp và nhập lô mới thuộc quản trị viên. 
+[Chèn ảnh kết quả tại đây] 
+Hình 4.17. Giao diện xử lý đơn và kho của nhân viên 
+Cổng giao hàng chỉ hiển thị đơn được phân công cho tài khoản hiện tại. Người giao phải 
+nhận đơn trước khi bắt đầu giao; sau đó cập nhật giao thành công hoặc thất bại kèm lý do 
+theo yêu cầu. Những thay đổi này được ghi vào lịch sử đơn và tạo thông báo cho c ác bên 
+liên quan. Đơn giao thất bại có thể được đưa về hàng chờ để phân công lại. 
+[Chèn ảnh kết quả tại đây] 
+Hình 4.18. Giao diện nhận đơn và cập nhật kết quả giao hàng 
+--- PAGE 86 ---
+CHƯƠNG 5 KIỂM THỬ VÀ ĐÁNH GIÁ HỆ THỐNG 
+5.1 Mục tiêu phạm vi và môi trường kiểm thử 
+Kiểm thử tập trung vào tính đúng đắn của giao dịch mua hàng và việc phân tách quyền 
+giữa khách hàng, nhân viên, người giao hàng và quản trị viên. Các quy tắc cần xác minh 
+gồm tính tiền tại backend, giữ và xuất kho theo lô, giới hạn ưu đãi, cập nhật thanh toán và 
+ngăn xử lý trùng. 
+Bộ kiểm thử tự động được chạy trên mã nguồn GreenFarm tại máy phát triển ngày 
+23/11/2026. Các test nghiệp vụ chủ yếu dùng dữ liệu giả lập và dependency mô phỏng, 
+không tác động đến đơn hàng hoặc dữ liệu khách hàng trên website công khai. 
+Bảng 5.1. Môi trường và công cụ kiểm thử 
+Thành phần Cấu hình hoặc công cụ 
+Backend Java 21, Spring Boot 4.1.0; Maven 3.9.16 và Surefire. 
+Kiểm thử nghiệp vụ JUnit, Mockito, AssertJ và Spring Test; mô phỏng repository, thanh toán, giao hàng và dịch vụ ngoài. 
+Tích hợp cơ sở dữ liệu Testcontainers với MySQL 8.0.44; chạy khi có Docker phù hợp. 
+Frontend Next.js 16.3.3, React 19.2.4, TypeScript; kiểm tra ESLint và production build. 
+Website công khai https://green-farm-rosy.vercel.app; truy cập đọc để kiểm tra khả năng phản hồi trang chủ. 
+5.2 Phương pháp kiểm thử 
+5.2.1 Kiểm thử tự động backend 
+Các service test kiểm tra cả dữ liệu hợp lệ và trường hợp bị từ chối, chẳng hạn thêm giỏ 
+vượt tồn, áp dụng voucher hết hạn, giao đơn chưa nhận hoặc cập nhật thanh toán sai số 
+tiền. Mockito mô phỏng thành phần phụ thuộc để kiểm tra đầu ra, ngoại lệ và các lần ghi 
+--- PAGE 87 ---
+dữ liệu quan trọng. Nhóm JWT và CORS kiểm tra thêm cấu hình liên quan đến truy cập 
+API. 
+5.2.2 Kiểm thử tích hợp và dịch vụ ngoài 
+Hai lớp Testcontainers kiểm tra migration GHN và xử lý điểm đồng thời trên MySQL. 
+Test tải ảnh Cloudinary thật được bật riêng bằng biến môi trường. Các test VNPAY, GHN, 
+email và Gemini còn lại chủ yếu dùng mô phỏng; kết quả đạt ở mức này chưa xác nhận 
+toàn bộ chuỗi callback, gửi thư hoặc giao nhận thật. 
+5.2.3 Kiểm tra frontend và tình huống hộp đen 
+Lệnh npm run quality chạy ESLint rồi production build để phát hiện lỗi mã, kiểu dữ liệu 
+và đóng gói. Dự án hiện chưa có script kiểm thử component hoặc E2E tự động trong 
+package.json. Các tình huống ở mục 5.3 xác định thao tác và kết quả cần quan sát trên giao 
+diện; trạng thái của từng luồng trên bản triển khai phải được đối chiếu riêng khi nghiệm 
+thu. 
+5.3 Các ca kiểm thử chức năng 
+Các bảng dưới đây mô tả tình huống kiểm thử trọng tâm và kết quả mong đợi. Đây là cơ 
+sở thực hiện kiểm thử hộp đen, không phải bảng khẳng định mọi thao tác đã chạy đạt trên 
+website công khai. Kết quả tự động có bằng chứng được tổng hợp riêng tại mục 5.5. 
+Bảng 5.2. Ca kiểm thử tài khoản và mua hàng 
+Mã Thao tác và điều kiện Kết quả mong đợi 
+TC01 Đăng ký email mới; sau đó thử dùng lại email đó. Tạo tài khoản customer ở lần hợp lệ; từ chối email trùng, không tạo thêm tài khoản. 
+TC02 Đăng nhập sai liên tiếp năm lần; thử đăng nhập sai cổng vai trò. Khóa đăng nhập 15 phút theo chính sách; sai cổng không được cấp phiên phù hợp cổng đó. 
+TC03 Tìm sản phẩm theo từ khóa, danh mục và khoảng giá; mở sản phẩm đã ẩn. Danh sách phù hợp bộ lọc; sản phẩm ẩn không xuất hiện trong API công khai. 
+--- PAGE 88 ---
+Mã Thao tác và điều kiện Kết quả mong đợi 
+TC04 Thêm sản phẩm còn hàng rồi tăng số lượng vượt lượng khả dụng. Lưu số lượng hợp lệ; từ chối yêu cầu vượt tồn và không làm sai giỏ. 
+TC05 Đăng nhập sau khi dùng giỏ khách; thử gửi gộp cùng phiên lần nữa. Gộp theo điều kiện tồn kho; không cộng hàng lần hai với phiên đã gộp. 
+TC06 Đổi địa chỉ, voucher hoặc điểm ở checkout. Backend tính lại tiền; từ chối voucher hết hạn, sai phạm vi hoặc điểm vượt số dư; mức đổi điểm không vượt giới hạn. 
+TC07 Tạo đơn khách rồi gửi lại cùng khóa checkout khi mất phản hồi. Trả lại đơn đã tạo; không giữ kho và lượt ưu đãi thêm lần nữa. 
+TC08 Tra cứu đơn khách với email hoặc mã xác minh sai; sau đó nhập đủ thông tin đúng. Không lộ chi tiết ở lần sai; lần đúng trả đơn tương ứng và cho phép xem hóa đơn. 
+TC09 Gửi callback VNPAY sai chữ ký hoặc sai số tiền; gửi lặp callback hợp lệ. Không xác nhận thanh toán sai; callback lặp không ghi nhận thu tiền hay lợi ích trùng. 
+Bảng 5.3. Ca kiểm thử kho và vận hành đơn 
+Mã Thao tác và điều kiện Kết quả mong đợi 
+TC10 Nhập hai lô cùng sản phẩm có hạn khác nhau; đặt đơn cần cả hai lô. Giữ lô gần hạn trước theo FEFO; tổng lượng giữ đúng số đặt. 
+TC11 Xác nhận xử lý rồi hủy một đơn đủ điều kiện. Xuất đúng lô đã phân bổ; hủy giải phóng hoặc hoàn hàng theo trạng thái và chỉ xử lý một lần. 
+TC12 Nhập lô mới quá hạn; điều chỉnh giảm quá phần có thể sử dụng. Từ chối dữ liệu sai; không để lượng vật lý âm hoặc xâm phạm lượng đang giữ. 
+TC13 Staff nhập lô mới hoặc quản lý nhà cung cấp; admin thực hiện cùng nghiệp vụ. Staff bị từ chối; admin hợp lệ được xử lý và ghi nhận lịch sử. 
+TC14 Phân công đơn chưa sẵn sàng; người giao thử cập nhật khi chưa nhận đơn. Từ chối bước không hợp lệ; người được phân công phải nhận trước khi giao. 
+TC15 Người giao cập nhật thành công hoặc thất bại; nhân viên cho giao lại. Lưu trạng thái và lý do theo điều kiện; giao lại xóa thông tin nhận cũ để phân công mới. 
+TC16 Chọn GHN với sản phẩm chưa đủ điều kiện hoặc gói vượt giới hạn. Không báo phí hoặc tạo vận đơn; hiển thị lý do để người mua chọn phương án khác. 
+--- PAGE 89 ---
+Mã Thao tác và điều kiện Kết quả mong đợi 
+TC17 Yêu cầu tạo vận đơn GHN lần nữa khi đơn đã có mã vận đơn. Khôi phục hoặc trả vận đơn hiện có, không tạo thêm vận đơn trùng. 
+TC18 Gửi webhook GHN thiếu secret, lặp hoặc có thời điểm cũ. Từ chối yêu cầu không xác thực; sự kiện lặp hoặc cũ không làm lùi trạng thái mới. 
+Bảng 5.4. Ca kiểm thử tương tác và báo cáo 
+Mã Thao tác và điều kiện Kết quả mong đợi 
+TC19 Đánh giá khi chưa nhận hàng; đánh giá hợp lệ rồi sửa nội dung. Chặn đánh giá chưa đủ điều kiện; không cộng điểm thưởng lại khi sửa. 
+TC20 Gửi liên hệ rồi phản hồi bằng tài khoản có quyền. Lưu yêu cầu, phản hồi và thông báo; khách đăng nhập chỉ xem yêu cầu của mình. 
+TC21 Hỏi chatbot về sản phẩm rồi hỏi dữ liệu đơn hoặc doanh thu nội bộ. Tư vấn từ dữ liệu công khai; từ chối truy vấn riêng tư, không tiết lộ dữ liệu quản trị. 
+TC22 Chọn kỳ báo cáo, xuất CSV; thử khoảng ngày ngược. Dữ liệu theo kỳ và quy tắc thanh toán; từ chối khoảng ngày không hợp lệ. 
+TC23 Dịch vụ email hóa đơn báo lỗi hoặc timeout. Giữ kết quả đơn và thanh toán; lưu lỗi để thử lại, không báo gửi thành công trước khi dịch vụ tiếp nhận. 
+5.4 Kiểm thử bảo mật và xử lý lỗi 
+Những điểm cần kiểm tra gồm JWT hết hạn, tài khoản sai vai trò, truy cập dữ liệu của 
+người khác và quyền thao tác của từng portal. Việc chỉ ẩn nút trên giao diện không thay 
+thế kiểm tra backend. Giỏ hàng, địa chỉ, đơn và thông báo phải được giới hạn theo t ài 
+khoản; đơn khách yêu cầu thông tin xác minh riêng. 
+Các giá trị giá bán, giảm giá, điểm và tổng tiền phải được tính hoặc kiểm tra lại ở máy 
+chủ. Dữ liệu số lượng âm, vượt tồn, mã không hợp lệ, trạng thái đơn bị bỏ bước và callback 
+giả mạo cần bị từ chối trước khi cập nhật nghiệp vụ. Các test hiện có đã bao phủ một số 
+quy tắc này ở mức service, nhưng chưa thay thế kiểm thử toàn bộ chuỗi HTTP và Spring 
+Security. 
+--- PAGE 90 ---
+Khả năng phục hồi được kiểm tra qua yêu cầu đặt đơn khách lặp, callback thanh toán 
+lặp, nhận đơn lặp, webhook GHN cũ và lỗi dịch vụ ngoài. Riêng chatbot có lọc thông tin 
+liên hệ nhạy cảm trước khi lưu hoặc gửi AI và có trả lời dự phòng. Cần tiếp tục kiểm t ra 
+trực tiếp trên trình duyệt đối với mất mạng, tải lại checkout và chuyển đổi tài khoản. 
+5.5 Kết quả kiểm thử tự động 
+Lần chạy Maven ngày 23/11/2026 ghi nhận 161 ca, trong đó 158 ca đạt, không có thất 
+bại hoặc lỗi và ba ca được bỏ qua theo điều kiện môi trường. Hai ca tích hợp MySQL không 
+chạy do không có môi trường Docker khả dụng cho Testcontainers; một ca Cloudinary thật 
+không được bật. Các ca bị bỏ qua không được tính là đã đạt. 
+Bảng 5.5. Kết quả kiểm thử backend ngày 23 tháng 11 năm 2026 
+Nhóm kiểm thử Số ca Đạt Bỏ qua 
+Tài khoản JWT và CORS 9 9 0 
+Catalog giỏ và khách vãng lai 30 30 0 
+Đơn hàng và thanh toán 30 30 0 
+Voucher và điểm 22 22 0 
+Kho 9 9 0 
+Tích hợp GHN với mô phỏng 28 28 0 
+Đánh giá hỗ trợ và chatbot 13 13 0 
+Email ảnh và báo cáo 17 17 0 
+Tích hợp có điều kiện 3 0 3 
+Tổng 161 158 3 
+Lệnh npm run quality của frontend hoàn tất với mã thoát 0: ESLint và production build 
+đều thành công. Đây là kết quả kiểm tra mã và đóng gói ứng dụng; chưa phải kết quả kiểm 
+thử thao tác người dùng trên trình duyệt. 
+--- PAGE 91 ---
+Kiểm tra truy cập đọc trang chủ công khai trả về HTTP 200 và tiêu đề GreenFarm. Kết 
+quả này xác nhận trang chủ có phản hồi tại thời điểm kiểm tra, chưa chứng minh toàn bộ 
+quy trình mua hàng, giao nhận hoặc tích hợp bên ngoài đã được nghiệm thu. 
+5.6 Đánh giá kết quả kiểm thử 
+Kết quả tự động cho thấy các quy tắc nghiệp vụ đã có test vẫn hoạt động đúng trong 
+phạm vi dữ liệu và dependency mô phỏng. Những nhóm quan trọng gồm giữ và hoàn kho, 
+ưu đãi, điểm thưởng, xử lý trạng thái đơn, xác minh thanh toán và chống xử lý trùng. 
+Bằng chứng hiện có còn thiếu kiểm thử E2E qua trình duyệt, ba ca tích hợp bị bỏ qua 
+và kiểm tra các dịch vụ thật trên môi trường công khai. Chưa có kết quả đo tải hoặc báo 
+cáo độ bao phủ, vì vậy chưa đưa ra kết luận về số người dùng đồng thời, tốc độ xử lý  hay 
+tỷ lệ bao phủ mã. Bước nghiệm thu tiếp theo cần ưu tiên luồng mua hàng hoàn chỉnh và 
+kiểm tra quyền truy cập bằng nhiều tài khoản. 
+--- PAGE 92 ---
+CHƯƠNG 6 KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN 
+6.1 Kết quả đạt được 
+Đồ án đã xây dựng website thương mại điện tử nông sản GreenFarm với giao diện 
+Next.js, backend Spring Boot và cơ sở dữ liệu MySQL. Website có địa chỉ truy cập công 
+khai, tổ chức riêng khu vực mua sắm và các cổng vận hành theo vai trò. 
+Đối với người mua, hệ thống hỗ trợ tìm và lọc sản phẩm, xem thông tin nguồn gốc khi 
+có, quản lý giỏ, đặt hàng có hoặc không có tài khoản, áp dụng ưu đãi, lựa chọn thanh toán 
+và theo dõi đơn. Tài khoản khách hàng có thêm địa chỉ, yêu thích, đánh giá và điểm thưởng. 
+Liên hệ, thông báo và chatbot bổ sung kênh hỗ trợ trong quá trình sử dụng. 
+Đối với cửa hàng, hệ thống cung cấp quản lý tài khoản, catalog, voucher, nhà cung cấp 
+và tồn kho theo lô. Quy trình xử lý đơn gắn với giữ hàng, xuất kho, phân công người giao 
+và ghi lịch sử trạng thái. Dashboard hỗ trợ theo dõi doanh thu, sản phẩm bán chạy  và xuất 
+dữ liệu báo cáo. 
+Các quyết định về giá, ưu đãi, tồn kho và quyền truy cập được kiểm tra tại backend. Bộ 
+kiểm thử tự động có 158 ca chạy đạt trong lần đánh giá hiện tại, tạo cơ sở kiểm tra hồi quy 
+khi tiếp tục phát triển. 
+6.2 Hạn chế của hệ thống 
+Thứ nhất, mức kiểm chứng trên môi trường công khai còn hạn chế. Bộ test hiện tại tập 
+trung vào service và mô phỏng dịch vụ; chưa có E2E tự động, đo tải và tỷ lệ bao phủ. Ba 
+ca kiểm thử có điều kiện chưa chạy trong lần đánh giá này, nên vẫn cần kiểm tra tíc h hợp 
+MySQL và lưu ảnh thật. 
+Thứ hai, GHN mới được tích hợp ở staging và mô hình đóng gói hiện ước tính một kiện, 
+chưa hỗ trợ chia nhiều kiện. Báo phí, tạo vận đơn và webhook thật cần được nghiệm thu 
+cùng điều kiện sản phẩm, địa chỉ và kết nối công khai. Thanh toán và hoàn tiền VNPAY 
+cũng cần đối soát trên môi trường dịch vụ được cấu hình trước khi vận hành thương mại. 
+--- PAGE 93 ---
+Thứ ba, gửi email phụ thuộc cấu hình dịch vụ. Hóa đơn hỗ trợ Resend qua HTTPS, trong 
+khi khôi phục mật khẩu vẫn dùng SMTP; vì vậy hai chức năng có thể có mức sẵn sàng 
+khác nhau trên Railway. Trạng thái email đã được dịch vụ tiếp nhận không bảo đảm thư đã 
+đến hộp thư người nhận. 
+Thứ tư, khách vãng lai cần giữ mã xác minh để tra cứu đơn; hệ thống chưa có quy trình 
+tự cấp lại mã qua email hoặc OTP. Chatbot chỉ khai thác dữ liệu công khai và câu trả lời 
+sinh từ AI vẫn cần được đối chiếu với thông tin sản phẩm. Nội dung nguồn gốc, chứ ng 
+nhận và bảo quản phụ thuộc dữ liệu cửa hàng cập nhật, chưa có cơ chế xác minh độc lập. 
+6.3 Hướng phát triển 
+Ưu tiên trước mắt là hoàn thiện kiểm thử E2E cho các luồng từ chọn hàng đến nhận 
+hàng, hủy và hoàn tiền; bổ sung kiểm tra quyền qua HTTP và chạy đầy đủ test tích hợp 
+MySQL. Sau đó thiết lập kiểm tra tự động trong quy trình build, đo độ bao phủ và đo tải 
+bằng dữ liệu đại diện để phát hiện điểm nghẽn trước khi mở rộng sử dụng. 
+Đối với vận hành, cần nghiệm thu VNPAY và GHN xuyên suốt với callback thực, đối 
+soát thanh toán và tình huống timeout. Việc mở GHN production chỉ thực hiện sau khi điều 
+chỉnh giới hạn môi trường, xác nhận điều kiện hàng được nhận vận chuyển và kiểm tra quy 
+trình xử lý phí. Có thể tiếp tục bổ sung đóng gói nhiều kiện và quản lý hàng trả theo lô. 
+Đối với trải nghiệm người dùng, cần thống nhất dịch vụ email phù hợp cho cả hóa đơn 
+và khôi phục mật khẩu, bổ sung cấp lại mã tra cứu đơn khách sau xác minh và hoàn thiện 
+giao diện trên thiết bị di động. Việc bổ sung nội dung nguồn gốc, chứng nhận và bảo quản 
+sẽ giúp thông tin sản phẩm rõ ràng hơn. 
+Báo cáo quản trị có thể bổ sung tổn thất do hết hạn và cảnh báo nhập hàng từ lịch sử 
+kho. Chatbot cần dẫn nguồn sản phẩm, chính sách và chuyển yêu cầu vượt phạm vi sang 
+nhân viên hỗ trợ. 

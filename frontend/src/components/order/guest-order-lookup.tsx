@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Search, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -10,6 +10,9 @@ import { getApiErrorMessage } from "@/lib/api-error";
 import { getGuestOrders } from "@/lib/guest-session";
 import { guestCommerceService } from "@/services/guest-commerce-service";
 import { GhnShipmentTracking } from "@/components/order/ghn-shipment-tracking";
+import { DeliveryProgress } from "@/components/order/delivery-progress";
+import { deliveryMessage } from "@/lib/delivery-tracking";
+import { orderStatusLabel } from "@/lib/order-format";
 import type { Order } from "@/types/order";
 
 export function GuestOrderLookup(){
@@ -29,9 +32,9 @@ export function GuestOrderLookup(){
     return ()=>{active=false;};
   },[initialId]);
   const lookup=async()=>{const id=Number(orderId);if(!Number.isInteger(id)||id<1||!email||!token){toast.error("Nhập mã đơn, email và mã xác minh");return;}setBusy(true);try{setOrder(await guestCommerceService.lookup(id,email.trim(),token.trim()));}catch(error){setOrder(null);toast.error(getApiErrorMessage(error));}finally{setBusy(false);}};
-  return <main className="catalog-main guest-order-main"><header className="commerce-heading"><span className="eyebrow">Đơn hàng khách</span><h1>Tra cứu đơn hàng</h1><p>Nhập đủ ba thông tin để bảo vệ đơn hàng và thông tin nhận hàng của bạn.</p></header>
+  return <main className="catalog-main guest-order-main"><Link className="commerce-back" href="/shipping"><ArrowLeft size={16}/>Theo dõi giao hàng</Link><header className="commerce-heading"><span className="eyebrow">Đơn hàng khách</span><h1>Tra cứu đơn hàng</h1><p>Nhập đủ ba thông tin để bảo vệ đơn hàng và thông tin nhận hàng của bạn.</p></header>
     <form className="guest-order-lookup" onSubmit={e=>{e.preventDefault();void lookup();}}><label>Mã đơn hàng<input inputMode="numeric" value={orderId} onChange={e=>setOrderId(e.target.value)} placeholder="Ví dụ: 42"/></label><label>Email đặt hàng<input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="ban@example.com"/></label><label>Mã xác minh đơn<input type="password" value={token} onChange={e=>setToken(e.target.value)} placeholder="Mã được lưu sau khi đặt hàng"/></label><button className="primary-button" disabled={busy}><Search size={17}/>{busy?"Đang xác minh...":"Tra cứu"}</button><small><ShieldCheck size={15}/>Mã xác minh được lưu trên thiết bị này. Không chia sẻ mã cho người khác.</small></form>
-    {order&&<section className="guest-order-result"><header><div><span className="eyebrow">Đơn hàng #{order.id}</span><h2>{order.recipientName}</h2><p>{order.shippingAddress}, {order.shippingCity}</p></div><strong>{order.status}</strong></header><div className="guest-order-items">{order.items.map(item=><article key={item.id}><span>{item.productName}<small>{item.quantity} × {formatPrice(item.unitPrice)}</small></span><strong>{formatPrice(item.lineTotal)}</strong></article>)}</div><footer><span>Tổng thanh toán</span><strong>{formatPrice(order.total)}</strong></footer>{order.payment&&<p>Thanh toán: <b>{order.payment.method.toUpperCase()}</b> · {order.payment.status}</p>}<Link className="secondary-button" href={`/guest-orders/${order.id}/invoice`}>Xem hóa đơn</Link></section>}
+    {order&&<section className="guest-order-result"><header><div><span className="eyebrow">Đơn hàng #{order.id}</span><h2>{order.recipientName}</h2><p>{order.shippingAddress}, {order.shippingCity}</p></div><strong>{orderStatusLabel[order.status] ?? order.status}</strong></header><p>{deliveryMessage(order.status)}</p><DeliveryProgress status={order.status}/><div className="guest-order-items">{order.items.map(item=><article key={item.id}><span>{item.productName}<small>{item.quantity} × {formatPrice(item.unitPrice)}</small></span><strong>{formatPrice(item.lineTotal)}</strong></article>)}</div><footer><span>Tổng thanh toán</span><strong>{formatPrice(order.total)}</strong></footer>{order.payment&&<p>Thanh toán: <b>{order.payment.method.toUpperCase()}</b> · {order.payment.status}</p>}<Link className="secondary-button" href={`/guest-orders/${order.id}/invoice`}>Xem hóa đơn</Link></section>}
     {order?.shippingProvider === "ghn" && <GhnShipmentTracking shipment={order.shipment}/>}
   </main>;
 }

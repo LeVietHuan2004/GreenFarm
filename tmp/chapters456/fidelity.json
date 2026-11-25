@@ -1,0 +1,9 @@
+{
+  "source_sha256": "848c5114c4e98cbca86c09891da53615907441095cf4ad729f5ef1267a5ec75d",
+  "changed_parts": [
+    "word/document.xml"
+  ],
+  "preserved_source_body_children": 555,
+  "new_elements": 136,
+  "output": "D:\\GreenFarm\\output\\report\\GreenFarm_BaoCao_Chuong_1_6.docx"
+}

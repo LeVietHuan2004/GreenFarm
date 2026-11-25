@@ -6,8 +6,10 @@ import { useEffect, useState } from "react";
 import { CatalogImage } from "@/components/catalog/catalog-image";
 import { OrderItemReview } from "@/components/order/order-item-review";
 import { GhnShipmentTracking } from "@/components/order/ghn-shipment-tracking";
+import { DeliveryProgress } from "@/components/order/delivery-progress";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { formatPrice } from "@/lib/catalog-format";
+import { deliveryMessage } from "@/lib/delivery-tracking";
 import { formatDateTime, orderStatusLabel } from "@/lib/order-format";
 import { orderService } from "@/services/order-service";
 import type { Order, RefundRequest } from "@/types/order";
@@ -53,12 +55,13 @@ export function OrderDetailClient({ id }: { id: number }) {
   };
 
   return <main className="catalog-main order-detail-main">
-    <Link className="commerce-back" href="/orders"><ArrowLeft size={16}/>Tất cả đơn hàng</Link>
+    <Link className="commerce-back" href="/shipping"><ArrowLeft size={16}/>Theo dõi giao hàng</Link>
     {error && <p className="catalog-notice error">{error}</p>}
     <header className="order-detail-heading">
       <div><span className={`order-status ${order.status}`}>{orderStatusLabel[order.status] ?? order.status}</span><h1>Đơn hàng #{order.id}</h1><p>Đặt lúc {formatDateTime(order.createdAt)}</p></div>
       <div className="order-heading-actions"><strong>{formatPrice(order.total)}</strong><Link className="secondary-button" href={`/orders/${order.id}/invoice`}><ReceiptText size={16}/>Hóa đơn</Link>{order.status === "pending" && order.payment?.status !== "completed" && <button type="button" className="secondary-button danger" disabled={canceling} onClick={() => void cancelOrder()}><Ban size={16}/>{canceling ? "Đang hủy..." : "Hủy đơn"}</button>}{canRequestRefund && <button type="button" className="secondary-button danger" onClick={() => setRefundFormOpen((open) => !open)}><RotateCcw size={16}/>{order.status === "pending" ? "Hủy đơn & yêu cầu hoàn tiền" : "Yêu cầu hoàn tiền"}</button>}</div>
     </header>
+    <section className="order-detail-section" aria-label="Tiến trình giao hàng"><h2>Theo dõi giao hàng</h2><p>{deliveryMessage(order.status)}</p><DeliveryProgress status={order.status}/></section>
     <div className="order-detail-layout"><div>
       {refundFormOpen && <section className="order-detail-section refund-request-form"><h2>Yêu cầu hoàn tiền</h2><p>Yêu cầu sẽ được GreenFarm kiểm tra trước khi hoàn tiền qua VNPAY.</p><form onSubmit={submitRefundRequest}><label>Lý do<select value={refundReason} onChange={(event) => setRefundReason(event.target.value)}><option>Đổi ý không muốn tiếp tục mua hàng</option><option>Đặt nhầm sản phẩm hoặc số lượng</option><option>Thời gian giao hàng không phù hợp</option><option>Khác</option></select></label><label>Ghi chú thêm (không bắt buộc)<textarea value={refundDetails} maxLength={1000} onChange={(event) => setRefundDetails(event.target.value)} /></label><div><button className="primary-button" disabled={requestingRefund}>{requestingRefund ? "Đang gửi..." : "Gửi yêu cầu"}</button><button type="button" className="secondary-button" onClick={() => setRefundFormOpen(false)}>Đóng</button></div></form></section>}
       {refundRequest && <section className={`refund-request-state ${refundRequest.status}`}><RotateCcw size={18}/><div><strong>Yêu cầu hoàn tiền: {refundStatusLabel[refundRequest.status]}</strong><p>Lý do: {refundRequest.reason}</p>{refundRequest.adminNote && <small>Phản hồi từ GreenFarm: {refundRequest.adminNote}</small>}</div></section>}

@@ -32,7 +32,7 @@ export function ContactForm() {
   return <main className="catalog-main contact-main">
     <header className="contact-hero"><span><Headphones size={25}/></span><div><span className="eyebrow">GreenFarm hỗ trợ</span><h1>Chúng tôi có thể giúp gì cho bạn?</h1><p>Gửi câu hỏi về sản phẩm, đơn hàng hoặc giao nhận. Bộ phận hỗ trợ sẽ tiếp nhận và phản hồi.</p></div></header>
     <div className="contact-layout">
-      <aside className="contact-info"><h2>Thông tin liên hệ</h2><p><Mail size={18}/> support@greenfarm.vn</p><p><Phone size={18}/> 1900 6868</p><small>Thời gian hỗ trợ: 08:00–20:00 mỗi ngày.</small></aside>
+      <aside className="contact-info"><h2>Thông tin liên hệ</h2><p><Mail size={18}/>greenfarm.shop@gmail.com</p><p><Phone size={18}/>0374323874</p><small>Thời gian hỗ trợ: 08:00–20:00 mỗi ngày.</small></aside>
       <form className="contact-form" onSubmit={submit}>
         <label>Họ và tên<input required={!user?.name} maxLength={255} value={fullName} onChange={(event)=>setFullName(event.target.value)} placeholder={user?.name || "Nguyễn Văn A"}/></label>
         <div className="contact-form-row"><label>Email<input type="email" maxLength={255} value={email} onChange={(event)=>setEmail(event.target.value)} placeholder={user?.email || "ban@example.com"}/></label><label>Số điện thoại<input maxLength={30} value={phoneNumber} onChange={(event)=>setPhoneNumber(event.target.value)} placeholder={user?.phoneNumber || "0901234567"}/></label></div>

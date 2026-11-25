@@ -1,0 +1,280 @@
+[
+  {
+    "name": "CorsConfigTest",
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "GhnMigrationMysqlTest",
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1,
+    "reasons": [
+      "disabledWithoutDocker is true and Docker is not available"
+    ]
+  },
+  {
+    "name": "LoyaltyConcurrencyMysqlTest",
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1,
+    "reasons": [
+      "disabledWithoutDocker is true and Docker is not available"
+    ]
+  },
+  {
+    "name": "JwtServiceTest",
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "AuthServiceTest",
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "BusinessReportServiceTest",
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "CartServiceTest",
+    "tests": 10,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "ChatbotServiceTest",
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "CloudinaryImageStorageLiveTest",
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1,
+    "reasons": [
+      "Environment variable [GREENFARM_CLOUDINARY_LIVE_TEST] does not exist"
+    ]
+  },
+  {
+    "name": "CommerceValidationTest",
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "ContactServiceTest",
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "CouponEngineServiceTest",
+    "tests": 11,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "CouponServiceTest",
+    "tests": 7,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "GeminiChatClientTest",
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "GhnClientTest",
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "GhnPropertiesTest",
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "GhnShipmentServiceTest",
+    "tests": 11,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "GhnShippingServiceTest",
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "GhnWebhookServiceTest",
+    "tests": 7,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "GuestCommerceServiceTest",
+    "tests": 9,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "ImageStorageServiceTest",
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "InventoryServiceTest",
+    "tests": 9,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "InvoiceEmailSenderTest",
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "InvoiceEmailServiceTest",
+    "tests": 7,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "LoginAttemptServiceTest",
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "LoyaltyServiceTest",
+    "tests": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "NotificationServiceTest",
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "OrderLifecycleServiceTest",
+    "tests": 11,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "OrderServiceTest",
+    "tests": 8,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "PaymentServiceTest",
+    "tests": 11,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "ProductServiceTest",
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "ReviewServiceTest",
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "UserServiceTest",
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  },
+  {
+    "name": "WishlistServiceTest",
+    "tests": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reasons": []
+  }
+]

@@ -1,0 +1,12 @@
+﻿from pathlib import Path
+p=Path('tmp/chapters456/content.json');t=p.read_text(encoding='utf8')
+t=t.replace('mức sử dụng tối đa bằng 50% giá trị thanh toán theo quy định hiện tại.','mức giảm tối đa bằng 50% tiền hàng sau voucher, chưa cộng phí giao hàng.')
+t=t.replace('[700,4200,4460]','[1000,4100,4260]')
+t=t.replace('Backend tính lại các khoản tiền; từ chối voucher hết hạn, sai phạm vi hoặc dùng điểm quá giới hạn.','Backend tính lại tiền; từ chối voucher hết hạn, sai phạm vi hoặc điểm vượt số dư; mức đổi điểm không vượt giới hạn.')
+t=t.replace(' Những kết quả này đáp ứng phạm vi xây dựng và kiểm chứng nghiệp vụ cốt lõi của đồ án.','')
+t=t.replace('Về quản trị và hỗ trợ, có thể mở rộng báo cáo tổn thất do hết hạn, cảnh báo nhập hàng và theo dõi hiệu quả nhà cung cấp từ lịch sử kho. Chatbot nên bổ sung nguồn tham chiếu đến sản phẩm hoặc chính sách và chuyển yêu cầu vượt phạm vi sang nhân viên hỗ trợ, đồng thời duy trì giới hạn truy cập dữ liệu riêng tư.','Báo cáo quản trị có thể bổ sung tổn thất do hết hạn và cảnh báo nhập hàng từ lịch sử kho. Chatbot cần dẫn nguồn sản phẩm, chính sách và chuyển yêu cầu vượt phạm vi sang nhân viên hỗ trợ.')
+p.write_text(t,encoding='utf8')
+p=Path('tmp/chapters456/build.py');t=p.read_text(encoding='utf8');t=t.replace("if kind in ['chapter','h','s','p']:new.append(paragraph(block[1],kind))", "if kind in ['chapter','h','s','p']:\n            p=paragraph(block[1],kind)\n            if kind=='p' and new and new[-1].tag=='{'+W+'}tbl':p.find('w:pPr/w:spacing',ns).set('{'+W+'}before','100')\n            new.append(p)")
+t=t.replace("elif kind=='frontend_result':new.append(paragraph(","elif kind=='frontend_result':\n            p=paragraph(")
+t=t.replace("chưa phải kết quả kiểm thử thao tác người dùng trên trình duyệt.'))", "chưa phải kết quả kiểm thử thao tác người dùng trên trình duyệt.')\n            p.find('w:pPr/w:spacing',ns).set('{'+W+'}before','100');new.append(p)")
+p.write_text(t,encoding='utf8')
